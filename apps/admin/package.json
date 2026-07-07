@@ -1,0 +1,14 @@
+{
+  "name": "@altrugenix/admin",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "echo 'dev not configured yet'",
+    "build": "echo 'build not configured yet'",
+    "lint": "tsc --noEmit",
+    "typecheck": "tsc --noEmit",
+    "test": "echo 'no tests'",
+    "clean": "rm -rf dist .next"
+  }
+}
