@@ -1,5 +1,10 @@
 import type { DatabaseAdapter, QueryOptions } from "@altrugenix/database";
-import type { CollectionDefinition, FieldDefinition, RelationField } from "@altrugenix/types";
+import type {
+  CollectionDefinition,
+  FieldDefinition,
+  RelationField,
+  GlobalDefinition,
+} from "@altrugenix/types";
 import { collectionToCreateSchema, collectionToUpdateSchema } from "@altrugenix/validation";
 import type { RouteHandler, RouteHandlerContext, RouteHandlerResult } from "./types.js";
 
@@ -223,6 +228,48 @@ export function createUpdateHandler(
       const tableName = collectionTableName(collection.slug);
       const record = await adapter.update(tableName, id, parsed.data as Record<string, unknown>);
       if (!record) return errorResult(404, "Not found");
+      return { statusCode: 200, body: record };
+    } catch (e) {
+      return errorResult(500, e instanceof Error ? e.message : "Internal server error");
+    }
+  };
+}
+
+export function createGlobalGetHandler(
+  globalDef: GlobalDefinition,
+  adapter: DatabaseAdapter,
+): RouteHandler {
+  return async () => {
+    try {
+      const tableName = collectionTableName(globalDef.slug);
+      const record = await adapter.findOne(tableName, "1");
+      return { statusCode: 200, body: record ?? {} };
+    } catch (e) {
+      return errorResult(500, e instanceof Error ? e.message : "Internal server error");
+    }
+  };
+}
+
+export function createGlobalUpsertHandler(
+  globalDef: GlobalDefinition,
+  adapter: DatabaseAdapter,
+): RouteHandler {
+  return async (ctx) => {
+    try {
+      if (!ctx.body || typeof ctx.body !== "object") {
+        return errorResult(400, "Request body is required");
+      }
+      const tableName = collectionTableName(globalDef.slug);
+      const existing = await adapter.findOne(tableName, "1");
+      let record: Record<string, unknown>;
+      if (existing) {
+        record = (await adapter.update(tableName, "1", ctx.body as Record<string, unknown>)) ?? {};
+      } else {
+        record = await adapter.create(tableName, {
+          id: 1,
+          ...(ctx.body as Record<string, unknown>),
+        });
+      }
       return { statusCode: 200, body: record };
     } catch (e) {
       return errorResult(500, e instanceof Error ? e.message : "Internal server error");

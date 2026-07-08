@@ -14,6 +14,8 @@ import { Route as collectionEntriesRoute } from "@/routes/collections/$slug";
 import { Route as createEntryRoute } from "@/routes/collections/new.$slug";
 import { Route as editEntryRoute } from "@/routes/collections/$id_.$slug.edit";
 import { Route as mediaRoute } from "@/routes/media/index";
+import { Route as globalsListRoute } from "@/routes/globals/index";
+import { Route as globalEditRoute } from "@/routes/globals/$slug";
 
 const routeTree = rootRoute.addChildren([
   indexRoute,
@@ -30,6 +32,8 @@ const routeTree = rootRoute.addChildren([
   createEntryRoute,
   editEntryRoute,
   mediaRoute,
+  globalsListRoute,
+  globalEditRoute,
 ]);
 
 export const router = createRouter({ routeTree });

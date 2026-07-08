@@ -1,7 +1,7 @@
 import type { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import type { DatabaseAdapter } from "@altrugenix/database";
-import type { CollectionDefinition } from "@altrugenix/types";
-import { createCollectionRouters } from "@altrugenix/rest-api";
+import type { CollectionDefinition, GlobalDefinition } from "@altrugenix/types";
+import { createCollectionRouters, createGlobalRouters } from "@altrugenix/rest-api";
 import type { RouteHandlerContext } from "@altrugenix/rest-api";
 
 function asHandler(
@@ -24,6 +24,23 @@ export function registerCollectionRoutes(
   adapter: DatabaseAdapter,
 ): void {
   const routers = createCollectionRouters(collections, adapter);
+  const allRoutes = routers.flatMap((r) => r.routes);
+
+  for (const routeDef of allRoutes) {
+    void fastify.route({
+      method: routeDef.method,
+      url: routeDef.path,
+      handler: asHandler(routeDef.handler),
+    });
+  }
+}
+
+export function registerGlobalRoutes(
+  fastify: FastifyInstance,
+  globals: GlobalDefinition[],
+  adapter: DatabaseAdapter,
+): void {
+  const routers = createGlobalRouters(globals, adapter);
   const allRoutes = routers.flatMap((r) => r.routes);
 
   for (const routeDef of allRoutes) {

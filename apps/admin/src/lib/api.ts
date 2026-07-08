@@ -92,8 +92,39 @@ export type CollectionMeta = {
   }>;
 };
 
+export type GlobalMeta = {
+  slug: string;
+  label: string;
+  fields: Array<{
+    name: string;
+    type: string;
+    label: string;
+    required: boolean;
+    options?: string[];
+    to?: string;
+  }>;
+};
+
 export async function fetchCollections(): Promise<CollectionMeta[]> {
   return apiFetch<CollectionMeta[]>("/api/collections");
+}
+
+export async function fetchGlobals(): Promise<GlobalMeta[]> {
+  return apiFetch<GlobalMeta[]>("/api/globals");
+}
+
+export async function fetchGlobal(slug: string): Promise<Record<string, unknown>> {
+  return apiFetch(`/api/globals/${slug}`);
+}
+
+export async function saveGlobal(
+  slug: string,
+  data: Record<string, unknown>,
+): Promise<Record<string, unknown>> {
+  return apiFetch(`/api/globals/${slug}`, {
+    method: "PUT",
+    body: JSON.stringify(data),
+  });
 }
 
 export type UserMeta = {

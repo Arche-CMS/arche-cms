@@ -13,7 +13,12 @@ export type {
 
 export { applyMiddleware } from "./middleware.js";
 
-export { createCollectionRouter, createCollectionRouters } from "./route-generator.js";
+export {
+  createCollectionRouter,
+  createCollectionRouters,
+  createGlobalRouter,
+  createGlobalRouters,
+} from "./route-generator.js";
 
 export {
   createListHandler,
@@ -22,6 +27,8 @@ export {
   createUpdateHandler,
   createDeleteHandler,
   createBulkDeleteHandler,
+  createGlobalGetHandler,
+  createGlobalUpsertHandler,
 } from "./handlers.js";
 
 export { generateOpenApiSpec } from "./openapi.js";

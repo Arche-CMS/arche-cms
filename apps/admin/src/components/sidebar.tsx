@@ -8,14 +8,16 @@ import {
   Shield,
   Settings,
   ChevronLeft,
+  Globe,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { fetchCollections, type CollectionMeta } from "@/lib/api";
+import { fetchCollections, fetchGlobals, type CollectionMeta, type GlobalMeta } from "@/lib/api";
 
 const navItems = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard },
   { to: "/collections", label: "Collections", icon: FileText },
+  { to: "/globals", label: "Globals", icon: Globe },
   { to: "/media", label: "Media", icon: Image },
   { to: "/users", label: "Users", icon: Users },
   { to: "/roles", label: "Roles", icon: Shield },
@@ -30,10 +32,14 @@ type SidebarProps = {
 export function Sidebar({ collapsed, onToggle }: SidebarProps) {
   const location = useLocation();
   const [collections, setCollections] = useState<CollectionMeta[]>([]);
+  const [globals, setGlobals] = useState<GlobalMeta[]>([]);
 
   useEffect(() => {
     fetchCollections()
       .then(setCollections)
+      .catch(() => {});
+    fetchGlobals()
+      .then(setGlobals)
       .catch(() => {});
   }, []);
 
@@ -102,6 +108,31 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
                 <span>{col.label}</span>
               </Link>
             ))}
+            {globals.length > 0 && (
+              <>
+                <div className="px-3 pt-3 pb-1">
+                  <p className="text-xs font-medium text-sidebar-foreground/50 uppercase tracking-wider">
+                    Globals
+                  </p>
+                </div>
+                {globals.map((g) => (
+                  <Link
+                    key={g.slug}
+                    to="/globals/$slug"
+                    params={{ slug: g.slug }}
+                    className={cn(
+                      "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                      location.pathname.includes(`/globals/${g.slug}`)
+                        ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                        : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                    )}
+                  >
+                    <span className="h-2 w-2 rounded-full bg-sidebar-primary" />
+                    <span>{g.label}</span>
+                  </Link>
+                ))}
+              </>
+            )}
           </>
         )}
       </nav>

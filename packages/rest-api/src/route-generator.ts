@@ -1,5 +1,5 @@
 import type { DatabaseAdapter } from "@altrugenix/database";
-import type { CollectionDefinition } from "@altrugenix/types";
+import type { CollectionDefinition, GlobalDefinition } from "@altrugenix/types";
 import type { RouteDefinition, RouteGeneratorConfig, CollectionRouter } from "./types.js";
 import { applyMiddleware } from "./middleware.js";
 import {
@@ -9,6 +9,8 @@ import {
   createUpdateHandler,
   createDeleteHandler,
   createBulkDeleteHandler,
+  createGlobalGetHandler,
+  createGlobalUpsertHandler,
 } from "./handlers.js";
 
 function pascalCase(slug: string): string {
@@ -95,4 +97,43 @@ export function createCollectionRouters(
   config?: RouteGeneratorConfig,
 ): CollectionRouter[] {
   return collections.map((c) => createCollectionRouter(c, adapter, config));
+}
+
+export function createGlobalRouter(
+  globalDef: GlobalDefinition,
+  adapter: DatabaseAdapter,
+  config?: RouteGeneratorConfig,
+): CollectionRouter {
+  const basePath = config?.basePath ?? "/api";
+  const tag = globalDef.label;
+  const slug = globalDef.slug;
+
+  const routes: RouteDefinition[] = [
+    {
+      method: "GET",
+      path: `${basePath}/globals/${slug}`,
+      operationId: `getGlobal${pascalCase(slug)}`,
+      summary: `Get ${tag}`,
+      tags: ["Globals"],
+      handler: createGlobalGetHandler(globalDef, adapter),
+    },
+    {
+      method: "PUT",
+      path: `${basePath}/globals/${slug}`,
+      operationId: `upsertGlobal${pascalCase(slug)}`,
+      summary: `Create or update ${tag}`,
+      tags: ["Globals"],
+      handler: createGlobalUpsertHandler(globalDef, adapter),
+    },
+  ];
+
+  return { routes };
+}
+
+export function createGlobalRouters(
+  globals: GlobalDefinition[],
+  adapter: DatabaseAdapter,
+  config?: RouteGeneratorConfig,
+): CollectionRouter[] {
+  return globals.map((g) => createGlobalRouter(g, adapter, config));
 }

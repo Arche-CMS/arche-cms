@@ -17,8 +17,9 @@ async function main(): Promise<void> {
     await adapter.connect();
     const schemas = await schemaLoader.load();
     const collections = Array.from(schemas.collections.values());
+    const globals = Array.from(schemas.globals.values());
     const storageAdapter = new LocalStorageAdapter(config.storage.baseDir);
-    const fastify = await createApp({ config, adapter, storageAdapter, collections });
+    const fastify = await createApp({ config, adapter, storageAdapter, collections, globals });
 
     await fastify.listen({ port: config.port, host: config.host });
     console.log(`Server listening on http://${config.host}:${config.port}`);

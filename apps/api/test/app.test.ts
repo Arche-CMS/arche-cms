@@ -40,6 +40,7 @@ function createMockAdapter(): DatabaseAdapter {
     },
     update: async () => null,
     delete: async () => true,
+    deleteMany: async () => 0,
     connect: async () => {},
     disconnect: async () => {},
     transaction: async <T>(fn: () => Promise<T>) => fn(),

@@ -1,6 +1,6 @@
 # TODO — Altrugenix CMS
 
-> Project status: Milestone 5 advanced (dashboard, user & role management, enhanced field inputs, inline validation, media library, relation picker, bulk delete). **266 tests** across all packages. Next: global views, activity feed, command palette
+> Project status: Milestone 5 advanced (dashboard, user & role management, enhanced field inputs, inline validation, media library, relation picker, bulk delete, global views). **269 tests** across all packages. Next: activity feed, command palette
 
 ---
 
@@ -167,8 +167,8 @@
 
 ### Global Views
 
-- [ ] Build global edit view (auto-generated form)
-- [ ] Handle singleton save behavior
+- [x] Build global edit view (auto-generated form)
+- [x] Handle singleton save behavior (upsert: create first visit, update thereafter)
 
 ### Media Library
 

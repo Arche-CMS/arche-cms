@@ -17,7 +17,7 @@ export interface RouteHandlerResult {
 export type RouteHandler = (context: RouteHandlerContext) => Promise<RouteHandlerResult>;
 
 export interface RouteDefinition {
-  method: "GET" | "POST" | "PATCH" | "DELETE";
+  method: "GET" | "POST" | "PATCH" | "PUT" | "DELETE";
   path: string;
   operationId: string;
   summary: string;

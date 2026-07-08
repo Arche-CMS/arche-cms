@@ -2,7 +2,7 @@ import type { RouteDefinition, RouteHandlerContext, RouteHandlerResult } from ".
 
 export interface RouterAdapter {
   route(opts: {
-    method: "GET" | "POST" | "PATCH" | "DELETE";
+    method: "GET" | "POST" | "PATCH" | "PUT" | "DELETE";
     url: string;
     handler: (
       request: {

@@ -1,7 +1,7 @@
 import Fastify from "fastify";
 import type { FastifyInstance } from "fastify";
 import type { DatabaseAdapter } from "@altrugenix/database";
-import type { CollectionDefinition } from "@altrugenix/types";
+import type { CollectionDefinition, GlobalDefinition } from "@altrugenix/types";
 import type { StorageAdapter } from "@altrugenix/storage";
 import type { ServerConfig } from "./config.js";
 import { registerCors } from "./plugins/cors.js";
@@ -13,7 +13,7 @@ import { registerRateLimit } from "./plugins/rate-limit.js";
 import { registerGraphQL } from "./plugins/graphql.js";
 import { registerAuth } from "./plugins/auth.js";
 import { registerPermissions } from "./plugins/permissions.js";
-import { registerCollectionRoutes } from "./routes/collections.js";
+import { registerCollectionRoutes, registerGlobalRoutes } from "./routes/collections.js";
 import { registerUserRoutes } from "./routes/users.js";
 import { registerRoleRoutes } from "./routes/roles.js";
 import { registerMediaRoutes } from "./routes/media.js";
@@ -23,10 +23,11 @@ export interface AppOptions {
   adapter: DatabaseAdapter;
   storageAdapter?: StorageAdapter;
   collections?: CollectionDefinition[];
+  globals?: GlobalDefinition[];
 }
 
 export async function createApp(options: AppOptions): Promise<FastifyInstance> {
-  const { config, adapter, collections } = options;
+  const { config, adapter, collections, globals } = options;
 
   const fastify = Fastify({
     logger: {
@@ -56,6 +57,10 @@ export async function createApp(options: AppOptions): Promise<FastifyInstance> {
     await registerGraphQL(fastify, collections, adapter);
   }
 
+  if (globals && globals.length > 0) {
+    registerGlobalRoutes(fastify, globals, adapter);
+  }
+
   // Expose collection metadata for admin UI
   fastify.get("/api/collections", async () => {
     return (collections ?? []).map((c) => ({
@@ -63,6 +68,30 @@ export async function createApp(options: AppOptions): Promise<FastifyInstance> {
       label: c.labels?.plural ?? c.slug,
       labels: c.labels,
       fields: c.fields.map((f) => {
+        const base = {
+          name: f.name,
+          type: f.type,
+          label: f.label ?? f.name,
+          required: f.validation?.required ?? false,
+        };
+        if (f.type === "relation") {
+          return { ...base, to: (f as { to?: string }).to ?? "" };
+        }
+        if (f.type === "select" || f.type === "multiSelect" || f.type === "radio") {
+          const opts = (f as { options?: Array<{ label: string; value: string }> }).options ?? [];
+          return { ...base, options: opts.map((o) => o.value) };
+        }
+        return base;
+      }),
+    }));
+  });
+
+  // Expose global metadata for admin UI
+  fastify.get("/api/globals", async () => {
+    return (globals ?? []).map((g) => ({
+      slug: g.slug,
+      label: g.label,
+      fields: g.fields.map((f) => {
         const base = {
           name: f.name,
           type: f.type,
