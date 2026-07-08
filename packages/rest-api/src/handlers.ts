@@ -1,0 +1,232 @@
+import type { DatabaseAdapter, QueryOptions } from "@altrugenix/database";
+import type { CollectionDefinition, FieldDefinition, RelationField } from "@altrugenix/types";
+import type { RouteHandler, RouteHandlerContext, RouteHandlerResult } from "./types.js";
+
+function collectionTableName(slug: string): string {
+  return `__cms_${slug.replace(/-/g, "_")}`;
+}
+
+function parseLimit(raw: unknown, max = 100, def = 10): number {
+  const n = Number(raw);
+  return Number.isFinite(n) && n > 0 ? Math.min(n, max) : def;
+}
+
+function parseOffset(raw: unknown): number {
+  const n = Number(raw);
+  return Number.isFinite(n) && n >= 0 ? n : 0;
+}
+
+function parseSort(raw: unknown): Record<string, "asc" | "desc"> | undefined {
+  if (typeof raw !== "string") return undefined;
+  const parts = raw.split(",");
+  const sort: Record<string, "asc" | "desc"> = {};
+  for (const part of parts) {
+    const colon = part.lastIndexOf(":");
+    if (colon === -1) {
+      sort[part] = "asc";
+    } else {
+      const field = part.slice(0, colon);
+      const dir = part.slice(colon + 1);
+      sort[field] = dir === "desc" ? "desc" : "asc";
+    }
+  }
+  return Object.keys(sort).length > 0 ? sort : undefined;
+}
+
+function parseSelect(raw: unknown): string[] | undefined {
+  if (typeof raw !== "string") return undefined;
+  const fields = raw
+    .split(",")
+    .map((f) => f.trim())
+    .filter(Boolean);
+  return fields.length > 0 ? fields : undefined;
+}
+
+function parsePopulate(raw: unknown): string[] | undefined {
+  if (typeof raw !== "string") return undefined;
+  const fields = raw
+    .split(",")
+    .map((f) => f.trim())
+    .filter(Boolean);
+  return fields.length > 0 ? fields : undefined;
+}
+
+function parseWhere(
+  query: Record<string, string | string[] | undefined>,
+): Record<string, unknown> | undefined {
+  const where: Record<string, unknown> = {};
+  let hasWhere = false;
+  for (const [key, value] of Object.entries(query)) {
+    if (["limit", "offset", "sort", "select", "populate"].includes(key)) continue;
+    if (key.startsWith("where[")) {
+      const innerKey = key.slice(6, -1);
+      where[innerKey] = value;
+      hasWhere = true;
+    }
+  }
+  return hasWhere ? where : undefined;
+}
+
+function queryOptions(
+  ctx: RouteHandlerContext,
+  maxPageSize: number,
+  defaultPageSize: number,
+): QueryOptions {
+  return {
+    limit: parseLimit(ctx.query.limit, maxPageSize, defaultPageSize),
+    offset: parseOffset(ctx.query.offset),
+    sort: parseSort(ctx.query.sort),
+    where: parseWhere(ctx.query),
+    select: parseSelect(ctx.query.select),
+    populate: parsePopulate(ctx.query.populate),
+  };
+}
+
+function isRelationField(field: FieldDefinition): field is RelationField {
+  return field.type === "relation";
+}
+
+function getRelationFields(collection: CollectionDefinition): RelationField[] {
+  return collection.fields.filter(isRelationField);
+}
+
+async function populateRelation(
+  record: Record<string, unknown>,
+  fieldName: string,
+  targetCollection: string,
+  adapter: DatabaseAdapter,
+): Promise<void> {
+  const value = record[fieldName];
+  if (value == null) return;
+  const tableName = collectionTableName(targetCollection);
+  if (typeof value === "string") {
+    const related = await adapter.findOne(tableName, value);
+    record[fieldName] = related ?? null;
+  } else if (Array.isArray(value)) {
+    const ids = value.map((v) => String(v));
+    const result = await adapter.findMany(tableName, { where: { id: ids } });
+    record[fieldName] = result.data;
+  }
+}
+
+async function populateRelations(
+  records: Record<string, unknown>[],
+  populateFields: string[],
+  collection: CollectionDefinition,
+  adapter: DatabaseAdapter,
+): Promise<void> {
+  const relationFields = getRelationFields(collection);
+  for (const record of records) {
+    for (const rf of relationFields) {
+      if (populateFields.includes(rf.name)) {
+        await populateRelation(record, rf.name, rf.to, adapter);
+      }
+    }
+  }
+}
+
+function errorResult(statusCode: number, message: string): RouteHandlerResult {
+  return { statusCode, body: { error: message } };
+}
+
+export function createListHandler(
+  collection: CollectionDefinition,
+  adapter: DatabaseAdapter,
+  maxPageSize: number,
+  defaultPageSize: number,
+): RouteHandler {
+  return async (ctx) => {
+    try {
+      const options = queryOptions(ctx, maxPageSize, defaultPageSize);
+      const tableName = collectionTableName(collection.slug);
+      const result = await adapter.findMany(tableName, options);
+      if (options.populate && result.data.length > 0) {
+        await populateRelations(result.data, options.populate, collection, adapter);
+      }
+      return { statusCode: 200, body: result };
+    } catch (e) {
+      return errorResult(500, e instanceof Error ? e.message : "Internal server error");
+    }
+  };
+}
+
+export function createGetHandler(
+  collection: CollectionDefinition,
+  adapter: DatabaseAdapter,
+): RouteHandler {
+  return async (ctx) => {
+    try {
+      const { id } = ctx.params;
+      if (!id) return errorResult(400, "Missing id parameter");
+      const tableName = collectionTableName(collection.slug);
+      const record = await adapter.findOne(tableName, id, {
+        select: parseSelect(ctx.query.select),
+      });
+      if (!record) return errorResult(404, "Not found");
+      const populate = parsePopulate(ctx.query.populate);
+      if (populate) {
+        await populateRelations([record], populate, collection, adapter);
+      }
+      return { statusCode: 200, body: record };
+    } catch (e) {
+      return errorResult(500, e instanceof Error ? e.message : "Internal server error");
+    }
+  };
+}
+
+export function createCreateHandler(
+  collection: CollectionDefinition,
+  adapter: DatabaseAdapter,
+): RouteHandler {
+  return async (ctx) => {
+    try {
+      if (!ctx.body || typeof ctx.body !== "object") {
+        return errorResult(400, "Request body is required");
+      }
+      const tableName = collectionTableName(collection.slug);
+      const record = await adapter.create(tableName, ctx.body as Record<string, unknown>);
+      return { statusCode: 201, body: record };
+    } catch (e) {
+      return errorResult(500, e instanceof Error ? e.message : "Internal server error");
+    }
+  };
+}
+
+export function createUpdateHandler(
+  collection: CollectionDefinition,
+  adapter: DatabaseAdapter,
+): RouteHandler {
+  return async (ctx) => {
+    try {
+      const { id } = ctx.params;
+      if (!id) return errorResult(400, "Missing id parameter");
+      if (!ctx.body || typeof ctx.body !== "object") {
+        return errorResult(400, "Request body is required");
+      }
+      const tableName = collectionTableName(collection.slug);
+      const record = await adapter.update(tableName, id, ctx.body as Record<string, unknown>);
+      if (!record) return errorResult(404, "Not found");
+      return { statusCode: 200, body: record };
+    } catch (e) {
+      return errorResult(500, e instanceof Error ? e.message : "Internal server error");
+    }
+  };
+}
+
+export function createDeleteHandler(
+  collection: CollectionDefinition,
+  adapter: DatabaseAdapter,
+): RouteHandler {
+  return async (ctx) => {
+    try {
+      const { id } = ctx.params;
+      if (!id) return errorResult(400, "Missing id parameter");
+      const tableName = collectionTableName(collection.slug);
+      const deleted = await adapter.delete(tableName, id);
+      if (!deleted) return errorResult(404, "Not found");
+      return { statusCode: 200, body: { id, deleted: true } };
+    } catch (e) {
+      return errorResult(500, e instanceof Error ? e.message : "Internal server error");
+    }
+  };
+}

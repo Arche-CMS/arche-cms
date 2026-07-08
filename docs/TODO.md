@@ -1,6 +1,6 @@
 # TODO — Altrugenix CMS
 
-> Project status: Foundation complete — Milestone 2 in progress
+> Project status: Foundation → Data Layer → REST API Generator complete. Next: Milestone 3 remaining items
 
 ---
 
@@ -58,7 +58,7 @@
 - [x] Add connection pooling for PostgreSQL (via `pg.Pool` with configurable size)
 - [x] Write tests for SQLite adapter (11 tests)
 - [x] Write tests for PostgreSQL adapter (10 tests, conditional on `PG_TEST_URL`)
-- [ ] Write tests for migration generation
+- [x] Write tests for migration generation (6 tests)
 
 ---
 
@@ -66,13 +66,13 @@
 
 ### REST API Generator (`packages/rest-api`)
 
-- [ ] Generate CRUD routes from schema definitions
-- [ ] Support filtering, sorting, pagination, and field selection
-- [ ] Handle relation population (deep population)
-- [ ] Generate OpenAPI spec
-- [ ] Serve OpenAPI spec via Swagger UI
+- [x] Generate CRUD routes from schema definitions (5 routes per collection: list/get/create/update/delete)
+- [x] Support filtering, sorting, pagination, and field selection
+- [x] Handle relation population (deep population)
+- [x] Generate OpenAPI spec (3.1.0 with component schemas)
+- [ ] Serve OpenAPI spec via Swagger UI (requires Fastify server scaffold)
 - [ ] Add middleware hooks (before/after handlers)
-- [ ] Write tests for REST endpoints
+- [x] Write tests for REST endpoints (32 tests: route gen, handlers, OpenAPI)
 
 ### GraphQL Generator (`packages/graphql`)
 
