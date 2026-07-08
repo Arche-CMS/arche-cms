@@ -1,11 +1,11 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { createRoute } from "@tanstack/react-router";
 import { Route as rootRoute } from "@/routes/__root";
 import { Skeleton } from "@/components/skeleton";
 import { useToast } from "@/components/toast-provider";
 import { fetchMedia, uploadMedia, deleteMedia, getMediaUrl, type MediaMeta } from "@/lib/api";
 import { Button } from "@/components/ui/button";
-import { Trash2, Upload } from "lucide-react";
+import { Trash2, Upload, UploadCloud } from "lucide-react";
 
 export const Route = createRoute({
   getParentRoute: () => rootRoute,
@@ -19,8 +19,10 @@ function MediaLibrary() {
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const dragCountRef = useRef(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -42,22 +44,74 @@ function MediaLibrary() {
     };
   }, []);
 
-  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setUploading(true);
-    try {
-      const item = await uploadMedia(file);
-      setMedia((prev) => [item, ...prev]);
-      setTotal((prev) => prev + 1);
-      toast("File uploaded", "success");
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : "Upload failed";
-      setError(msg);
-      toast(msg, "error");
-    } finally {
+  const uploadFiles = useCallback(
+    async (files: FileList | File[]) => {
+      setUploading(true);
+      let successCount = 0;
+      let failCount = 0;
+      const items: MediaMeta[] = [];
+      for (const file of Array.from(files)) {
+        try {
+          const item = await uploadMedia(file);
+          items.push(item);
+          successCount++;
+        } catch {
+          failCount++;
+        }
+      }
+      if (items.length > 0) {
+        setMedia((prev) => [...items, ...prev]);
+        setTotal((prev) => prev + items.length);
+      }
+      if (successCount > 0) {
+        toast(`${successCount} file${successCount === 1 ? "" : "s"} uploaded`, "success");
+      }
+      if (failCount > 0) {
+        toast(`${failCount} file${failCount === 1 ? "" : "s"} failed`, "error");
+      }
       setUploading(false);
-      if (fileInputRef.current) fileInputRef.current.value = "";
+    },
+    [toast],
+  );
+
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    await uploadFiles(files);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const handleDragEnter = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dragCountRef.current++;
+    if (e.dataTransfer.items && e.dataTransfer.items.length > 0) {
+      setIsDragging(true);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dragCountRef.current--;
+    if (dragCountRef.current === 0) {
+      setIsDragging(false);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+    dragCountRef.current = 0;
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      uploadFiles(files);
     }
   };
 
@@ -102,7 +156,13 @@ function MediaLibrary() {
   }
 
   return (
-    <div className="space-y-6">
+    <div
+      className="relative space-y-6"
+      onDragEnter={handleDragEnter}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+    >
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Media Library</h1>
@@ -116,6 +176,7 @@ function MediaLibrary() {
             type="file"
             id="media-upload"
             className="hidden"
+            multiple
             onChange={handleUpload}
           />
           <Button onClick={() => fileInputRef.current?.click()} disabled={uploading}>
@@ -134,12 +195,33 @@ function MediaLibrary() {
         </div>
       )}
 
+      {isDragging && (
+        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 rounded-lg border-2 border-dashed border-primary bg-background/95">
+          <UploadCloud className="h-10 w-10 text-primary" />
+          <p className="text-lg font-medium">Drop files to upload</p>
+          <p className="text-sm text-muted-foreground">Release to start uploading</p>
+        </div>
+      )}
+
+      {uploading && (
+        <div className="flex items-center justify-center gap-2 rounded-lg border bg-muted/50 p-4">
+          <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+          <p className="text-sm text-muted-foreground">Uploading files...</p>
+        </div>
+      )}
+
       {media.length === 0 ? (
-        <div className="flex flex-col items-center gap-4 rounded-lg border p-12 text-center">
-          <p className="text-lg text-muted-foreground">No media yet</p>
-          <p className="text-sm text-muted-foreground">Upload an image or file to get started</p>
+        <div
+          className="flex flex-col items-center gap-4 rounded-lg border p-12 text-center transition-colors"
+          onDragEnter={handleDragEnter}
+        >
+          <UploadCloud className="h-8 w-8 text-muted-foreground" />
+          <p className="text-lg text-muted-foreground">Drop files here or click to upload</p>
+          <p className="text-sm text-muted-foreground">
+            Drag and drop images or files to get started
+          </p>
           <Button variant="outline" onClick={() => fileInputRef.current?.click()}>
-            <Upload className="mr-2 h-4 w-4" /> Upload your first file
+            <Upload className="mr-2 h-4 w-4" /> Choose Files
           </Button>
         </div>
       ) : (
