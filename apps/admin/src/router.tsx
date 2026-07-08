@@ -3,8 +3,22 @@ import { Route as rootRoute } from "@/routes/__root";
 import { Route as indexRoute } from "@/routes/index";
 import { Route as loginRoute } from "@/routes/login";
 import { Route as registerRoute } from "@/routes/register";
+import { Route as forgotPasswordRoute } from "@/routes/forgot-password";
+import { Route as collectionsListRoute } from "@/routes/collections/index";
+import { Route as collectionEntriesRoute } from "@/routes/collections/$slug";
+import { Route as createEntryRoute } from "@/routes/collections/new.$slug";
+import { Route as editEntryRoute } from "@/routes/collections/$id_.$slug.edit";
 
-const routeTree = rootRoute.addChildren([indexRoute, loginRoute, registerRoute]);
+const routeTree = rootRoute.addChildren([
+  indexRoute,
+  loginRoute,
+  registerRoute,
+  forgotPasswordRoute,
+  collectionsListRoute,
+  collectionEntriesRoute,
+  createEntryRoute,
+  editEntryRoute,
+]);
 
 export const router = createRouter({ routeTree });
 

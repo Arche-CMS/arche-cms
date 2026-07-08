@@ -11,4 +11,7 @@ export type {
   RefreshTokenPayload,
   LoginInput,
   RegisterInput,
+  ForgotPasswordInput,
+  ResetPasswordInput,
+  PasswordResetToken,
 } from "./types.js";

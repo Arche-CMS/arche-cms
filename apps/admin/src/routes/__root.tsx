@@ -1,7 +1,8 @@
-import { useState } from "react";
-import { Outlet, createRootRoute } from "@tanstack/react-router";
+import { useState, useEffect } from "react";
+import { Outlet, createRootRoute, useNavigate } from "@tanstack/react-router";
 import { Sidebar } from "@/components/sidebar";
 import { Header } from "@/components/header";
+import { useAuth } from "@/lib/auth";
 
 export const Route = createRootRoute({
   component: RootLayout,
@@ -9,6 +10,36 @@ export const Route = createRootRoute({
 
 function RootLayout() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const { isAuthenticated, isLoading } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const publicPaths = ["/login", "/register", "/forgot-password"];
+    if (!isLoading && !isAuthenticated && !publicPaths.includes(window.location.pathname)) {
+      navigate({ to: "/login" });
+    }
+  }, [isAuthenticated, isLoading, navigate]);
+
+  if (isLoading) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <p className="text-muted-foreground">Loading...</p>
+      </div>
+    );
+  }
+
+  const publicPaths = ["/login", "/register", "/forgot-password"];
+  if (!isAuthenticated && !publicPaths.includes(window.location.pathname)) {
+    return null;
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <main className="min-h-screen">
+        <Outlet />
+      </main>
+    );
+  }
 
   return (
     <div className="flex h-screen overflow-hidden">

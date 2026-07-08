@@ -1,6 +1,6 @@
 # TODO — Altrugenix CMS
 
-> Project status: Milestone 4 mostly complete (JWT auth + RBAC permissions + admin app scaffold). **257 tests** across all packages. Next: admin collection views, forgot/reset password
+> Project status: Milestone 4 complete (auth + permissions + forgot/reset password). Milestone 5 started (admin UI scaffold + collection views). **257 tests** across all packages. Next: dashboard stats, media library, user & role management
 
 ---
 
@@ -114,7 +114,7 @@
 - [x] Implement JWT token generation (access + refresh)
 - [x] Implement login endpoint
 - [x] Implement register endpoint
-- [ ] Implement forgot/reset password
+- [x] Implement forgot/reset password
 - [x] Implement token refresh
 - [ ] Implement email verification (optional)
 - [x] Add session management (JWT-based, no server-side sessions)
@@ -132,8 +132,8 @@
 
 - [x] Integrate auth with admin panel (AuthProvider + login/register pages)
 - [x] Build login/register pages
-- [ ] Implement auth guard on admin routes
-- [ ] Build forgot/reset password pages
+- [x] Implement auth guard on admin routes
+- [x] Build forgot/reset password pages
 
 ---
 
@@ -157,8 +157,8 @@
 
 ### Collection Views
 
-- [ ] Build collection list view (table with sorting, filtering, pagination)
-- [ ] Build collection edit/create form (auto-generated from schema)
+- [x] Build collection list view (table with sorting, filtering, pagination)
+- [x] Build collection edit/create form (auto-generated from schema)
 - [ ] Handle all field type inputs (text, number, rich text, media, relation, etc.)
 - [ ] Implement relation picker (search + select from related collection)
 - [ ] Implement media picker

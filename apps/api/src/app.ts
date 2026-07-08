@@ -45,5 +45,20 @@ export async function createApp(options: AppOptions): Promise<FastifyInstance> {
     await registerGraphQL(fastify, collections, adapter);
   }
 
+  // Expose collection metadata for admin UI
+  fastify.get("/api/collections", async () => {
+    return (collections ?? []).map((c) => ({
+      slug: c.slug,
+      label: c.labels?.plural ?? c.slug,
+      labels: c.labels,
+      fields: c.fields.map((f) => ({
+        name: f.name,
+        type: f.type,
+        label: f.label ?? f.name,
+        required: f.validation?.required ?? false,
+      })),
+    }));
+  });
+
   return fastify;
 }

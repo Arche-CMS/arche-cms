@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Link, useLocation } from "@tanstack/react-router";
 import {
   LayoutDashboard,
@@ -10,6 +11,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { fetchCollections, type CollectionMeta } from "@/lib/api";
 
 const navItems = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard },
@@ -27,6 +29,13 @@ type SidebarProps = {
 
 export function Sidebar({ collapsed, onToggle }: SidebarProps) {
   const location = useLocation();
+  const [collections, setCollections] = useState<CollectionMeta[]>([]);
+
+  useEffect(() => {
+    fetchCollections()
+      .then(setCollections)
+      .catch(() => {});
+  }, []);
 
   return (
     <aside
@@ -51,7 +60,8 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
       </div>
       <nav className="flex-1 space-y-1 p-2">
         {navItems.map((item) => {
-          const isActive = location.pathname === item.to;
+          const isActive =
+            item.to === "/" ? location.pathname === "/" : location.pathname.startsWith(item.to);
           return (
             <Link
               key={item.to}
@@ -69,6 +79,31 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
             </Link>
           );
         })}
+        {!collapsed && collections.length > 0 && (
+          <>
+            <div className="px-3 pt-3 pb-1">
+              <p className="text-xs font-medium text-sidebar-foreground/50 uppercase tracking-wider">
+                Content
+              </p>
+            </div>
+            {collections.map((col) => (
+              <Link
+                key={col.slug}
+                to="/collections/$slug"
+                params={{ slug: col.slug }}
+                className={cn(
+                  "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                  location.pathname.includes(`/collections/${col.slug}`)
+                    ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                    : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                )}
+              >
+                <span className="h-2 w-2 rounded-full bg-sidebar-primary" />
+                <span>{col.label}</span>
+              </Link>
+            ))}
+          </>
+        )}
       </nav>
     </aside>
   );

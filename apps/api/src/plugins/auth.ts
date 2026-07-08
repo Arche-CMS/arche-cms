@@ -81,6 +81,35 @@ export async function registerAuth(
     },
   );
 
+  fastify.post(
+    "/api/auth/forgot-password",
+    async (request: FastifyRequest<{ Body: { email: string } }>, reply: FastifyReply) => {
+      try {
+        const result = await authService.forgotPassword(request.body);
+        return reply.send(result);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : "Failed to process request";
+        return reply.status(400).send({ error: message });
+      }
+    },
+  );
+
+  fastify.post(
+    "/api/auth/reset-password",
+    async (
+      request: FastifyRequest<{ Body: { token: string; password: string } }>,
+      reply: FastifyReply,
+    ) => {
+      try {
+        const result = await authService.resetPassword(request.body);
+        return reply.send(result);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : "Failed to reset password";
+        return reply.status(400).send({ error: message });
+      }
+    },
+  );
+
   fastify.get(
     "/api/auth/me",
     { preHandler: [fastify.authenticate] },

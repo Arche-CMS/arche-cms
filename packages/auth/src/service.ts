@@ -1,3 +1,4 @@
+import { randomBytes } from "node:crypto";
 import type { DatabaseAdapter } from "@altrugenix/database";
 import { JwtService } from "./jwt.js";
 import { hashPassword, verifyPassword } from "./password.js";
@@ -8,8 +9,11 @@ import type {
   TokenPair,
   LoginInput,
   RegisterInput,
+  ForgotPasswordInput,
+  ResetPasswordInput,
 } from "./types.js";
 
+const RESET_TOKENS_TABLE = "__cms_password_resets";
 const USERS_TABLE = "__cms_users";
 
 function toPublicUser(user: AuthUser): PublicUser {
@@ -98,6 +102,70 @@ export class AuthService {
     const user = await this.findById(userId);
     if (!user) return null;
     return toPublicUser(user);
+  }
+
+  async forgotPassword(
+    input: ForgotPasswordInput,
+  ): Promise<{ message: string; resetToken?: string }> {
+    const user = await this.findByEmail(input.email);
+    if (!user) {
+      return { message: "If that email is registered, a reset link has been sent" };
+    }
+
+    const rawToken = randomBytes(32).toString("hex");
+    const hashedToken = await hashPassword(rawToken);
+    const now = new Date();
+
+    await this.db.create(RESET_TOKENS_TABLE, {
+      email: input.email,
+      token: hashedToken,
+      expiresAt: new Date(now.getTime() + 60 * 60 * 1000).toISOString(),
+      createdAt: now.toISOString(),
+    });
+
+    return {
+      message: "If that email is registered, a reset link has been sent",
+      resetToken: rawToken,
+    };
+  }
+
+  async resetPassword(input: ResetPasswordInput): Promise<{ message: string }> {
+    const tokens = await this.db.findMany(RESET_TOKENS_TABLE, { limit: 100 });
+    const now = new Date();
+
+    let matchedRecord: Record<string, unknown> | null = null;
+    for (const record of tokens.data) {
+      if (typeof record.token !== "string") continue;
+      const isValid = await verifyPassword(input.token, record.token);
+      if (isValid) {
+        matchedRecord = record;
+        break;
+      }
+    }
+
+    if (!matchedRecord) {
+      throw new Error("Invalid or expired reset token");
+    }
+
+    const record = matchedRecord as { email: string; expiresAt: string; id: string };
+    if (new Date(record.expiresAt) < now) {
+      throw new Error("Reset token has expired");
+    }
+
+    const passwordHash = await hashPassword(input.password);
+    const user = await this.findByEmail(record.email);
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    await this.db.update(USERS_TABLE, user.id, {
+      password: passwordHash,
+      updatedAt: now.toISOString(),
+    });
+
+    await this.db.delete(RESET_TOKENS_TABLE, record.id);
+
+    return { message: "Password has been reset successfully" };
   }
 
   private async findByEmail(email: string): Promise<AuthUser | null> {

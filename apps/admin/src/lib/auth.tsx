@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback, type ReactNode } from "react";
+import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from "react";
 
 type User = {
   id: string;
@@ -9,6 +9,7 @@ type User = {
 type AuthState = {
   user: User | null;
   token: string | null;
+  isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string) => Promise<void>;
   logout: () => void;
@@ -27,6 +28,54 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(() => localStorage.getItem("cms_token"));
   const [isLoading, setIsLoading] = useState(false);
 
+  useEffect(() => {
+    if (token) {
+      fetch(`${API_URL}/api/auth/me`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+        .then((res) => {
+          if (res.ok) return res.json() as Promise<User>;
+          throw new Error("Token invalid");
+        })
+        .then((u) => {
+          setUser(u);
+          localStorage.setItem("cms_user", JSON.stringify(u));
+        })
+        .catch(() => {
+          const refreshToken = localStorage.getItem("cms_refresh");
+          if (refreshToken) {
+            fetch(`${API_URL}/api/auth/refresh`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ refreshToken }),
+            })
+              .then((r) =>
+                r.ok ? (r.json() as Promise<{ accessToken: string; refreshToken: string }>) : null,
+              )
+              .then((data) => {
+                if (data) {
+                  setToken(data.accessToken);
+                  localStorage.setItem("cms_token", data.accessToken);
+                  localStorage.setItem("cms_refresh", data.refreshToken);
+                } else {
+                  logoutCleanup();
+                }
+              });
+          } else {
+            logoutCleanup();
+          }
+        });
+    }
+  }, []);
+
+  function logoutCleanup() {
+    setUser(null);
+    setToken(null);
+    localStorage.removeItem("cms_user");
+    localStorage.removeItem("cms_token");
+    localStorage.removeItem("cms_refresh");
+  }
+
   const login = useCallback(async (email: string, password: string) => {
     setIsLoading(true);
     try {
@@ -36,8 +85,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         body: JSON.stringify({ email, password }),
       });
       if (!res.ok) {
-        const err = (await res.json()) as { message?: string };
-        throw new Error(err.message ?? "Login failed");
+        const err = (await res.json()) as { error?: string };
+        throw new Error(err.error ?? "Login failed");
       }
       const data = (await res.json()) as { user: User; accessToken: string; refreshToken: string };
       setUser(data.user);
@@ -59,8 +108,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         body: JSON.stringify({ email, password }),
       });
       if (!res.ok) {
-        const err = (await res.json()) as { message?: string };
-        throw new Error(err.message ?? "Registration failed");
+        const err = (await res.json()) as { error?: string };
+        throw new Error(err.error ?? "Registration failed");
       }
       const data = (await res.json()) as { user: User; accessToken: string; refreshToken: string };
       setUser(data.user);
@@ -74,15 +123,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const logout = useCallback(() => {
-    setUser(null);
-    setToken(null);
-    localStorage.removeItem("cms_user");
-    localStorage.removeItem("cms_token");
-    localStorage.removeItem("cms_refresh");
+    logoutCleanup();
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, token, login, register, logout, isLoading }}>
+    <AuthContext.Provider
+      value={{ user, token, isAuthenticated: !!user, login, register, logout, isLoading }}
+    >
       {children}
     </AuthContext.Provider>
   );
