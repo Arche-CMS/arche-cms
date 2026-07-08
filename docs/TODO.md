@@ -1,6 +1,6 @@
 # TODO — Altrugenix CMS
 
-> Project status: Milestone 5 advanced (dashboard, user & role management, enhanced field inputs, inline validation, media library with drag & drop + rename/alt editing, relation picker, bulk delete, global views, error boundaries, toast notifications, loading skeletons). **269 tests** across all packages. Next: activity feed, command palette
+> Project status: Milestone 5 advanced (dashboard, user & role management, enhanced field inputs, inline validation, media library with drag & drop + rename/alt editing, relation picker, bulk delete, global views, error boundaries, toast notifications, loading skeletons, confirmation dialogs). **269 tests** across all packages. Next: activity feed, command palette
 
 ---
 
@@ -206,7 +206,7 @@
 - [x] Add loading states and skeletons
 - [x] Add error boundaries
 - [x] Add toast notifications
-- [ ] Add confirmation dialogs for destructive actions
+- [x] Add confirmation dialogs for destructive actions
 
 ---
 

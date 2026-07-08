@@ -5,6 +5,7 @@ import { Skeleton } from "@/components/skeleton";
 import { useToast } from "@/components/toast-provider";
 import { fetchCollections, apiFetch, type CollectionMeta } from "@/lib/api";
 import { Button } from "@/components/ui/button";
+import { ConfirmDialog } from "@/components/confirm-dialog";
 import { ArrowLeft, Plus, Pencil, Trash2 } from "lucide-react";
 
 export const Route = createRoute({
@@ -25,6 +26,7 @@ function CollectionEntries() {
   const [error, setError] = useState<string | null>(null);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
@@ -55,11 +57,17 @@ function CollectionEntries() {
     };
   }, [slug]);
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = (id: string) => {
+    setConfirmDeleteId(id);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!confirmDeleteId) return;
     try {
-      await apiFetch(`/api/${slug}/${id}`, { method: "DELETE" });
-      setEntries((prev) => prev.filter((e) => e.id !== id));
+      await apiFetch(`/api/${slug}/${confirmDeleteId}`, { method: "DELETE" });
+      setEntries((prev) => prev.filter((e) => e.id !== confirmDeleteId));
       setTotal((prev) => prev - 1);
+      setConfirmDeleteId(null);
       toast("Entry deleted", "success");
     } catch (err) {
       toast(err instanceof Error ? err.message : "Failed to delete entry", "error");
@@ -268,24 +276,22 @@ function CollectionEntries() {
         </div>
       )}
 
-      {confirmDelete && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="w-full max-w-md rounded-lg border bg-background p-6 shadow-lg">
-            <h2 className="text-lg font-semibold">
-              Delete {selected.size} entr{selected.size === 1 ? "y" : "ies"}?
-            </h2>
-            <p className="mt-2 text-sm text-muted-foreground">This action cannot be undone.</p>
-            <div className="mt-4 flex items-center justify-end gap-2">
-              <Button variant="outline" onClick={() => setConfirmDelete(false)} disabled={deleting}>
-                Cancel
-              </Button>
-              <Button variant="destructive" onClick={handleBulkDelete} disabled={deleting}>
-                {deleting ? "Deleting..." : "Delete"}
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ConfirmDialog
+        open={confirmDelete}
+        title={`Delete ${selected.size} entr${selected.size === 1 ? "y" : "ies"}?`}
+        message="This action cannot be undone."
+        loading={deleting}
+        onConfirm={handleBulkDelete}
+        onCancel={() => setConfirmDelete(false)}
+      />
+
+      <ConfirmDialog
+        open={confirmDeleteId !== null}
+        title="Delete entry?"
+        message="This action cannot be undone."
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setConfirmDeleteId(null)}
+      />
     </div>
   );
 }

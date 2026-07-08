@@ -13,6 +13,7 @@ import {
 } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { ConfirmDialog } from "@/components/confirm-dialog";
 import { Trash2, Upload, UploadCloud, Pencil } from "lucide-react";
 
 export const Route = createRoute({
@@ -123,11 +124,18 @@ function MediaLibrary() {
     }
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = (id: string) => {
+    setConfirmDeleteId(id);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!confirmDeleteId) return;
+    const id = confirmDeleteId;
     try {
       await deleteMedia(id);
       setMedia((prev) => prev.filter((m) => m.id !== id));
       setTotal((prev) => prev - 1);
+      setConfirmDeleteId(null);
       toast("File deleted", "success");
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Failed to delete";
@@ -137,6 +145,7 @@ function MediaLibrary() {
   };
 
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [editName, setEditName] = useState("");
   const [editAlt, setEditAlt] = useState("");
   const editInputRef = useRef<HTMLInputElement>(null);
@@ -366,6 +375,13 @@ function MediaLibrary() {
           ))}
         </div>
       )}
+      <ConfirmDialog
+        open={confirmDeleteId !== null}
+        title="Delete file?"
+        message="This action cannot be undone."
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setConfirmDeleteId(null)}
+      />
     </div>
   );
 }

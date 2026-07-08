@@ -5,6 +5,7 @@ import { Skeleton } from "@/components/skeleton";
 import { useToast } from "@/components/toast-provider";
 import { fetchRoles, deleteRole, type RoleMeta } from "@/lib/api";
 import { Button } from "@/components/ui/button";
+import { ConfirmDialog } from "@/components/confirm-dialog";
 import { Pencil, Trash2, Plus } from "lucide-react";
 
 export const Route = createRoute({
@@ -19,6 +20,7 @@ function RolesList() {
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -40,11 +42,17 @@ function RolesList() {
     };
   }, []);
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = (id: string) => {
+    setConfirmDeleteId(id);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!confirmDeleteId) return;
     try {
-      await deleteRole(id);
-      setRoles((prev) => prev.filter((r) => r.id !== id));
+      await deleteRole(confirmDeleteId);
+      setRoles((prev) => prev.filter((r) => r.id !== confirmDeleteId));
       setTotal((prev) => prev - 1);
+      setConfirmDeleteId(null);
       toast("Role deleted", "success");
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Failed to delete role";
@@ -163,6 +171,14 @@ function RolesList() {
           </table>
         </div>
       )}
+
+      <ConfirmDialog
+        open={confirmDeleteId !== null}
+        title="Delete role?"
+        message="This action cannot be undone."
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setConfirmDeleteId(null)}
+      />
     </div>
   );
 }

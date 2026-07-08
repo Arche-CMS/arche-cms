@@ -5,6 +5,7 @@ import { Skeleton } from "@/components/skeleton";
 import { useToast } from "@/components/toast-provider";
 import { fetchUsers, deleteUser, type UserMeta } from "@/lib/api";
 import { Button } from "@/components/ui/button";
+import { ConfirmDialog } from "@/components/confirm-dialog";
 import { Pencil, Trash2 } from "lucide-react";
 
 export const Route = createRoute({
@@ -19,6 +20,7 @@ function UsersList() {
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -40,11 +42,17 @@ function UsersList() {
     };
   }, []);
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = (id: string) => {
+    setConfirmDeleteId(id);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!confirmDeleteId) return;
     try {
-      await deleteUser(id);
-      setUsers((prev) => prev.filter((u) => u.id !== id));
+      await deleteUser(confirmDeleteId);
+      setUsers((prev) => prev.filter((u) => u.id !== confirmDeleteId));
       setTotal((prev) => prev - 1);
+      setConfirmDeleteId(null);
       toast("User deleted", "success");
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Failed to delete user";
@@ -150,6 +158,14 @@ function UsersList() {
           </table>
         </div>
       )}
+
+      <ConfirmDialog
+        open={confirmDeleteId !== null}
+        title="Delete user?"
+        message="This action cannot be undone."
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setConfirmDeleteId(null)}
+      />
     </div>
   );
 }
