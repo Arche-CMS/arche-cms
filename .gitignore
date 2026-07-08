@@ -14,3 +14,9 @@ coverage/
 # SQLite dev database
 *.db
 *.sqlite
+
+# Yarn 4 — commit only releases/ and plugins/, ignore cache and editor SDKs
+.yarn/*
+!.yarn/patches/
+!.yarn/plugins/
+!.yarn/releases/

@@ -6,7 +6,12 @@ export type {
   CollectionRouter,
   RouteGeneratorConfig,
   CreateCollectionRouter,
+  MiddlewareHooks,
+  BeforeHook,
+  AfterHook,
 } from "./types.js";
+
+export { applyMiddleware } from "./middleware.js";
 
 export { createCollectionRouter, createCollectionRouters } from "./route-generator.js";
 

@@ -5,9 +5,16 @@ import { createApp } from "../src/app.js";
 import type { ServerConfig } from "../src/config.js";
 
 const mockAdapter = {
-  findOne: async () => null,
-  findMany: async () => ({ data: [], total: 0 }),
-  create: async () => ({}),
+  findOne: async (_table: string, id: string) => {
+    if (id === "1") return { id: "1", title: "Hello", body: "World" };
+    return null;
+  },
+  findMany: async () => ({ data: [{ id: "1", title: "Hello", body: "World" }], total: 1 }),
+  create: async (_table: string, data: Record<string, unknown>) => ({
+    id: "1",
+    title: "New",
+    ...data,
+  }),
   update: async () => null,
   delete: async () => true,
   connect: async () => {},
@@ -88,7 +95,7 @@ describe("CMS API Server", () => {
     expect(res.statusCode).toBe(200);
     const body = JSON.parse(res.body);
     expect(body.data).toBeDefined();
-    expect(body.total).toBe(0);
+    expect(body.total).toBe(1);
   });
 
   it("serves collection get endpoint", async () => {
@@ -96,14 +103,16 @@ describe("CMS API Server", () => {
       method: "GET",
       url: "/api/posts/1",
     });
-    expect(res.statusCode).toBe(404);
+    expect(res.statusCode).toBe(200);
+    const body = JSON.parse(res.body);
+    expect(body.title).toBe("Hello");
   });
 
   it("serves collection create endpoint", async () => {
     const res = await app.inject({
       method: "POST",
       url: "/api/posts",
-      body: { title: "New Post" },
+      body: { title: "New Post", body: "Content" },
     });
     expect(res.statusCode).toBe(201);
   });
@@ -112,7 +121,7 @@ describe("CMS API Server", () => {
     const res = await app.inject({
       method: "PATCH",
       url: "/api/posts/1",
-      body: { title: "Updated" },
+      body: { title: "Updated", body: "Content" },
     });
     expect(res.statusCode).toBe(404);
   });
@@ -140,5 +149,75 @@ describe("CMS API Server", () => {
       body: null,
     });
     expect(res.statusCode).toBe(400);
+  });
+
+  describe("GraphQL endpoint", () => {
+    it("serves GraphiQL at /graphiql", async () => {
+      const res = await app.inject({
+        method: "GET",
+        url: "/graphiql",
+      });
+      expect(res.statusCode).toBe(200);
+      expect(res.body).toContain("graphiql");
+    });
+
+    it("executes listPosts query", async () => {
+      const res = await app.inject({
+        method: "POST",
+        url: "/graphql",
+        body: { query: "{ listPosts { id title } }" },
+      });
+      expect(res.statusCode).toBe(200);
+      const body = JSON.parse(res.body);
+      expect(body.data).toBeDefined();
+      expect(body.data.listPosts).toHaveLength(1);
+      expect(body.data.listPosts[0].id).toBe("1");
+    });
+
+    it("executes posts query by id", async () => {
+      const res = await app.inject({
+        method: "POST",
+        url: "/graphql",
+        body: { query: '{ posts(id: "1") { id title } }' },
+      });
+      expect(res.statusCode).toBe(200);
+      const body = JSON.parse(res.body);
+      expect(body.data.posts).toBeDefined();
+      expect(body.data.posts.id).toBe("1");
+    });
+
+    it("executes createPosts mutation", async () => {
+      const res = await app.inject({
+        method: "POST",
+        url: "/graphql",
+        body: { query: 'mutation { createPosts(data: { title: "New" }) { id title } }' },
+      });
+      const body = JSON.parse(res.body);
+      expect(body.data).toBeDefined();
+      expect(body.errors).toBeUndefined();
+    });
+
+    it("executes updatePosts mutation", async () => {
+      const res = await app.inject({
+        method: "POST",
+        url: "/graphql",
+        body: {
+          query: 'mutation { updatePosts(id: "1", data: { title: "Updated" }) { id title } }',
+        },
+      });
+      const body = JSON.parse(res.body);
+      expect(body.errors).toBeDefined();
+      expect(body.errors[0].message).toContain("Not found");
+    });
+
+    it("executes deletePosts mutation", async () => {
+      const res = await app.inject({
+        method: "POST",
+        url: "/graphql",
+        body: { query: 'mutation { deletePosts(id: "1") }' },
+      });
+      const body = JSON.parse(res.body);
+      expect(body.data?.deletePosts).toBe(true);
+    });
   });
 });

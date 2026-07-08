@@ -9,6 +9,7 @@ import { registerSwagger } from "./plugins/swagger.js";
 import { registerErrorHandler } from "./plugins/error-handler.js";
 import { registerRequestLogger } from "./plugins/request-logger.js";
 import { registerRateLimit } from "./plugins/rate-limit.js";
+import { registerGraphQL } from "./plugins/graphql.js";
 import { registerCollectionRoutes } from "./routes/collections.js";
 
 export interface AppOptions {
@@ -36,6 +37,7 @@ export async function createApp(options: AppOptions): Promise<FastifyInstance> {
 
   if (collections && collections.length > 0) {
     registerCollectionRoutes(fastify, collections, adapter);
+    await registerGraphQL(fastify, collections, adapter);
   }
 
   return fastify;

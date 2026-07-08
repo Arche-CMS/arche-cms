@@ -1,0 +1,131 @@
+import type { CollectionDefinition, FieldDefinition } from "@altrugenix/types";
+import { pascalCase, fieldToGraphQLType } from "./types.js";
+
+function fieldToSDL(field: FieldDefinition, collections: CollectionDefinition[]): string {
+  const gqlType = fieldToGraphQLType(field, collections);
+  const required = field.validation?.required ? "!" : "";
+  const description = field.label ? `  "${field.label}"\n` : "";
+  return `${description}  ${field.name}: ${gqlType}${required}`;
+}
+
+function generateObjectType(
+  collection: CollectionDefinition,
+  collections: CollectionDefinition[],
+): string {
+  const fields = collection.fields.map((f) => fieldToSDL(f, collections)).join("\n");
+  const timestamps = `
+  createdAt: String
+  updatedAt: String`;
+  return `type ${pascalCase(collection.slug)} {
+  id: ID!
+${fields}${timestamps}
+}`;
+}
+
+function generateFilterInput(collection: CollectionDefinition): string {
+  const fields = collection.fields
+    .map((f) => {
+      let inputType = "String";
+      if (f.type === "number") inputType = "Float";
+      else if (f.type === "boolean") inputType = "Boolean";
+      else if (f.type === "checkbox") inputType = "Boolean";
+      else if (f.type === "date" || f.type === "datetime") inputType = "String";
+      else if (f.type === "select" || f.type === "radio") inputType = "String";
+      else if (f.type === "multiSelect") inputType = "String";
+
+      return `  ${f.name}: ${inputType}`;
+    })
+    .join("\n");
+
+  return `input ${pascalCase(collection.slug)}Filter {
+${fields}
+}`;
+}
+
+function generateSortEnum(collection: CollectionDefinition): string {
+  const fields = collection.fields.map((f) => `  ${f.name}_asc\n  ${f.name}_desc`).join("\n");
+  return `enum ${pascalCase(collection.slug)}Sort {
+${fields}
+}`;
+}
+
+function generateCreateInput(
+  collection: CollectionDefinition,
+  collections: CollectionDefinition[],
+): string {
+  const fields = collection.fields
+    .filter((f) => f.type !== "relation")
+    .map((f) => {
+      const gqlType = fieldToGraphQLType(f, collections);
+      const required = f.validation?.required ? "!" : "";
+      return `  ${f.name}: ${gqlType}${required}`;
+    })
+    .join("\n");
+
+  return `input ${pascalCase(collection.slug)}CreateInput {
+${fields}
+}`;
+}
+
+function generateUpdateInput(
+  collection: CollectionDefinition,
+  collections: CollectionDefinition[],
+): string {
+  const fields = collection.fields
+    .filter((f) => f.type !== "relation")
+    .map((f) => {
+      const gqlType = fieldToGraphQLType(f, collections);
+      return `  ${f.name}: ${gqlType}`;
+    })
+    .join("\n");
+
+  return `input ${pascalCase(collection.slug)}UpdateInput {
+${fields}
+}`;
+}
+
+export function generateTypeDefs(collections: CollectionDefinition[]): string {
+  const parts: string[] = [];
+
+  parts.push(`scalar JSON`);
+
+  for (const collection of collections) {
+    parts.push(generateObjectType(collection, collections));
+  }
+
+  for (const collection of collections) {
+    if (collection.fields.length > 0) {
+      parts.push(generateFilterInput(collection));
+      parts.push(generateSortEnum(collection));
+      parts.push(generateCreateInput(collection, collections));
+      parts.push(generateUpdateInput(collection, collections));
+    }
+  }
+
+  const queryFields = collections
+    .map((c) => {
+      const name = pascalCase(c.slug);
+      return `  list${name}(filter: ${name}Filter, sort: ${name}Sort, limit: Int, offset: Int): [${name}!]!
+  ${c.slug}(id: ID!): ${name}`;
+    })
+    .join("\n");
+
+  const mutationFields = collections
+    .map((c) => {
+      const name = pascalCase(c.slug);
+      return `  create${name}(data: ${name}CreateInput!): ${name}!
+  update${name}(id: ID!, data: ${name}UpdateInput!): ${name}!
+  delete${name}(id: ID!): Boolean!`;
+    })
+    .join("\n");
+
+  parts.push(`type Query {
+${queryFields}
+}`);
+
+  parts.push(`type Mutation {
+${mutationFields}
+}`);
+
+  return parts.join("\n\n");
+}

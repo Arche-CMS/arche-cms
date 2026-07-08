@@ -275,6 +275,21 @@ describe("CRUD handlers", () => {
     expect(result.statusCode).toBe(400);
   });
 
+  it("createHandler returns 400 for validation failure", async () => {
+    const adapter = createMockAdapter();
+    const handler = createCreateHandler(collection, adapter);
+    const result = await handler({
+      params: {},
+      query: {},
+      body: { body: "Content without title" },
+      headers: {},
+    });
+    expect(result.statusCode).toBe(400);
+    const body = result.body as Record<string, unknown>;
+    expect(body.error).toBe("Validation failed");
+    expect(body.details).toBeDefined();
+  });
+
   it("updateHandler updates a record", async () => {
     const adapter = createMockAdapter();
     const handler = createUpdateHandler(collection, adapter);

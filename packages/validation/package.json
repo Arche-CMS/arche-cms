@@ -1,11 +1,8 @@
 {
-  "name": "@altrugenix/cli",
+  "name": "@altrugenix/validation",
   "version": "0.0.1",
   "private": true,
   "type": "module",
-  "bin": {
-    "cms": "./bin/cms.js"
-  },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {
@@ -15,8 +12,7 @@
     }
   },
   "files": [
-    "dist",
-    "bin"
+    "dist"
   ],
   "scripts": {
     "build": "tsc",
@@ -28,9 +24,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@altrugenix/database": "workspace:*",
-    "@altrugenix/generators": "workspace:*",
-    "@altrugenix/schema": "workspace:*",
-    "@altrugenix/types": "workspace:*"
+    "@altrugenix/types": "workspace:*",
+    "zod": "^4.4.3"
   }
 }

@@ -1,6 +1,7 @@
 import type { DatabaseAdapter } from "@altrugenix/database";
 import type { CollectionDefinition } from "@altrugenix/types";
 import type { RouteDefinition, RouteGeneratorConfig, CollectionRouter } from "./types.js";
+import { applyMiddleware } from "./middleware.js";
 import {
   createListHandler,
   createGetHandler,
@@ -24,6 +25,7 @@ export function createCollectionRouter(
   const basePath = config?.basePath ?? "/api";
   const maxPageSize = config?.maxPageSize ?? 100;
   const defaultPageSize = config?.defaultPageSize ?? 10;
+  const hooks = config?.hooks;
   const plural = collection.labels.plural;
   const tag = collection.labels.singular;
   const slug = collection.slug;
@@ -35,7 +37,11 @@ export function createCollectionRouter(
       operationId: `list${pascalCase(slug)}`,
       summary: `List ${plural}`,
       tags: [tag],
-      handler: createListHandler(collection, adapter, maxPageSize, defaultPageSize),
+      handler: applyMiddleware(
+        createListHandler(collection, adapter, maxPageSize, defaultPageSize),
+        hooks,
+        collection,
+      ),
     },
     {
       method: "GET",
@@ -43,7 +49,7 @@ export function createCollectionRouter(
       operationId: `get${pascalCase(slug)}`,
       summary: `Get a single ${tag}`,
       tags: [tag],
-      handler: createGetHandler(collection, adapter),
+      handler: applyMiddleware(createGetHandler(collection, adapter), hooks, collection),
     },
     {
       method: "POST",
@@ -51,7 +57,7 @@ export function createCollectionRouter(
       operationId: `create${pascalCase(slug)}`,
       summary: `Create a ${tag}`,
       tags: [tag],
-      handler: createCreateHandler(collection, adapter),
+      handler: applyMiddleware(createCreateHandler(collection, adapter), hooks, collection),
     },
     {
       method: "PATCH",
@@ -59,7 +65,7 @@ export function createCollectionRouter(
       operationId: `update${pascalCase(slug)}`,
       summary: `Update a ${tag}`,
       tags: [tag],
-      handler: createUpdateHandler(collection, adapter),
+      handler: applyMiddleware(createUpdateHandler(collection, adapter), hooks, collection),
     },
     {
       method: "DELETE",
@@ -67,7 +73,7 @@ export function createCollectionRouter(
       operationId: `delete${pascalCase(slug)}`,
       summary: `Delete a ${tag}`,
       tags: [tag],
-      handler: createDeleteHandler(collection, adapter),
+      handler: applyMiddleware(createDeleteHandler(collection, adapter), hooks, collection),
     },
   ];
 

@@ -29,10 +29,27 @@ export interface CollectionRouter {
   routes: RouteDefinition[];
 }
 
+export type BeforeHook = (
+  context: RouteHandlerContext,
+  collection?: CollectionDefinition,
+) => Promise<RouteHandlerResult | undefined>;
+
+export type AfterHook = (
+  context: RouteHandlerContext,
+  result: RouteHandlerResult,
+  collection?: CollectionDefinition,
+) => Promise<RouteHandlerResult>;
+
+export interface MiddlewareHooks {
+  before?: BeforeHook[];
+  after?: AfterHook[];
+}
+
 export interface RouteGeneratorConfig {
   basePath?: string;
   maxPageSize?: number;
   defaultPageSize?: number;
+  hooks?: MiddlewareHooks;
 }
 
 export type CreateCollectionRouter = (

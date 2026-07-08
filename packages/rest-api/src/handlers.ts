@@ -1,5 +1,6 @@
 import type { DatabaseAdapter, QueryOptions } from "@altrugenix/database";
 import type { CollectionDefinition, FieldDefinition, RelationField } from "@altrugenix/types";
+import { collectionToCreateSchema, collectionToUpdateSchema } from "@altrugenix/validation";
 import type { RouteHandler, RouteHandlerContext, RouteHandlerResult } from "./types.js";
 
 function collectionTableName(slug: string): string {
@@ -183,8 +184,16 @@ export function createCreateHandler(
       if (!ctx.body || typeof ctx.body !== "object") {
         return errorResult(400, "Request body is required");
       }
+      const schema = collectionToCreateSchema(collection);
+      const parsed = schema.safeParse(ctx.body);
+      if (!parsed.success) {
+        return {
+          statusCode: 400,
+          body: { error: "Validation failed", details: parsed.error.issues },
+        };
+      }
       const tableName = collectionTableName(collection.slug);
-      const record = await adapter.create(tableName, ctx.body as Record<string, unknown>);
+      const record = await adapter.create(tableName, parsed.data as Record<string, unknown>);
       return { statusCode: 201, body: record };
     } catch (e) {
       return errorResult(500, e instanceof Error ? e.message : "Internal server error");
@@ -203,8 +212,16 @@ export function createUpdateHandler(
       if (!ctx.body || typeof ctx.body !== "object") {
         return errorResult(400, "Request body is required");
       }
+      const schema = collectionToUpdateSchema(collection);
+      const parsed = schema.safeParse(ctx.body);
+      if (!parsed.success) {
+        return {
+          statusCode: 400,
+          body: { error: "Validation failed", details: parsed.error.issues },
+        };
+      }
       const tableName = collectionTableName(collection.slug);
-      const record = await adapter.update(tableName, id, ctx.body as Record<string, unknown>);
+      const record = await adapter.update(tableName, id, parsed.data as Record<string, unknown>);
       if (!record) return errorResult(404, "Not found");
       return { statusCode: 200, body: record };
     } catch (e) {

@@ -25,6 +25,7 @@
   },
   "dependencies": {
     "@altrugenix/database": "workspace:*",
-    "@altrugenix/types": "workspace:*"
+    "@altrugenix/types": "workspace:*",
+    "@altrugenix/validation": "workspace:*"
   }
 }

@@ -1,0 +1,85 @@
+import type { CollectionDefinition, FieldDefinition } from "@altrugenix/types";
+
+export interface GraphQLGeneratorConfig {
+  maxPageSize?: number;
+  defaultPageSize?: number;
+}
+
+export interface GraphQLSchema {
+  typeDefs: string;
+  resolvers: Record<string, unknown>;
+}
+
+export function pascalCase(slug: string): string {
+  return slug
+    .split(/[-_]/)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join("");
+}
+
+const SCALAR_MAP: Record<string, string> = {
+  text: "String",
+  textarea: "String",
+  number: "Float",
+  boolean: "Boolean",
+  date: "String",
+  datetime: "String",
+  email: "String",
+  password: "String",
+  url: "String",
+  json: "JSON",
+  richText: "String",
+  markdown: "String",
+  code: "String",
+  color: "String",
+  slug: "String",
+};
+
+export function fieldToGraphQLType(
+  field: FieldDefinition,
+  collections: CollectionDefinition[],
+): string {
+  const mapped = SCALAR_MAP[field.type];
+  if (mapped) return mapped;
+
+  switch (field.type) {
+    case "media":
+    case "upload":
+      return "String";
+    case "select":
+    case "radio":
+      return "String";
+    case "checkbox":
+      return "Boolean";
+    case "multiSelect":
+      return "[String!]";
+    case "relation": {
+      const target = collections.find((c) => c.slug === field.to);
+      return target ? pascalCase(target.slug) : "String";
+    }
+    case "component": {
+      return field.component ? pascalCase(field.component) : "JSON";
+    }
+    case "dynamicZone":
+      return "[JSON!]";
+    case "array":
+    case "repeater":
+      return "[JSON!]";
+    case "object":
+    case "group":
+      return "JSON";
+    case "tabs":
+      return "JSON";
+    default:
+      return "String";
+  }
+}
+
+export function fieldToGraphQLInputType(
+  field: FieldDefinition,
+  collections: CollectionDefinition[],
+): string {
+  const gqlType = fieldToGraphQLType(field, collections);
+  const required = field.validation?.required ? "!" : "";
+  return `${gqlType}${required}`;
+}

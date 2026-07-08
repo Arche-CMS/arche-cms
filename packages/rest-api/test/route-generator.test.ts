@@ -1,6 +1,8 @@
 import { describe, it, expect } from "vitest";
 import type { CollectionDefinition, DatabaseAdapter } from "@altrugenix/database";
+import type { RouteHandlerContext, RouteHandlerResult, MiddlewareHooks } from "../src/types.js";
 import { createCollectionRouter, createCollectionRouters } from "../src/route-generator.js";
+import { applyMiddleware } from "../src/middleware.js";
 
 const mockAdapter = {
   findOne: async () => null,
@@ -104,6 +106,104 @@ describe("createCollectionRouter", () => {
     const { routes } = createCollectionRouter(collection, mockAdapter);
     expect(routes[0]).toHaveProperty("operationId", "listBlogPosts");
     expect(routes[0]).toHaveProperty("path", "/api/blog-posts");
+  });
+});
+
+describe("middleware hooks", () => {
+  const okHandler = async (): Promise<RouteHandlerResult> => ({
+    statusCode: 200,
+    body: { ok: true },
+  });
+
+  it("passes through when no hooks are provided", async () => {
+    const wrapped = applyMiddleware(okHandler, undefined);
+    const result = await wrapped({ params: {}, query: {}, body: null, headers: {} });
+    expect(result.statusCode).toBe(200);
+    expect(result.body).toEqual({ ok: true });
+  });
+
+  it("passes through when hooks are empty", async () => {
+    const wrapped = applyMiddleware(okHandler, {});
+    const result = await wrapped({ params: {}, query: {}, body: null, headers: {} });
+    expect(result.statusCode).toBe(200);
+  });
+
+  it("runs before hooks before handler", async () => {
+    const order: string[] = [];
+    const hooks: MiddlewareHooks = {
+      before: [
+        async () => {
+          order.push("before");
+        },
+      ],
+    };
+    const wrapped = applyMiddleware(async () => {
+      order.push("handler");
+      return { statusCode: 200, body: { ok: true } };
+    }, hooks);
+    await wrapped({ params: {}, query: {}, body: null, headers: {} });
+    expect(order).toEqual(["before", "handler"]);
+  });
+
+  it("runs after hooks after handler", async () => {
+    const order: string[] = [];
+    const hooks: MiddlewareHooks = {
+      after: [
+        async (_ctx: RouteHandlerContext, result: RouteHandlerResult) => {
+          order.push("after");
+          return result;
+        },
+      ],
+    };
+    const wrapped = applyMiddleware(async () => {
+      order.push("handler");
+      return { statusCode: 200, body: { ok: true } };
+    }, hooks);
+    await wrapped({ params: {}, query: {}, body: null, headers: {} });
+    expect(order).toEqual(["handler", "after"]);
+  });
+
+  it("before hook can short-circuit by returning a result", async () => {
+    const hooks: MiddlewareHooks = {
+      before: [async () => ({ statusCode: 401, body: { error: "Unauthorized" } })],
+    };
+    const wrapped = applyMiddleware(async () => {
+      throw new Error("should not be called");
+    }, hooks);
+    const result = await wrapped({ params: {}, query: {}, body: null, headers: {} });
+    expect(result.statusCode).toBe(401);
+    expect(result.body).toEqual({ error: "Unauthorized" });
+  });
+
+  it("after hook can modify the result", async () => {
+    const hooks: MiddlewareHooks = {
+      after: [
+        async (_ctx: RouteHandlerContext, result: RouteHandlerResult) => ({
+          ...result,
+          body: { ...(result.body as Record<string, unknown>), modified: true },
+        }),
+      ],
+    };
+    const wrapped = applyMiddleware(async () => ({ statusCode: 200, body: { ok: true } }), hooks);
+    const result = await wrapped({ params: {}, query: {}, body: null, headers: {} });
+    expect(result.body).toEqual({ ok: true, modified: true });
+  });
+
+  it("middleware is applied to all routes via config", async () => {
+    const hooks: MiddlewareHooks = {
+      before: [async () => ({ statusCode: 403, body: { error: "Forbidden" } })],
+    };
+    const { routes } = createCollectionRouter(postCollection, mockAdapter, { hooks });
+    for (const route of routes) {
+      const result = await route.handler({
+        params: {},
+        query: {},
+        body: null,
+        headers: {},
+      });
+      expect(result.statusCode).toBe(403);
+      expect(result.body).toEqual({ error: "Forbidden" });
+    }
   });
 });
 

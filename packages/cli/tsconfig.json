@@ -1,9 +1,15 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
+    "composite": true,
     "outDir": "dist",
     "rootDir": "src"
   },
   "include": ["src"],
-  "references": []
+  "references": [
+    { "path": "../schema" },
+    { "path": "../database" },
+    { "path": "../generators" },
+    { "path": "../types" }
+  ]
 }

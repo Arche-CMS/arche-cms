@@ -10,6 +10,7 @@
     { "path": "../../packages/core" },
     { "path": "../../packages/schema" },
     { "path": "../../packages/database" },
-    { "path": "../../packages/rest-api" }
+    { "path": "../../packages/rest-api" },
+    { "path": "../../packages/graphql" }
   ]
 }
