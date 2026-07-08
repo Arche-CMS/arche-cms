@@ -8,39 +8,39 @@
 
 ### Monorepo Setup
 
-- [ ] Initialize Turborepo with Yarn workspaces
-- [ ] Configure TypeScript strict mode across all packages
-- [ ] Set up ESLint, Prettier, and lint-staged
-- [ ] Configure Vitest with coverage
+- [x] Initialize Turborepo with Yarn workspaces
+- [x] Configure TypeScript strict mode across all packages
+- [x] Set up ESLint, Prettier, and lint-staged
+- [x] Configure Vitest with coverage
 - [ ] Create package scaffolding script
-- [ ] Set up CI (GitHub Actions — lint, typecheck, test)
+- [x] Set up CI (GitHub Actions — lint, typecheck, test)
 
 ### Core Package (`packages/core`)
 
-- [ ] Implement DI container (typed, async-capable)
-- [ ] Implement event bus (typed, async, with middleware)
-- [ ] Define lifecycle hooks (init, ready, shutdown)
-- [ ] Create logger abstraction
-- [ ] Create config loader (env, files, defaults)
+- [x] Implement DI container (typed, async-capable)
+- [x] Implement event bus (typed, async, with middleware)
+- [x] Define lifecycle hooks (init, ready, shutdown)
+- [x] Create logger abstraction
+- [x] Create config loader (env, files, defaults)
 
 ### Schema Package (`packages/schema`)
 
-- [ ] Design `defineCollection` API
-- [ ] Implement field type system (base types + extensions)
-- [ ] Build field helpers: `text()`, `number()`, `boolean()`, `date()`, `email()`, `url()`, `json()`, `select()`, `relation()`, `media()`, `richText()`, `markdown()`, `code()`, `color()`, `slug()`, `password()`, etc.
-- [ ] Build component and global schema definitions
-- [ ] Implement schema validator (Zod-based)
-- [ ] Implement schema loader (file discovery + parsing)
+- [x] Design `defineCollection` API
+- [x] Implement field type system (base types + extensions)
+- [x] Build field helpers: `text()`, `textarea()`, `number()`, `boolean()`, `date()`, `email()`, `url()`, `json()`, `select()`, `relation()`, `media()`, `richText()`, `markdown()`, `code()`, `color()`, `slug()`, `password()`, etc.
+- [x] Build component and global schema definitions
+- [x] Implement schema validator
+- [x] Implement schema loader (file discovery + parsing)
 - [ ] Add file watching for dev mode (HMR for schemas)
 - [ ] Generate TypeScript types from schema definitions
-- [ ] Write tests for all field types
-- [ ] Write tests for schema validation
+- [x] Write tests for all field types (38 tests)
+- [x] Write tests for schema validation
 
 ### Shared Types (`packages/types`)
 
-- [ ] Define core TypeScript interfaces for fields, collections, globals
-- [ ] Define plugin API types
-- [ ] Define event types
+- [x] Define core TypeScript interfaces for fields, collections, globals
+- [x] Define plugin API types
+- [x] Define event types / core types (Logger, Config, CMSContext, Lifecycle)
 
 ---
 

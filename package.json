@@ -1,5 +1,6 @@
 {
   "name": "altrugenix-cms",
+  "type": "module",
   "private": true,
   "packageManager": "yarn@4.17.0",
   "workspaces": [
@@ -34,5 +35,8 @@
   },
   "engines": {
     "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "zod": "^4.4.3"
   }
 }
