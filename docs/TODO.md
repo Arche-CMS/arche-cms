@@ -51,7 +51,7 @@
 - [x] Define `DatabaseAdapter` interface (CRUD, transactions, migrations)
 - [x] Implement SQLite adapter (via `@libsql/client`)
 - [x] Implement PostgreSQL adapter (via `pg`)
-- [ ] Build migration generator (schema diff → migration files)
+- [x] Build migration generator (schema diff → migration files)
 - [x] Build migration runner
 - [x] Implement repository pattern (generic CRUD with typing)
 - [x] Support query building (filtering, sorting, pagination)

@@ -15,6 +15,10 @@ export interface Migration {
   executedAt?: Date;
 }
 
+export interface ExistingSchema {
+  tables: Map<string, string[]>; // table name → column names
+}
+
 export interface DatabaseAdapter {
   connect(): Promise<void>;
   disconnect(): Promise<void>;
