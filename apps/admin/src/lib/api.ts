@@ -147,3 +147,42 @@ export async function updateUser(
 export async function deleteUser(id: string): Promise<void> {
   await apiFetch(`/api/users/${id}`, { method: "DELETE" });
 }
+
+export type MediaMeta = {
+  id: string;
+  filename: string;
+  originalName: string;
+  mimeType: string;
+  size: number;
+  alt: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export async function fetchMedia(): Promise<{ data: MediaMeta[]; total: number }> {
+  return apiFetch("/api/media");
+}
+
+export async function uploadMedia(file: File, alt?: string): Promise<MediaMeta> {
+  const buffer = await file.arrayBuffer();
+  const base64 = btoa(
+    new Uint8Array(buffer).reduce((data, byte) => data + String.fromCharCode(byte), ""),
+  );
+  return apiFetch("/api/media", {
+    method: "POST",
+    body: JSON.stringify({
+      fileName: file.name,
+      mimeType: file.type,
+      data: base64,
+      alt: alt ?? "",
+    }),
+  });
+}
+
+export async function deleteMedia(id: string): Promise<void> {
+  await apiFetch(`/api/media/${id}`, { method: "DELETE" });
+}
+
+export function getMediaUrl(id: string): string {
+  return `${API_URL}/api/media/file/${id}`;
+}

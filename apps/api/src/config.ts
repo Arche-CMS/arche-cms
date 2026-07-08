@@ -28,6 +28,9 @@ export interface ServerConfig {
     accessTokenExpiresIn: string;
     refreshTokenExpiresIn: string;
   };
+  storage: {
+    baseDir: string;
+  };
 }
 
 export function loadConfig(): ServerConfig {
@@ -60,6 +63,9 @@ export function loadConfig(): ServerConfig {
       secret: process.env.AUTH_SECRET || "dev-secret-change-in-production-min-32-chars!!",
       accessTokenExpiresIn: process.env.AUTH_ACCESS_EXPIRES || "15m",
       refreshTokenExpiresIn: process.env.AUTH_REFRESH_EXPIRES || "7d",
+    },
+    storage: {
+      baseDir: process.env.STORAGE_DIR || "./uploads",
     },
   };
 }

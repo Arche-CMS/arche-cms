@@ -1,5 +1,9 @@
+import { useState, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Upload } from "lucide-react";
+import { uploadMedia, getMediaUrl } from "@/lib/api";
 
 type FieldDef = {
   name: string;
@@ -18,6 +22,78 @@ type FieldInputProps = {
 
 export function FieldInput({ field, value, onChange, error }: FieldInputProps) {
   const strVal = typeof value === "string" ? value : value != null ? String(value) : "";
+  const [uploading, setUploading] = useState(false);
+  const mediaInputRef = useRef<HTMLInputElement>(null);
+
+  if (field.type === "media" || field.type === "upload") {
+    const isImage = strVal
+      ? ["png", "jpg", "jpeg", "gif", "webp", "svg"].some((ext) =>
+          strVal.toLowerCase().includes(ext),
+        ) || strVal.startsWith("data:image")
+      : false;
+
+    const handleFilePick = async (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      setUploading(true);
+      try {
+        const item = await uploadMedia(file, field.label);
+        onChange(item.id);
+      } catch {
+        // error is handled via the form's error state
+      } finally {
+        setUploading(false);
+        if (mediaInputRef.current) mediaInputRef.current.value = "";
+      }
+    };
+
+    return (
+      <div className="space-y-2">
+        <Label htmlFor={field.name}>
+          {field.label}
+          {field.required && <span className="ml-1 text-destructive">*</span>}
+        </Label>
+        <input
+          ref={mediaInputRef}
+          type="file"
+          id={field.name}
+          className="hidden"
+          onChange={handleFilePick}
+        />
+        <div className="flex items-center gap-3 rounded-md border p-3">
+          {strVal ? (
+            <div className="flex flex-1 items-center gap-3">
+              {isImage ? (
+                <img src={getMediaUrl(strVal)} alt="" className="h-12 w-12 rounded object-cover" />
+              ) : (
+                <div className="flex h-12 w-12 items-center justify-center rounded bg-muted text-xs text-muted-foreground">
+                  File
+                </div>
+              )}
+              <span className="flex-1 truncate text-sm">ID: {strVal}</span>
+              <Button type="button" variant="ghost" size="sm" onClick={() => onChange("")}>
+                Clear
+              </Button>
+            </div>
+          ) : (
+            <div className="flex flex-1 items-center gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => mediaInputRef.current?.click()}
+                disabled={uploading}
+              >
+                <Upload className="mr-1 h-3.5 w-3.5" />
+                {uploading ? "Uploading..." : "Choose File"}
+              </Button>
+            </div>
+          )}
+        </div>
+        {error && <p className="text-xs text-destructive">{error}</p>}
+      </div>
+    );
+  }
 
   if (field.type === "boolean") {
     return (

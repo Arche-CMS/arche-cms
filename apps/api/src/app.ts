@@ -2,6 +2,7 @@ import Fastify from "fastify";
 import type { FastifyInstance } from "fastify";
 import type { DatabaseAdapter } from "@altrugenix/database";
 import type { CollectionDefinition } from "@altrugenix/types";
+import type { StorageAdapter } from "@altrugenix/storage";
 import type { ServerConfig } from "./config.js";
 import { registerCors } from "./plugins/cors.js";
 import { registerHealth } from "./plugins/health.js";
@@ -15,10 +16,12 @@ import { registerPermissions } from "./plugins/permissions.js";
 import { registerCollectionRoutes } from "./routes/collections.js";
 import { registerUserRoutes } from "./routes/users.js";
 import { registerRoleRoutes } from "./routes/roles.js";
+import { registerMediaRoutes } from "./routes/media.js";
 
 export interface AppOptions {
   config: ServerConfig;
   adapter: DatabaseAdapter;
+  storageAdapter?: StorageAdapter;
   collections?: CollectionDefinition[];
 }
 
@@ -43,6 +46,10 @@ export async function createApp(options: AppOptions): Promise<FastifyInstance> {
   await registerPermissions(fastify, { adapter });
   registerUserRoutes(fastify, adapter, config.auth);
   registerRoleRoutes(fastify, adapter);
+
+  if (options.storageAdapter) {
+    registerMediaRoutes(fastify, adapter, options.storageAdapter);
+  }
 
   if (collections && collections.length > 0) {
     registerCollectionRoutes(fastify, collections, adapter);

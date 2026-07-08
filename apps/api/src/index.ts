@@ -4,6 +4,7 @@ import { loadConfig } from "./config.js";
 import { createApp } from "./app.js";
 import { SchemaLoader } from "@altrugenix/schema";
 import { SQLiteAdapter } from "@altrugenix/database";
+import { LocalStorageAdapter } from "@altrugenix/storage";
 
 async function main(): Promise<void> {
   const config = loadConfig();
@@ -16,7 +17,8 @@ async function main(): Promise<void> {
     await adapter.connect();
     const schemas = await schemaLoader.load();
     const collections = Array.from(schemas.collections.values());
-    const fastify = await createApp({ config, adapter, collections });
+    const storageAdapter = new LocalStorageAdapter(config.storage.baseDir);
+    const fastify = await createApp({ config, adapter, storageAdapter, collections });
 
     await fastify.listen({ port: config.port, host: config.host });
     console.log(`Server listening on http://${config.host}:${config.port}`);

@@ -1,6 +1,6 @@
 # TODO — Altrugenix CMS
 
-> Project status: Milestone 5 advanced (dashboard live stats, user & role management, enhanced field inputs, inline validation errors). **257 tests** across all packages. Next: media library, global views, relation picker, media picker
+> Project status: Milestone 5 advanced (dashboard live stats, user & role management, enhanced field inputs, inline validation, media library). **264 tests** across all packages. Next: global views, relation picker, media picker, command palette
 
 ---
 
@@ -161,7 +161,7 @@
 - [x] Build collection edit/create form (auto-generated from schema)
 - [x] Handle all field type inputs (text, number, textarea, select, boolean, slug, json, richText, etc.)
 - [ ] Implement relation picker (search + select from related collection)
-- [ ] Implement media picker
+- [x] Implement media picker (upload + preview in FieldInput for media/upload types)
 - [x] Show field validation errors inline
 - [ ] Add bulk actions (delete, publish, unpublish)
 
@@ -172,11 +172,15 @@
 
 ### Media Library
 
-- [ ] Build media library grid view
-- [ ] Implement file upload (drag & drop + click)
-- [ ] Implement file delete and rename
+- [x] Build StorageAdapter interface (save, delete, getStream, exists)
+- [x] Implement LocalStorageAdapter
+- [x] Build media API routes (upload, list, get, delete, serve file)
+- [x] Build media library grid view (upload button, image grid, delete)
+- [x] Implement file upload (base64 via JSON API)
+- [x] Show file metadata (size, type, preview)
+- [ ] Implement file rename / alt text editing
 - [ ] Create folder organization
-- [ ] Show file metadata (dimensions, size, type)
+- [ ] Implement drag & drop upload
 
 ### User & Role Management
 
@@ -257,11 +261,11 @@
 
 ### Storage Package (`packages/storage`)
 
-- [ ] Define `StorageAdapter` interface
-- [ ] Implement local filesystem adapter
+- [x] Define `StorageAdapter` interface (save, delete, getStream, exists)
+- [x] Implement local filesystem adapter
 - [ ] Implement S3-compatible adapter
 - [ ] Implement Cloudflare R2 adapter
-- [ ] Write tests for storage adapters
+- [x] Write tests for storage adapters (7 tests)
 
 ---
 

@@ -42,6 +42,7 @@ __metadata:
     "@altrugenix/permissions": "workspace:*"
     "@altrugenix/rest-api": "workspace:*"
     "@altrugenix/schema": "workspace:*"
+    "@altrugenix/storage": "workspace:*"
     "@altrugenix/types": "workspace:*"
     "@fastify/cors": "npm:^11.0.1"
     "@fastify/rate-limit": "npm:^10.2.2"
@@ -180,7 +181,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@altrugenix/storage@workspace:packages/storage":
+"@altrugenix/storage@workspace:*, @altrugenix/storage@workspace:packages/storage":
   version: 0.0.0-use.local
   resolution: "@altrugenix/storage@workspace:packages/storage"
   languageName: unknown

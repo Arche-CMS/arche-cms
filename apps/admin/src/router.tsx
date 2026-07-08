@@ -13,6 +13,7 @@ import { Route as collectionsListRoute } from "@/routes/collections/index";
 import { Route as collectionEntriesRoute } from "@/routes/collections/$slug";
 import { Route as createEntryRoute } from "@/routes/collections/new.$slug";
 import { Route as editEntryRoute } from "@/routes/collections/$id_.$slug.edit";
+import { Route as mediaRoute } from "@/routes/media/index";
 
 const routeTree = rootRoute.addChildren([
   indexRoute,
@@ -28,6 +29,7 @@ const routeTree = rootRoute.addChildren([
   collectionEntriesRoute,
   createEntryRoute,
   editEntryRoute,
+  mediaRoute,
 ]);
 
 export const router = createRouter({ routeTree });

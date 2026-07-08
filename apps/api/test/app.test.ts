@@ -78,6 +78,7 @@ const testConfig: ServerConfig = {
     accessTokenExpiresIn: "15m",
     refreshTokenExpiresIn: "7d",
   },
+  storage: { baseDir: "./uploads" },
 };
 
 describe("CMS API Server", () => {

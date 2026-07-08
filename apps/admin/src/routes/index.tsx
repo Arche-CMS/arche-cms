@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { createRoute, Link } from "@tanstack/react-router";
 import { Route as rootRoute } from "@/routes/__root";
-import { fetchCollections, fetchUsers, apiFetch } from "@/lib/api";
+import { fetchCollections, fetchUsers, fetchMedia, apiFetch } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Plus, Users, FileText, Database, Image } from "lucide-react";
 
@@ -16,6 +16,7 @@ type CollectionInfo = { slug: string; label: string; entryCount: number };
 function Dashboard() {
   const [collections, setCollections] = useState<CollectionInfo[]>([]);
   const [userCount, setUserCount] = useState(0);
+  const [mediaCount, setMediaCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -36,8 +37,11 @@ function Dashboard() {
         if (cancelled) return;
         setCollections(counts);
 
-        const usersRes = await fetchUsers();
-        if (!cancelled) setUserCount(usersRes.total);
+        const [usersRes, mediaRes] = await Promise.all([fetchUsers(), fetchMedia()]);
+        if (!cancelled) {
+          setUserCount(usersRes.total);
+          setMediaCount(mediaRes.total);
+        }
       } catch {
         // silently ignore dashboard errors
       } finally {
@@ -55,7 +59,7 @@ function Dashboard() {
   const stats = [
     { label: "Collections", value: collections.length, icon: Database },
     { label: "Entries", value: totalEntries, icon: FileText },
-    { label: "Media", value: 0, icon: Image },
+    { label: "Media", value: mediaCount, icon: Image },
     { label: "Users", value: userCount, icon: Users },
   ];
 
