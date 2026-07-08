@@ -106,6 +106,26 @@ export function registerMediaRoutes(
     },
   );
 
+  fastify.patch(
+    "/api/media/:id",
+    { preHandler: [fastify.authenticate] },
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      await init();
+      const { id } = request.params as { id: string };
+      const body = request.body as { originalName?: string; alt?: string };
+      const record = await adapter.findOne(MEDIA_TABLE, id);
+      if (!record) return reply.status(404).send({ error: "Media not found" });
+
+      const updates: Record<string, string> = {};
+      if (body.originalName !== undefined) updates.originalName = body.originalName;
+      if (body.alt !== undefined) updates.alt = body.alt;
+      updates.updatedAt = new Date().toISOString();
+
+      const updated = await adapter.update(MEDIA_TABLE, id, updates);
+      return reply.send(updated);
+    },
+  );
+
   fastify.delete(
     "/api/media/:id",
     { preHandler: [fastify.authenticate] },

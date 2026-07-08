@@ -217,6 +217,16 @@ export async function uploadMedia(file: File, alt?: string): Promise<MediaMeta> 
   });
 }
 
+export async function updateMedia(
+  id: string,
+  updates: { originalName?: string; alt?: string },
+): Promise<MediaMeta> {
+  return apiFetch(`/api/media/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify(updates),
+  });
+}
+
 export async function deleteMedia(id: string): Promise<void> {
   await apiFetch(`/api/media/${id}`, { method: "DELETE" });
 }

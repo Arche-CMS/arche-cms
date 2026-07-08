@@ -1,6 +1,6 @@
 # TODO — Altrugenix CMS
 
-> Project status: Milestone 5 advanced (dashboard, user & role management, enhanced field inputs, inline validation, media library with drag & drop, relation picker, bulk delete, global views, error boundaries, toast notifications, loading skeletons). **269 tests** across all packages. Next: activity feed, command palette
+> Project status: Milestone 5 advanced (dashboard, user & role management, enhanced field inputs, inline validation, media library with drag & drop + rename/alt editing, relation picker, bulk delete, global views, error boundaries, toast notifications, loading skeletons). **269 tests** across all packages. Next: activity feed, command palette
 
 ---
 
@@ -178,7 +178,7 @@
 - [x] Build media library grid view (upload button, image grid, delete)
 - [x] Implement file upload (base64 via JSON API)
 - [x] Show file metadata (size, type, preview)
-- [ ] Implement file rename / alt text editing
+- [x] Implement file rename / alt text editing
 - [ ] Create folder organization
 - [x] Implement drag & drop upload
 

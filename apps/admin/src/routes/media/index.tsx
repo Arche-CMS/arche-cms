@@ -3,9 +3,17 @@ import { createRoute } from "@tanstack/react-router";
 import { Route as rootRoute } from "@/routes/__root";
 import { Skeleton } from "@/components/skeleton";
 import { useToast } from "@/components/toast-provider";
-import { fetchMedia, uploadMedia, deleteMedia, getMediaUrl, type MediaMeta } from "@/lib/api";
+import {
+  fetchMedia,
+  uploadMedia,
+  updateMedia,
+  deleteMedia,
+  getMediaUrl,
+  type MediaMeta,
+} from "@/lib/api";
 import { Button } from "@/components/ui/button";
-import { Trash2, Upload, UploadCloud } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Trash2, Upload, UploadCloud, Pencil } from "lucide-react";
 
 export const Route = createRoute({
   getParentRoute: () => rootRoute,
@@ -124,6 +132,45 @@ function MediaLibrary() {
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Failed to delete";
       setError(msg);
+      toast(msg, "error");
+    }
+  };
+
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editName, setEditName] = useState("");
+  const [editAlt, setEditAlt] = useState("");
+  const editInputRef = useRef<HTMLInputElement>(null);
+
+  const startEditing = (item: MediaMeta) => {
+    setEditingId(item.id);
+    setEditName(item.originalName);
+    setEditAlt(item.alt);
+    setTimeout(() => editInputRef.current?.focus(), 0);
+  };
+
+  const cancelEditing = () => {
+    setEditingId(null);
+    setEditName("");
+    setEditAlt("");
+  };
+
+  const saveEditing = async (id: string) => {
+    const trimmedName = editName.trim();
+    const trimmedAlt = editAlt.trim();
+    if (!trimmedName) {
+      toast("Filename cannot be empty", "error");
+      return;
+    }
+    try {
+      const updated = await updateMedia(id, {
+        originalName: trimmedName,
+        alt: trimmedAlt,
+      });
+      setMedia((prev) => prev.map((m) => (m.id === id ? { ...m, ...updated } : m)));
+      setEditingId(null);
+      toast("File updated", "success");
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Failed to update";
       toast(msg, "error");
     }
   };
@@ -247,7 +294,15 @@ function MediaLibrary() {
                   </p>
                 </div>
               )}
-              <div className="absolute inset-0 flex items-end bg-gradient-to-t from-black/50 to-transparent p-2 opacity-0 transition-opacity group-hover:opacity-100">
+              <div className="absolute inset-0 flex items-end justify-between bg-gradient-to-t from-black/50 to-transparent p-2 opacity-0 transition-opacity group-hover:opacity-100">
+                <Button
+                  variant="secondary"
+                  size="icon"
+                  className="h-7 w-7"
+                  onClick={() => startEditing(item)}
+                >
+                  <Pencil className="h-3.5 w-3.5" />
+                </Button>
                 <Button
                   variant="destructive"
                   size="icon"
@@ -257,9 +312,55 @@ function MediaLibrary() {
                   <Trash2 className="h-3.5 w-3.5" />
                 </Button>
               </div>
-              <div className="p-2">
-                <p className=" truncate text-xs font-medium">{item.originalName}</p>
-                <p className="text-xs text-muted-foreground">{(item.size / 1024).toFixed(1)} KB</p>
+              <div className="p-2 space-y-1">
+                {editingId === item.id ? (
+                  <div className="space-y-1.5" onClick={(e) => e.stopPropagation()}>
+                    <Input
+                      ref={editInputRef}
+                      value={editName}
+                      onChange={(e) => setEditName(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") saveEditing(item.id);
+                        if (e.key === "Escape") cancelEditing();
+                      }}
+                      onBlur={() => saveEditing(item.id)}
+                      className="h-6 text-xs px-1 py-0"
+                      placeholder="Filename"
+                    />
+                    <Input
+                      value={editAlt}
+                      onChange={(e) => setEditAlt(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") saveEditing(item.id);
+                        if (e.key === "Escape") cancelEditing();
+                      }}
+                      onBlur={() => saveEditing(item.id)}
+                      className="h-6 text-xs px-1 py-0"
+                      placeholder="Alt text"
+                    />
+                    <p className="text-[10px] text-muted-foreground">
+                      {(item.size / 1024).toFixed(1)} KB
+                    </p>
+                  </div>
+                ) : (
+                  <>
+                    <p
+                      className="truncate text-xs font-medium cursor-pointer hover:text-primary"
+                      title={item.originalName}
+                      onClick={() => startEditing(item)}
+                    >
+                      {item.originalName}
+                    </p>
+                    {item.alt && (
+                      <p className="truncate text-[10px] text-muted-foreground" title={item.alt}>
+                        {item.alt}
+                      </p>
+                    )}
+                    <p className="text-[10px] text-muted-foreground">
+                      {(item.size / 1024).toFixed(1)} KB
+                    </p>
+                  </>
+                )}
               </div>
             </div>
           ))}
