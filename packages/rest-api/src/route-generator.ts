@@ -8,6 +8,7 @@ import {
   createCreateHandler,
   createUpdateHandler,
   createDeleteHandler,
+  createBulkDeleteHandler,
 } from "./handlers.js";
 
 function pascalCase(slug: string): string {
@@ -74,6 +75,14 @@ export function createCollectionRouter(
       summary: `Delete a ${tag}`,
       tags: [tag],
       handler: applyMiddleware(createDeleteHandler(collection, adapter), hooks, collection),
+    },
+    {
+      method: "POST",
+      path: `${basePath}/${slug}/bulk-delete`,
+      operationId: `bulkDelete${pascalCase(slug)}`,
+      summary: `Bulk delete ${plural}`,
+      tags: [tag],
+      handler: applyMiddleware(createBulkDeleteHandler(collection, adapter), hooks, collection),
     },
   ];
 

@@ -6,6 +6,7 @@ import {
   createCreateHandler,
   createUpdateHandler,
   createDeleteHandler,
+  createBulkDeleteHandler,
 } from "../src/handlers.js";
 
 const posts: Record<string, unknown>[] = [
@@ -89,6 +90,17 @@ function createMockAdapter(): DatabaseAdapter {
       if (idx === -1) return false;
       store.splice(idx, 1);
       return true;
+    },
+    deleteMany: async (_collection: string, ids: string[]) => {
+      let count = 0;
+      for (const id of ids) {
+        const idx = store.findIndex((p) => String(p.id) === id);
+        if (idx !== -1) {
+          store.splice(idx, 1);
+          count++;
+        }
+      }
+      return count;
     },
     connect: async () => {},
     disconnect: async () => {},
@@ -340,5 +352,43 @@ describe("CRUD handlers", () => {
       headers: {},
     });
     expect(result.statusCode).toBe(404);
+  });
+
+  it("bulkDeleteHandler deletes multiple records", async () => {
+    const adapter = createMockAdapter();
+    const handler = createBulkDeleteHandler(collection, adapter);
+    const result = await handler({
+      params: {},
+      query: {},
+      body: { ids: ["1", "2"] },
+      headers: {},
+    });
+    expect(result.statusCode).toBe(200);
+    const body = result.body as { deleted: number };
+    expect(body.deleted).toBe(2);
+  });
+
+  it("bulkDeleteHandler returns 400 for missing ids", async () => {
+    const adapter = createMockAdapter();
+    const handler = createBulkDeleteHandler(collection, adapter);
+    const result = await handler({
+      params: {},
+      query: {},
+      body: {},
+      headers: {},
+    });
+    expect(result.statusCode).toBe(400);
+  });
+
+  it("bulkDeleteHandler returns 400 for empty ids array", async () => {
+    const adapter = createMockAdapter();
+    const handler = createBulkDeleteHandler(collection, adapter);
+    const result = await handler({
+      params: {},
+      query: {},
+      body: { ids: [] },
+      headers: {},
+    });
+    expect(result.statusCode).toBe(400);
   });
 });

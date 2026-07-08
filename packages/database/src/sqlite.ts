@@ -123,6 +123,16 @@ export class SQLiteAdapter implements DatabaseAdapter {
     return result.rowsAffected > 0;
   }
 
+  async deleteMany(collection: string, ids: string[]): Promise<number> {
+    if (ids.length === 0) return 0;
+    const placeholders = ids.map(() => "?").join(", ");
+    const result = await this.db.execute({
+      sql: `DELETE FROM "${collection}" WHERE id IN (${placeholders})`,
+      args: ids,
+    });
+    return Number(result.rowsAffected);
+  }
+
   async transaction<T>(fn: () => Promise<T>): Promise<T> {
     await this.db.execute("BEGIN");
     try {

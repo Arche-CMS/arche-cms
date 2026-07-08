@@ -113,6 +113,16 @@ export class PostgresAdapter implements DatabaseAdapter {
     return (result.rowCount ?? 0) > 0;
   }
 
+  async deleteMany(collection: string, ids: string[]): Promise<number> {
+    if (ids.length === 0) return 0;
+    const placeholders = ids.map((_, i) => `$${i + 1}`).join(", ");
+    const result = await this.query(
+      `DELETE FROM "${collection}" WHERE id IN (${placeholders})`,
+      ids,
+    );
+    return result.rowCount ?? 0;
+  }
+
   async transaction<T>(fn: () => Promise<T>): Promise<T> {
     await this.query("BEGIN");
     try {

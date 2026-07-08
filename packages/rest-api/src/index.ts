@@ -21,6 +21,7 @@ export {
   createCreateHandler,
   createUpdateHandler,
   createDeleteHandler,
+  createBulkDeleteHandler,
 } from "./handlers.js";
 
 export { generateOpenApiSpec } from "./openapi.js";

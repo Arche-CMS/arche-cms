@@ -31,6 +31,10 @@ export class Repository {
     return this.adapter.delete(this.collection, id);
   }
 
+  async deleteMany(ids: string[]): Promise<number> {
+    return this.adapter.deleteMany(this.collection, ids);
+  }
+
   async transaction<T>(fn: (repo: Repository) => Promise<T>): Promise<T> {
     return this.adapter.transaction(async () => fn(this));
   }

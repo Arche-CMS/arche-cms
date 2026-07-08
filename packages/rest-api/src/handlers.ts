@@ -230,6 +230,32 @@ export function createUpdateHandler(
   };
 }
 
+export function createBulkDeleteHandler(
+  collection: CollectionDefinition,
+  adapter: DatabaseAdapter,
+): RouteHandler {
+  return async (ctx) => {
+    try {
+      if (
+        !ctx.body ||
+        typeof ctx.body !== "object" ||
+        !Array.isArray((ctx.body as Record<string, unknown>).ids)
+      ) {
+        return errorResult(400, "Request body must contain an ids array");
+      }
+      const ids = (ctx.body as Record<string, unknown>).ids as string[];
+      if (ids.length === 0) {
+        return errorResult(400, "ids array must not be empty");
+      }
+      const tableName = collectionTableName(collection.slug);
+      const deleted = await adapter.deleteMany(tableName, ids);
+      return { statusCode: 200, body: { deleted } };
+    } catch (e) {
+      return errorResult(500, e instanceof Error ? e.message : "Internal server error");
+    }
+  };
+}
+
 export function createDeleteHandler(
   collection: CollectionDefinition,
   adapter: DatabaseAdapter,

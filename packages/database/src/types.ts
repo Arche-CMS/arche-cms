@@ -39,6 +39,7 @@ export interface DatabaseAdapter {
     data: Record<string, unknown>,
   ): Promise<Record<string, unknown> | null>;
   delete(collection: string, id: string): Promise<boolean>;
+  deleteMany(collection: string, ids: string[]): Promise<number>;
 
   transaction<T>(fn: () => Promise<T>): Promise<T>;
 

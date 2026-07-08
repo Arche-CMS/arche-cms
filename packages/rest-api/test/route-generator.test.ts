@@ -10,6 +10,7 @@ const mockAdapter = {
   create: async () => ({}),
   update: async () => null,
   delete: async () => true,
+  deleteMany: async () => 0,
   connect: async () => {},
   disconnect: async () => {},
   transaction: async <T>(fn: () => Promise<T>) => fn(),
@@ -31,9 +32,9 @@ const postCollection: CollectionDefinition = {
 };
 
 describe("createCollectionRouter", () => {
-  it("generates 5 CRUD routes for a collection", () => {
+  it("generates 6 routes for a collection (5 CRUD + 1 bulk delete)", () => {
     const router = createCollectionRouter(postCollection, mockAdapter);
-    expect(router.routes).toHaveLength(5);
+    expect(router.routes).toHaveLength(6);
   });
 
   it("generates list route", () => {
@@ -218,8 +219,8 @@ describe("createCollectionRouters", () => {
     expect(routers).toHaveLength(2);
     const r0 = routers[0] as { routes: { operationId: string }[] };
     const r1 = routers[1] as { routes: { operationId: string }[] };
-    expect(r0.routes).toHaveLength(5);
-    expect(r1.routes).toHaveLength(5);
+    expect(r0.routes).toHaveLength(6);
+    expect(r1.routes).toHaveLength(6);
     expect(r0.routes[0].operationId).toBe("listPosts");
     expect(r1.routes[0].operationId).toBe("listUsers");
   });

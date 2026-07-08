@@ -20,6 +20,9 @@ function CollectionEntries() {
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -56,6 +59,46 @@ function CollectionEntries() {
       setTotal((prev) => prev - 1);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to delete entry");
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    const ids = Array.from(selected);
+    if (ids.length === 0) return;
+    setDeleting(true);
+    try {
+      await apiFetch(`/api/${slug}/bulk-delete`, {
+        method: "POST",
+        body: JSON.stringify({ ids }),
+      });
+      setEntries((prev) => prev.filter((e) => !ids.includes(e.id)));
+      setTotal((prev) => prev - ids.length);
+      setSelected(new Set());
+      setConfirmDelete(false);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to delete entries");
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const toggleSelect = (id: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (selected.size === entries.length) {
+      setSelected(new Set());
+    } else {
+      setSelected(new Set(entries.map((e) => e.id)));
     }
   };
 
@@ -112,47 +155,93 @@ function CollectionEntries() {
           </Link>
         </div>
       ) : (
-        <div className="rounded-lg border">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b">
-                {displayFields.map((f) => (
-                  <th
-                    key={f.name}
-                    className="px-4 py-3 text-left text-sm font-medium text-muted-foreground"
-                  >
-                    {f.label}
+        <div className="space-y-3">
+          {selected.size > 0 && (
+            <div className="flex items-center gap-3">
+              <p className="text-sm text-muted-foreground">{selected.size} selected</p>
+              <Button variant="destructive" size="sm" onClick={() => setConfirmDelete(true)}>
+                <Trash2 className="mr-1.5 h-4 w-4" /> Delete Selected
+              </Button>
+            </div>
+          )}
+
+          <div className="rounded-lg border">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b">
+                  <th className="w-10 px-4 py-3">
+                    <input
+                      type="checkbox"
+                      checked={selected.size === entries.length && entries.length > 0}
+                      onChange={toggleSelectAll}
+                      className="h-4 w-4 rounded border-input text-primary focus:ring-primary"
+                    />
                   </th>
-                ))}
-                <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {entries.map((entry) => (
-                <tr key={entry.id} className="border-b last:border-0 hover:bg-muted/50">
                   {displayFields.map((f) => (
-                    <td key={f.name} className="px-4 py-3 text-sm">
-                      {formatValue(entry[f.name])}
-                    </td>
+                    <th
+                      key={f.name}
+                      className="px-4 py-3 text-left text-sm font-medium text-muted-foreground"
+                    >
+                      {f.label}
+                    </th>
                   ))}
-                  <td className="px-4 py-3 text-right">
-                    <div className="flex items-center justify-end gap-1">
-                      <Link to="/collections/$slug/$id" params={{ slug, id: entry.id }}>
-                        <Button variant="ghost" size="icon">
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                      </Link>
-                      <Button variant="ghost" size="icon" onClick={() => handleDelete(entry.id)}>
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </td>
+                  <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
+                    Actions
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {entries.map((entry) => (
+                  <tr key={entry.id} className="border-b last:border-0 hover:bg-muted/50">
+                    <td className="w-10 px-4 py-3">
+                      <input
+                        type="checkbox"
+                        checked={selected.has(entry.id)}
+                        onChange={() => toggleSelect(entry.id)}
+                        className="h-4 w-4 rounded border-input text-primary focus:ring-primary"
+                      />
+                    </td>
+                    {displayFields.map((f) => (
+                      <td key={f.name} className="px-4 py-3 text-sm">
+                        {formatValue(entry[f.name])}
+                      </td>
+                    ))}
+                    <td className="px-4 py-3 text-right">
+                      <div className="flex items-center justify-end gap-1">
+                        <Link to="/collections/$slug/$id" params={{ slug, id: entry.id }}>
+                          <Button variant="ghost" size="icon">
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                        </Link>
+                        <Button variant="ghost" size="icon" onClick={() => handleDelete(entry.id)}>
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {confirmDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="w-full max-w-md rounded-lg border bg-background p-6 shadow-lg">
+            <h2 className="text-lg font-semibold">
+              Delete {selected.size} entr{selected.size === 1 ? "y" : "ies"}?
+            </h2>
+            <p className="mt-2 text-sm text-muted-foreground">This action cannot be undone.</p>
+            <div className="mt-4 flex items-center justify-end gap-2">
+              <Button variant="outline" onClick={() => setConfirmDelete(false)} disabled={deleting}>
+                Cancel
+              </Button>
+              <Button variant="destructive" onClick={handleBulkDelete} disabled={deleting}>
+                {deleting ? "Deleting..." : "Delete"}
+              </Button>
+            </div>
+          </div>
         </div>
       )}
     </div>
