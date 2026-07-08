@@ -1,6 +1,6 @@
 # TODO — Altrugenix CMS
 
-> Project status: Milestone 4 started (JWT auth, login/register/refresh/me, wired into API via Fastify plugin). **241 tests** across all packages. Next: permissions package & admin auth flow
+> Project status: Milestone 4 mostly complete (JWT auth + RBAC permissions implemented). **257 tests** across all packages. Next: admin auth flow, forgot/reset password
 
 ---
 
@@ -122,11 +122,11 @@
 
 ### Permissions Package (`packages/permissions`)
 
-- [ ] Define RBAC model (roles, permissions, resources)
-- [ ] Implement permission checker middleware
-- [ ] Support field-level permissions (read/write per field)
-- [ ] Implement role CRUD
-- [ ] Write tests for permission engine
+- [x] Define RBAC model (roles, permissions, resources)
+- [x] Implement permission checker middleware (Fastify preHandler)
+- [x] Support field-level permissions (read/write per field with `filterFields`)
+- [x] Implement role CRUD (create, read, update, delete roles)
+- [x] Write tests for permission engine (18 tests: RBAC, CRUD, field filtering)
 
 ### Admin Auth Flow
 
