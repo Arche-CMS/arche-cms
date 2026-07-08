@@ -92,12 +92,14 @@
 
 ### Fastify API Server (`apps/api`)
 
-- [ ] Scaffold Fastify server with plugin architecture
-- [ ] Register REST and GraphQL routes
-- [ ] Add CORS, security headers, rate limiting
-- [ ] Add health check endpoint
-- [ ] Add request logging
-- [ ] Add error handling middleware
+- [x] Scaffold Fastify server with plugin architecture (app factory with DI-style opts)
+- [x] Register REST and GraphQL routes (REST routes wired from schema defs)
+- [x] Add CORS, security headers, rate limiting (via @fastify/cors + @fastify/rate-limit)
+- [x] Add health check endpoint (GET /health)
+- [x] Add request logging (onResponse hook)
+- [x] Add error handling middleware (setErrorHandler with status-aware responses)
+- [x] Serve Swagger UI (via @fastify/swagger + @fastify/swagger-ui at /docs)
+- [x] Write tests for server (9 tests: health, Swagger, CRUD, 404, validation)
 
 ---
 
