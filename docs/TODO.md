@@ -12,7 +12,7 @@
 - [x] Configure TypeScript strict mode across all packages
 - [x] Set up ESLint, Prettier, and lint-staged
 - [x] Configure Vitest with coverage
-- [ ] Create package scaffolding script
+- [x] Create package scaffolding script (CLI: `cms collection create` + `cms plugin create`)
 - [x] Set up CI (GitHub Actions — lint, typecheck, test)
 
 ### Core Package (`packages/core`)
@@ -31,8 +31,8 @@
 - [x] Build component and global schema definitions
 - [x] Implement schema validator
 - [x] Implement schema loader (file discovery + parsing)
-- [ ] Add file watching for dev mode (HMR for schemas)
-- [ ] Generate TypeScript types from schema definitions
+- [x] Add file watching for dev mode (HMR for schemas)
+- [x] Generate TypeScript types from schema definitions
 - [x] Write tests for all field types (38 tests)
 - [x] Write tests for schema validation
 
@@ -48,15 +48,16 @@
 
 ### Database Package (`packages/database`)
 
-- [ ] Define `DatabaseAdapter` interface (CRUD, transactions, migrations)
-- [ ] Implement SQLite adapter (via `drizzle-orm/sqlite`)
-- [ ] Implement PostgreSQL adapter (via `drizzle-orm/pg`)
+- [x] Define `DatabaseAdapter` interface (CRUD, transactions, migrations)
+- [x] Implement SQLite adapter (via `@libsql/client`)
+- [x] Implement PostgreSQL adapter (via `pg`)
 - [ ] Build migration generator (schema diff → migration files)
-- [ ] Build migration runner
-- [ ] Implement repository pattern (generic CRUD with typing)
-- [ ] Support query building (filtering, sorting, pagination, relations)
+- [x] Build migration runner
+- [x] Implement repository pattern (generic CRUD with typing)
+- [x] Support query building (filtering, sorting, pagination)
 - [ ] Add connection pooling for PostgreSQL
-- [ ] Write tests for both adapters
+- [x] Write tests for SQLite adapter (11 tests)
+- [ ] Write tests for PostgreSQL adapter
 - [ ] Write tests for migration generation
 
 ---
@@ -202,7 +203,7 @@
 
 ### CLI Package (`packages/cli`)
 
-- [ ] Scaffold CLI with `cms` binary
+- [x] Scaffold CLI with `cms` binary
 - [ ] Implement `cms dev` (start dev server with file watching)
 - [ ] Implement `cms build` (build for production)
 - [ ] Implement `cms generate` (run code generation)
@@ -210,12 +211,12 @@
 - [ ] Implement `cms typegen` (generate TypeScript types)
 - [ ] Implement `cms lint` (lint schema definitions)
 - [ ] Implement `cms doctor` (check project health)
-- [ ] Implement `cms plugin create` (scaffold a plugin)
-- [ ] Implement `cms collection create` (scaffold a collection)
+- [x] Implement `cms collection create` (scaffold a collection)
+- [x] Implement `cms plugin create` (scaffold a plugin)
 
 ### Generators Package (`packages/generators`)
 
-- [ ] Build TypeScript type generation pipeline
+- [x] Build TypeScript type generation pipeline
 - [ ] Build API route generation pipeline
 - [ ] Build Zod validation generation pipeline
 - [ ] Build database migration generation pipeline
