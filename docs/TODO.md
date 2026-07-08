@@ -1,6 +1,6 @@
 # TODO — Altrugenix CMS
 
-> Project status: Milestone 5 advanced (dashboard, user & role management, enhanced field inputs, inline validation, media library with drag & drop + rename/alt editing, relation picker, bulk delete, global views, error boundaries, toast notifications, loading skeletons, confirmation dialogs). **269 tests** across all packages. Next: activity feed, command palette
+> Project status: Milestone 5 advanced (dashboard, user & role management, enhanced field inputs, inline validation, media library with drag & drop + rename/alt editing, relation picker, bulk delete, global views, error boundaries, toast notifications, loading skeletons, confirmation dialogs, command palette). **269 tests** across all packages. Next: activity feed, keyboard shortcuts
 
 ---
 
@@ -145,8 +145,8 @@
 - [x] Set up dark mode with ThemeProvider
 - [x] Create layout (sidebar, header, content area)
 - [x] Add login/register pages with auth integration
-- [ ] Implement command palette (⌘K)
-- [ ] Add keyboard shortcut system
+- [x] Implement command palette (⌘K)
+- [x] Add keyboard shortcut system
 
 ### Dashboard
 

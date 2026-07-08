@@ -4,6 +4,7 @@ import { Sidebar } from "@/components/sidebar";
 import { Header } from "@/components/header";
 import { ToastProvider } from "@/components/toast-provider";
 import { ErrorBoundary } from "@/components/error-boundary";
+import { CommandPalette, useCommandPalette } from "@/components/command-palette";
 import { useAuth } from "@/lib/auth";
 
 export const Route = createRootRoute({
@@ -14,6 +15,18 @@ function RootLayout() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const { isAuthenticated, isLoading } = useAuth();
   const navigate = useNavigate();
+  const palette = useCommandPalette();
+
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        palette.toggle();
+      }
+    }
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [palette]);
 
   useEffect(() => {
     const publicPaths = ["/login", "/register", "/forgot-password"];
@@ -55,7 +68,7 @@ function RootLayout() {
           onToggle={() => setSidebarCollapsed((prev) => !prev)}
         />
         <div className="flex flex-1 flex-col overflow-hidden">
-          <Header />
+          <Header onOpenPalette={palette.openPalette} />
           <main className="flex-1 overflow-y-auto p-6">
             <ErrorBoundary>
               <Outlet />
@@ -63,6 +76,7 @@ function RootLayout() {
           </main>
         </div>
       </div>
+      <CommandPalette open={palette.open} onClose={palette.closePalette} />
     </ToastProvider>
   );
 }
