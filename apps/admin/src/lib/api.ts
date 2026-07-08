@@ -29,26 +29,53 @@ export async function apiFetch<T>(path: string, options: RequestInit = {}): Prom
         headers["Authorization"] = `Bearer ${data.accessToken}`;
         const retryRes = await fetch(`${API_URL}${path}`, { ...options, headers });
         if (!retryRes.ok) {
-          throw new Error(`API error: ${retryRes.status} ${retryRes.statusText}`);
+          const errBody = (await retryRes.json().catch(() => ({}))) as {
+            error?: string;
+            details?: Array<{ path: (string | number)[]; message: string }>;
+          };
+          throw new ApiError(
+            retryRes.status,
+            errBody.error ?? `API error: ${retryRes.status}`,
+            errBody.details,
+          );
         }
         return retryRes.json() as Promise<T>;
       }
-      localStorage.removeItem("cms_token");
-      localStorage.removeItem("cms_refresh");
-      localStorage.removeItem("cms_user");
-      window.location.href = "/login";
-      throw new Error("Session expired");
+      logoutAndRedirect();
     }
-    localStorage.removeItem("cms_token");
-    localStorage.removeItem("cms_refresh");
-    localStorage.removeItem("cms_user");
-    window.location.href = "/login";
-    throw new Error("Not authenticated");
+    logoutAndRedirect();
   }
   if (!res.ok) {
-    throw new Error(`API error: ${res.status} ${res.statusText}`);
+    const errBody = (await res.json().catch(() => ({}))) as {
+      error?: string;
+      details?: Array<{ path: (string | number)[]; message: string }>;
+    };
+    throw new ApiError(res.status, errBody.error ?? `API error: ${res.status}`, errBody.details);
   }
   return res.json() as Promise<T>;
+}
+
+function logoutAndRedirect(): never {
+  localStorage.removeItem("cms_token");
+  localStorage.removeItem("cms_refresh");
+  localStorage.removeItem("cms_user");
+  window.location.href = "/login";
+  throw new Error("Session expired");
+}
+
+export class ApiError extends Error {
+  status: number;
+  details?: Array<{ path: (string | number)[]; message: string }>;
+
+  constructor(
+    status: number,
+    message: string,
+    details?: Array<{ path: (string | number)[]; message: string }>,
+  ) {
+    super(message);
+    this.status = status;
+    this.details = details;
+  }
 }
 
 export type CollectionMeta = {
@@ -60,4 +87,63 @@ export type CollectionMeta = {
 
 export async function fetchCollections(): Promise<CollectionMeta[]> {
   return apiFetch<CollectionMeta[]>("/api/collections");
+}
+
+export type UserMeta = {
+  id: string;
+  email: string;
+  role: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export async function fetchUsers(): Promise<{ data: UserMeta[]; total: number }> {
+  return apiFetch("/api/users");
+}
+
+export type RoleMeta = {
+  id: string;
+  name: string;
+  description: string;
+  permissions: Array<{ action: string; resource: string; fields?: string[] }>;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export async function fetchRoles(): Promise<{ data: RoleMeta[]; total: number }> {
+  return apiFetch("/api/roles");
+}
+
+export async function createRole(data: {
+  name: string;
+  description: string;
+  permissions: Array<{ action: string; resource: string }>;
+}): Promise<RoleMeta> {
+  return apiFetch("/api/roles", { method: "POST", body: JSON.stringify(data) });
+}
+
+export async function updateRole(
+  id: string,
+  data: Partial<{
+    name: string;
+    description: string;
+    permissions: Array<{ action: string; resource: string }>;
+  }>,
+): Promise<RoleMeta> {
+  return apiFetch(`/api/roles/${id}`, { method: "PATCH", body: JSON.stringify(data) });
+}
+
+export async function deleteRole(id: string): Promise<void> {
+  await apiFetch(`/api/roles/${id}`, { method: "DELETE" });
+}
+
+export async function updateUser(
+  id: string,
+  data: { email?: string; role?: string },
+): Promise<UserMeta> {
+  return apiFetch(`/api/users/${id}`, { method: "PATCH", body: JSON.stringify(data) });
+}
+
+export async function deleteUser(id: string): Promise<void> {
+  await apiFetch(`/api/users/${id}`, { method: "DELETE" });
 }

@@ -13,6 +13,8 @@ import { registerGraphQL } from "./plugins/graphql.js";
 import { registerAuth } from "./plugins/auth.js";
 import { registerPermissions } from "./plugins/permissions.js";
 import { registerCollectionRoutes } from "./routes/collections.js";
+import { registerUserRoutes } from "./routes/users.js";
+import { registerRoleRoutes } from "./routes/roles.js";
 
 export interface AppOptions {
   config: ServerConfig;
@@ -39,6 +41,8 @@ export async function createApp(options: AppOptions): Promise<FastifyInstance> {
 
   await registerAuth(fastify, { adapter, config: config.auth });
   await registerPermissions(fastify, { adapter });
+  registerUserRoutes(fastify, adapter, config.auth);
+  registerRoleRoutes(fastify, adapter);
 
   if (collections && collections.length > 0) {
     registerCollectionRoutes(fastify, collections, adapter);

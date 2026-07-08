@@ -168,6 +168,37 @@ export class AuthService {
     return { message: "Password has been reset successfully" };
   }
 
+  async listUsers(): Promise<PublicUser[]> {
+    const results = await this.db.findMany(USERS_TABLE);
+    return results.data
+      .filter((row): row is Record<string, unknown> & AuthUser => isAuthUser(row))
+      .map((row) => toPublicUser(castAuthUser(row)));
+  }
+
+  async getUser(id: string): Promise<PublicUser | null> {
+    const user = await this.findById(id);
+    if (!user) return null;
+    return toPublicUser(user);
+  }
+
+  async updateUser(
+    id: string,
+    data: { email?: string; role?: string },
+  ): Promise<PublicUser | null> {
+    const user = await this.findById(id);
+    if (!user) return null;
+    const updated = await this.db.update(USERS_TABLE, id, {
+      ...data,
+      updatedAt: new Date().toISOString(),
+    });
+    if (!updated || !isAuthUser(updated)) return null;
+    return toPublicUser(castAuthUser(updated));
+  }
+
+  async deleteUser(id: string): Promise<boolean> {
+    return this.db.delete(USERS_TABLE, id);
+  }
+
   private async findByEmail(email: string): Promise<AuthUser | null> {
     const results = await this.db.findMany(USERS_TABLE, {
       where: { email },

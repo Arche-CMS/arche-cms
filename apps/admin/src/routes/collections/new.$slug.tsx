@@ -1,7 +1,7 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { createRoute, Link, useParams, useNavigate } from "@tanstack/react-router";
 import { Route as rootRoute } from "@/routes/__root";
-import { fetchCollections, apiFetch, type CollectionMeta } from "@/lib/api";
+import { fetchCollections, apiFetch, ApiError, type CollectionMeta } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { FieldInput } from "@/components/field-input";
 import { ArrowLeft } from "lucide-react";
@@ -59,7 +59,16 @@ function CreateEntry() {
       });
       navigate({ to: "/collections/$slug", params: { slug } });
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to create entry");
+      if (err instanceof ApiError && err.details) {
+        const fieldErrors: Record<string, string> = {};
+        for (const detail of err.details) {
+          const fieldName = String(detail.path[0]);
+          if (fieldName) fieldErrors[fieldName] = detail.message;
+        }
+        setErrors((prev) => ({ ...prev, ...fieldErrors }));
+      } else {
+        setError(err instanceof Error ? err.message : "Failed to create entry");
+      }
     } finally {
       setSaving(false);
     }

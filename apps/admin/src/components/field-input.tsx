@@ -6,6 +6,7 @@ type FieldDef = {
   type: string;
   label: string;
   required: boolean;
+  options?: string[];
 };
 
 type FieldInputProps = {
@@ -16,6 +17,78 @@ type FieldInputProps = {
 };
 
 export function FieldInput({ field, value, onChange, error }: FieldInputProps) {
+  const strVal = typeof value === "string" ? value : value != null ? String(value) : "";
+
+  if (field.type === "boolean") {
+    return (
+      <div className="flex items-center gap-2">
+        <input
+          id={field.name}
+          type="checkbox"
+          checked={strVal === "true" || strVal === "on"}
+          onChange={(e) => onChange(e.target.checked ? "true" : "false")}
+          className="h-4 w-4 rounded border-input text-primary focus:ring-primary"
+        />
+        <Label htmlFor={field.name}>
+          {field.label}
+          {field.required && <span className="ml-1 text-destructive">*</span>}
+        </Label>
+      </div>
+    );
+  }
+
+  if (field.type === "select" || field.type === "radio") {
+    return (
+      <div className="space-y-2">
+        <Label htmlFor={field.name}>
+          {field.label}
+          {field.required && <span className="ml-1 text-destructive">*</span>}
+        </Label>
+        <select
+          id={field.name}
+          value={strVal}
+          onChange={(e) => onChange(e.target.value)}
+          className={`flex h-10 w-full rounded-md border bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${error ? "border-destructive" : "border-input"}`}
+        >
+          <option value="">Select...</option>
+          {(field.options ?? []).map((opt) => (
+            <option key={opt} value={opt}>
+              {opt}
+            </option>
+          ))}
+        </select>
+        {error && <p className="text-xs text-destructive">{error}</p>}
+      </div>
+    );
+  }
+
+  if (
+    field.type === "textarea" ||
+    field.type === "markdown" ||
+    field.type === "code" ||
+    field.type === "json" ||
+    field.type === "richText"
+  ) {
+    return (
+      <div className="space-y-2">
+        <Label htmlFor={field.name}>
+          {field.label}
+          {field.required && <span className="ml-1 text-destructive">*</span>}
+        </Label>
+        <textarea
+          id={field.name}
+          value={strVal}
+          onChange={(e) => onChange(e.target.value)}
+          required={field.required}
+          placeholder={`Enter ${field.label.toLowerCase()}`}
+          rows={field.type === "richText" || field.type === "code" ? 12 : 4}
+          className={`flex w-full rounded-md border bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${error ? "border-destructive" : "border-input"}`}
+        />
+        {error && <p className="text-xs text-destructive">{error}</p>}
+      </div>
+    );
+  }
+
   const inputType = mapFieldType(field.type);
 
   return (
@@ -27,7 +100,7 @@ export function FieldInput({ field, value, onChange, error }: FieldInputProps) {
       <Input
         id={field.name}
         type={inputType}
-        value={typeof value === "string" ? value : ""}
+        value={strVal}
         onChange={(e) => onChange(e.target.value)}
         required={field.required}
         placeholder={`Enter ${field.label.toLowerCase()}`}
@@ -52,8 +125,6 @@ function mapFieldType(fieldType: string): string {
       return "date";
     case "datetime":
       return "datetime-local";
-    case "boolean":
-      return "checkbox";
     default:
       return "text";
   }

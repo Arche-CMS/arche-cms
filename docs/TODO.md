@@ -1,6 +1,6 @@
 # TODO — Altrugenix CMS
 
-> Project status: Milestone 4 complete (auth + permissions + forgot/reset password). Milestone 5 started (admin UI scaffold + collection views). **257 tests** across all packages. Next: dashboard stats, media library, user & role management
+> Project status: Milestone 5 advanced (dashboard live stats, user & role management, enhanced field inputs, inline validation errors). **257 tests** across all packages. Next: media library, global views, relation picker, media picker
 
 ---
 
@@ -150,19 +150,19 @@
 
 ### Dashboard
 
-- [ ] Build dashboard overview page
-- [ ] Show collection stats (entry counts)
+- [x] Build dashboard overview page
+- [x] Show collection stats (entry counts)
 - [ ] Show recent activity feed
-- [ ] Add quick-action buttons
+- [x] Add quick-action buttons
 
 ### Collection Views
 
 - [x] Build collection list view (table with sorting, filtering, pagination)
 - [x] Build collection edit/create form (auto-generated from schema)
-- [ ] Handle all field type inputs (text, number, rich text, media, relation, etc.)
+- [x] Handle all field type inputs (text, number, textarea, select, boolean, slug, json, richText, etc.)
 - [ ] Implement relation picker (search + select from related collection)
 - [ ] Implement media picker
-- [ ] Show field validation errors inline
+- [x] Show field validation errors inline
 - [ ] Add bulk actions (delete, publish, unpublish)
 
 ### Global Views
@@ -180,9 +180,9 @@
 
 ### User & Role Management
 
-- [ ] Build user list and edit pages
-- [ ] Build role management pages
-- [ ] Integrate with permissions package
+- [x] Build user list and edit pages
+- [x] Build role management pages (list, create, edit)
+- [x] Integrate with permissions package (exposed API routes for roles + users)
 
 ### Schema Builder
 
