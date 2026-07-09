@@ -57,6 +57,15 @@ export async function createApp(options: AppOptions): Promise<FastifyInstance> {
   registerRequestLogger(fastify);
   registerErrorHandler(fastify);
 
+  // Security headers
+  fastify.addHook("onSend", async (_request, reply, payload) => {
+    reply.header("X-Content-Type-Options", "nosniff");
+    reply.header("X-Frame-Options", "DENY");
+    reply.header("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
+    reply.header("X-DNS-Prefetch-Control", "off");
+    return payload;
+  });
+
   await registerAuth(fastify, { adapter, config: config.auth });
   await registerPermissions(fastify, { adapter });
   registerUserRoutes(fastify, adapter, config.auth);
@@ -83,54 +92,52 @@ export async function createApp(options: AppOptions): Promise<FastifyInstance> {
 
   registerSchemaRoutes(fastify, config);
 
-  // Expose collection metadata for admin UI
-  fastify.get("/api/collections", async () => {
-    return (collections ?? []).map((c) => ({
-      slug: c.slug,
-      label: c.labels?.plural ?? c.slug,
-      labels: c.labels,
-      fields: c.fields.map((f) => {
-        const base = {
-          name: f.name,
-          type: f.type,
-          label: f.label ?? f.name,
-          required: f.validation?.required ?? false,
-        };
-        if (f.type === "relation") {
-          return { ...base, to: (f as { to?: string }).to ?? "" };
-        }
-        if (f.type === "select" || f.type === "multiSelect" || f.type === "radio") {
-          const opts = (f as { options?: Array<{ label: string; value: string }> }).options ?? [];
-          return { ...base, options: opts.map((o) => o.value) };
-        }
-        return base;
-      }),
-    }));
-  });
+  // Pre-compute metadata for admin UI (avoids re-mapping on every request)
+  const collectionMeta = (collections ?? []).map((c) => ({
+    slug: c.slug,
+    label: c.labels?.plural ?? c.slug,
+    labels: c.labels,
+    fields: c.fields.map((f) => {
+      const base = {
+        name: f.name,
+        type: f.type,
+        label: f.label ?? f.name,
+        required: f.validation?.required ?? false,
+      };
+      if (f.type === "relation") {
+        return { ...base, to: (f as { to?: string }).to ?? "" };
+      }
+      if (f.type === "select" || f.type === "multiSelect" || f.type === "radio") {
+        const opts = (f as { options?: Array<{ label: string; value: string }> }).options ?? [];
+        return { ...base, options: opts.map((o) => o.value) };
+      }
+      return base;
+    }),
+  }));
 
-  // Expose global metadata for admin UI
-  fastify.get("/api/globals", async () => {
-    return (globals ?? []).map((g) => ({
-      slug: g.slug,
-      label: g.label,
-      fields: g.fields.map((f) => {
-        const base = {
-          name: f.name,
-          type: f.type,
-          label: f.label ?? f.name,
-          required: f.validation?.required ?? false,
-        };
-        if (f.type === "relation") {
-          return { ...base, to: (f as { to?: string }).to ?? "" };
-        }
-        if (f.type === "select" || f.type === "multiSelect" || f.type === "radio") {
-          const opts = (f as { options?: Array<{ label: string; value: string }> }).options ?? [];
-          return { ...base, options: opts.map((o) => o.value) };
-        }
-        return base;
-      }),
-    }));
-  });
+  const globalMeta = (globals ?? []).map((g) => ({
+    slug: g.slug,
+    label: g.label,
+    fields: g.fields.map((f) => {
+      const base = {
+        name: f.name,
+        type: f.type,
+        label: f.label ?? f.name,
+        required: f.validation?.required ?? false,
+      };
+      if (f.type === "relation") {
+        return { ...base, to: (f as { to?: string }).to ?? "" };
+      }
+      if (f.type === "select" || f.type === "multiSelect" || f.type === "radio") {
+        const opts = (f as { options?: Array<{ label: string; value: string }> }).options ?? [];
+        return { ...base, options: opts.map((o) => o.value) };
+      }
+      return base;
+    }),
+  }));
+
+  fastify.get("/api/collections", async () => collectionMeta);
+  fastify.get("/api/globals", async () => globalMeta);
 
   return fastify;
 }

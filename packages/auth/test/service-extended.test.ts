@@ -1,6 +1,8 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import type { DatabaseAdapter } from "@altrugenix/database";
 import { AuthService } from "../src/service.js";
+import { hashPassword } from "../src/password.js";
+import { randomBytes } from "node:crypto";
 
 const config = {
   secret: "test-secret-at-least-32-chars-long-for-security!!",
@@ -78,32 +80,34 @@ describe("AuthService extended", () => {
   });
 
   describe("forgotPassword", () => {
-    it("returns a reset token for registered email", async () => {
+    it("returns generic message for any email", async () => {
       await service.register({ email: "test@example.com", password: "pass123" });
       const result = await service.forgotPassword({ email: "test@example.com" });
       expect(result.message).toContain("reset link");
-      expect(result.resetToken).toBeTruthy();
-      expect(typeof result.resetToken).toBe("string");
+      expect(result).not.toHaveProperty("resetToken");
     });
 
     it("returns generic message for unregistered email", async () => {
       const result = await service.forgotPassword({ email: "unknown@example.com" });
       expect(result.message).toContain("reset link");
-      expect(result.resetToken).toBeUndefined();
+      expect(result).not.toHaveProperty("resetToken");
     });
   });
 
   describe("resetPassword", () => {
     it("resets password with a valid token", async () => {
       await service.register({ email: "reset@example.com", password: "oldpass" });
-      const { resetToken } = await service.forgotPassword({ email: "reset@example.com" });
 
-      const result = await service.resetPassword({
-        token: resetToken as string,
-        password: "newpass",
+      const rawToken = randomBytes(32).toString("hex");
+      const hashedToken = await hashPassword(rawToken);
+      await adapter.create("__cms_password_resets", {
+        email: "reset@example.com",
+        token: hashedToken,
+        expiresAt: new Date(Date.now() + 3600000).toISOString(),
       });
-      expect(result.message).toContain("reset successfully");
 
+      const result = await service.resetPassword({ token: rawToken, password: "newpass" });
+      expect(result.message).toContain("reset");
       await expect(
         service.login({ email: "reset@example.com", password: "newpass" }),
       ).resolves.toBeTruthy();
@@ -117,23 +121,37 @@ describe("AuthService extended", () => {
 
     it("throws for expired token", async () => {
       await service.register({ email: "expired@example.com", password: "oldpass" });
-      await service.forgotPassword({ email: "expired@example.com" });
 
-      await expect(
-        service.resetPassword({ token: "expired-token", password: "newpass" }),
-      ).rejects.toThrow("Invalid or expired reset token");
+      const rawToken = randomBytes(32).toString("hex");
+      const hashedToken = await hashPassword(rawToken);
+      await adapter.create("__cms_password_resets", {
+        email: "expired@example.com",
+        token: hashedToken,
+        expiresAt: new Date(Date.now() - 3600000).toISOString(),
+      });
+
+      await expect(service.resetPassword({ token: rawToken, password: "newpass" })).rejects.toThrow(
+        "Reset token has expired",
+      );
     });
 
     it("throws if user is deleted before reset", async () => {
       await service.register({ email: "deleted@example.com", password: "oldpass" });
-      const { resetToken } = await service.forgotPassword({ email: "deleted@example.com" });
+
+      const rawToken = randomBytes(32).toString("hex");
+      const hashedToken = await hashPassword(rawToken);
+      await adapter.create("__cms_password_resets", {
+        email: "deleted@example.com",
+        token: hashedToken,
+        expiresAt: new Date(Date.now() + 3600000).toISOString(),
+      });
 
       const users = await service.listUsers();
       await service.deleteUser(users[0].id);
 
-      await expect(
-        service.resetPassword({ token: resetToken as string, password: "newpass" }),
-      ).rejects.toThrow("User not found");
+      await expect(service.resetPassword({ token: rawToken, password: "newpass" })).rejects.toThrow(
+        "User not found",
+      );
     });
   });
 

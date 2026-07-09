@@ -60,7 +60,15 @@ export function loadConfig(): ServerConfig {
       url: process.env.DB_URL || "file:./cms.db",
     },
     auth: {
-      secret: process.env.AUTH_SECRET || "dev-secret-change-in-production-min-32-chars!!",
+      secret: (() => {
+        const secret = process.env.AUTH_SECRET;
+        if (!secret) {
+          throw new Error(
+            "AUTH_SECRET environment variable is required. Generate one with: openssl rand -hex 32",
+          );
+        }
+        return secret;
+      })(),
       accessTokenExpiresIn: process.env.AUTH_ACCESS_EXPIRES || "15m",
       refreshTokenExpiresIn: process.env.AUTH_REFRESH_EXPIRES || "7d",
     },

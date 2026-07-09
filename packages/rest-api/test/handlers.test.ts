@@ -21,7 +21,8 @@ const users: Record<string, unknown>[] = [
 
 function createMockAdapter(): DatabaseAdapter {
   let nextId = 3;
-  const store = [...posts];
+  const store = posts.map((p) => ({ ...p }));
+  const userStore = users.map((u) => ({ ...u }));
 
   return {
     findOne: async (collection: string, id: string, options?: QueryOptions) => {
@@ -38,8 +39,8 @@ function createMockAdapter(): DatabaseAdapter {
       }
       return record ?? null;
     },
-    findMany: async (_collection: string, options?: QueryOptions) => {
-      let data = [...store];
+    findMany: async (collection: string, options?: QueryOptions) => {
+      let data = collection === "__cms_users" ? [...userStore] : [...store];
       if (options?.where) {
         const entries = Object.entries(options.where);
         for (const [key, value] of entries) {

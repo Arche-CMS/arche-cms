@@ -202,7 +202,7 @@ describe("adapter error handling", () => {
     const handler = createListHandler(collection, adapter, 100, 10);
     const result = await handler({ params: {}, query: {}, body: null, headers: {} });
     expect(result.statusCode).toBe(500);
-    expect(result.body).toHaveProperty("error", "DB connection failed");
+    expect(result.body).toHaveProperty("error", "Internal server error");
   });
 
   it("getHandler returns 500 on adapter error", async () => {
@@ -210,7 +210,7 @@ describe("adapter error handling", () => {
     const handler = createGetHandler(collection, adapter);
     const result = await handler({ params: { id: "1" }, query: {}, body: null, headers: {} });
     expect(result.statusCode).toBe(500);
-    expect(result.body).toHaveProperty("error", "DB connection failed");
+    expect(result.body).toHaveProperty("error", "Internal server error");
   });
 
   it("createHandler returns 500 on adapter error", async () => {

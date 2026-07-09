@@ -70,7 +70,11 @@ export class PluginManager {
     for (const reg of this.getEnabled()) {
       const hook = reg.plugin.hooks?.[hookName];
       if (hook) {
-        await hook(this.context);
+        try {
+          await hook(this.context);
+        } catch (e) {
+          console.error(`Plugin hook error [${reg.plugin.slug}][${hookName}]:`, e);
+        }
       }
     }
   }
@@ -82,7 +86,11 @@ export class PluginManager {
     for (const reg of this.getEnabled()) {
       const hook = reg.plugin.hooks?.[hookName];
       if (hook) {
-        await hook(this.context, requestOrResponse);
+        try {
+          await hook(this.context, requestOrResponse);
+        } catch (e) {
+          console.error(`Plugin hook error [${reg.plugin.slug}][${hookName}]:`, e);
+        }
       }
     }
   }
@@ -91,7 +99,11 @@ export class PluginManager {
     for (const reg of this.getEnabled()) {
       const hook = reg.plugin.hooks?.[hookName];
       if (hook) {
-        await hook(this.context);
+        try {
+          await hook(this.context);
+        } catch (e) {
+          console.error(`Plugin hook error [${reg.plugin.slug}][${hookName}]:`, e);
+        }
       }
     }
   }

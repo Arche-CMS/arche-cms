@@ -85,6 +85,7 @@ const testConfig: ServerConfig = {
 describe("CMS API Server", () => {
   let app: FastifyInstance;
   let adapter: DatabaseAdapter;
+  let authToken: string;
 
   beforeAll(async () => {
     adapter = createMockAdapter();
@@ -93,6 +94,13 @@ describe("CMS API Server", () => {
       adapter,
       collections: [collection],
     });
+    // Register a user and get an auth token for CRUD tests
+    const regRes = await app.inject({
+      method: "POST",
+      url: "/api/auth/register",
+      body: { email: "crud@example.com", password: "password123" },
+    });
+    authToken = JSON.parse(regRes.body).tokens.accessToken;
   });
 
   afterAll(async () => {
@@ -124,6 +132,7 @@ describe("CMS API Server", () => {
     const res = await app.inject({
       method: "GET",
       url: "/api/posts",
+      headers: { authorization: `Bearer ${authToken}` },
     });
     expect(res.statusCode).toBe(200);
     const body = JSON.parse(res.body);
@@ -135,6 +144,7 @@ describe("CMS API Server", () => {
     const res = await app.inject({
       method: "GET",
       url: "/api/posts/1",
+      headers: { authorization: `Bearer ${authToken}` },
     });
     expect(res.statusCode).toBe(200);
     const body = JSON.parse(res.body);
@@ -145,6 +155,7 @@ describe("CMS API Server", () => {
     const res = await app.inject({
       method: "POST",
       url: "/api/posts",
+      headers: { authorization: `Bearer ${authToken}` },
       body: { title: "New Post", body: "Content" },
     });
     expect(res.statusCode).toBe(201);
@@ -154,6 +165,7 @@ describe("CMS API Server", () => {
     const res = await app.inject({
       method: "PATCH",
       url: "/api/posts/1",
+      headers: { authorization: `Bearer ${authToken}` },
       body: { title: "Updated", body: "Content" },
     });
     expect(res.statusCode).toBe(404);
@@ -163,6 +175,7 @@ describe("CMS API Server", () => {
     const res = await app.inject({
       method: "DELETE",
       url: "/api/posts/1",
+      headers: { authorization: `Bearer ${authToken}` },
     });
     expect(res.statusCode).toBe(200);
   });
@@ -179,6 +192,7 @@ describe("CMS API Server", () => {
     const res = await app.inject({
       method: "POST",
       url: "/api/posts",
+      headers: { authorization: `Bearer ${authToken}` },
       body: null,
     });
     expect(res.statusCode).toBe(400);

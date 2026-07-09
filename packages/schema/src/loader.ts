@@ -6,6 +6,11 @@ import type {
   ComponentDefinition,
 } from "@altrugenix/types";
 
+interface WithSlug {
+  slug: string;
+  fields: unknown[];
+}
+
 export interface SchemaLoaderOptions {
   baseDir: string;
   watch?: boolean;
@@ -35,9 +40,11 @@ export class SchemaLoader {
   async load(): Promise<LoadedSchema> {
     if (this.options.onBeforeLoad) await this.options.onBeforeLoad();
 
-    const collections = await this.loadCollections();
-    const globals = await this.loadGlobals();
-    const components = await this.loadComponents();
+    const [collections, globals, components] = await Promise.all([
+      this.loadCollections(),
+      this.loadGlobals(),
+      this.loadComponents(),
+    ]);
 
     const result = { collections, globals, components };
 
@@ -46,66 +53,54 @@ export class SchemaLoader {
     return result;
   }
 
-  private async loadCollections(): Promise<Map<string, CollectionDefinition>> {
-    const map = new Map<string, CollectionDefinition>();
-    const dir = resolve(this.baseDir, "collections");
+  private async loadFromDir<T extends WithSlug>(
+    dirName: string,
+    validate: (def: unknown) => def is T,
+  ): Promise<Map<string, T>> {
+    const map = new Map<string, T>();
+    const dir = resolve(this.baseDir, dirName);
 
     try {
       const files = await readdir(dir);
-      for (const file of files) {
-        if (!file.endsWith(".ts") && !file.endsWith(".js")) continue;
-        const mod = await import(resolve(dir, file));
+      const filtered = files.filter((f) => f.endsWith(".ts") || f.endsWith(".js"));
+      if (filtered.length === 0) return map;
+
+      const mods = await Promise.all(filtered.map((file) => import(resolve(dir, file))));
+
+      for (const mod of mods) {
         const def = mod.default ?? mod;
-        if (def && typeof def === "object" && "slug" in def && "fields" in def) {
-          map.set(def.slug, def as CollectionDefinition);
+        if (validate(def)) {
+          map.set(def.slug, def);
         }
       }
     } catch {
-      // Collections directory doesn't exist yet
+      // Directory doesn't exist yet
     }
 
     return map;
   }
 
-  private async loadGlobals(): Promise<Map<string, GlobalDefinition>> {
-    const map = new Map<string, GlobalDefinition>();
-    const dir = resolve(this.baseDir, "globals");
-
-    try {
-      const files = await readdir(dir);
-      for (const file of files) {
-        if (!file.endsWith(".ts") && !file.endsWith(".js")) continue;
-        const mod = await import(resolve(dir, file));
-        const def = mod.default ?? mod;
-        if (def && typeof def === "object" && "slug" in def && "fields" in def) {
-          map.set(def.slug, def as GlobalDefinition);
-        }
-      }
-    } catch {
-      // Globals directory doesn't exist yet
-    }
-
-    return map;
+  private loadCollections(): Promise<Map<string, CollectionDefinition>> {
+    return this.loadFromDir(
+      "collections",
+      (def): def is CollectionDefinition =>
+        typeof def === "object" && def !== null && "slug" in def && "fields" in def,
+    );
   }
 
-  private async loadComponents(): Promise<Map<string, ComponentDefinition>> {
-    const map = new Map<string, ComponentDefinition>();
-    const dir = resolve(this.baseDir, "components");
+  private loadGlobals(): Promise<Map<string, GlobalDefinition>> {
+    return this.loadFromDir(
+      "globals",
+      (def): def is GlobalDefinition =>
+        typeof def === "object" && def !== null && "slug" in def && "fields" in def,
+    );
+  }
 
-    try {
-      const files = await readdir(dir);
-      for (const file of files) {
-        if (!file.endsWith(".ts") && !file.endsWith(".js")) continue;
-        const mod = await import(resolve(dir, file));
-        const def = mod.default ?? mod;
-        if (def && typeof def === "object" && "slug" in def && "fields" in def) {
-          map.set(def.slug, def as ComponentDefinition);
-        }
-      }
-    } catch {
-      // Components directory doesn't exist yet
-    }
-
-    return map;
+  private loadComponents(): Promise<Map<string, ComponentDefinition>> {
+    return this.loadFromDir(
+      "components",
+      (def): def is ComponentDefinition =>
+        typeof def === "object" && def !== null && "slug" in def && "fields" in def,
+    );
   }
 }

@@ -119,36 +119,55 @@ function getRelationFields(collection: CollectionDefinition): RelationField[] {
   return collection.fields.filter(isRelationField);
 }
 
-async function populateRelation(
-  record: Record<string, unknown>,
-  fieldName: string,
-  targetCollection: string,
-  adapter: DatabaseAdapter,
-): Promise<void> {
-  const value = record[fieldName];
-  if (value == null) return;
-  const tableName = collectionTableName(targetCollection);
-  if (typeof value === "string") {
-    const related = await adapter.findOne(tableName, value);
-    record[fieldName] = related ?? null;
-  } else if (Array.isArray(value)) {
-    const ids = value.map((v) => String(v));
-    const result = await adapter.findMany(tableName, { where: { id: ids } });
-    record[fieldName] = result.data;
-  }
-}
-
 async function populateRelations(
   records: Record<string, unknown>[],
   populateFields: string[],
   collection: CollectionDefinition,
   adapter: DatabaseAdapter,
 ): Promise<void> {
-  const relationFields = getRelationFields(collection);
-  for (const record of records) {
-    for (const rf of relationFields) {
-      if (populateFields.includes(rf.name)) {
-        await populateRelation(record, rf.name, rf.to, adapter);
+  const relationFields = getRelationFields(collection).filter((rf) =>
+    populateFields.includes(rf.name),
+  );
+  if (relationFields.length === 0 || records.length === 0) return;
+
+  for (const rf of relationFields) {
+    const tableName = collectionTableName(rf.to);
+    const allIds = new Set<string>();
+    const isArrayMap = new Map<number, boolean>();
+
+    for (let i = 0; i < records.length; i++) {
+      const record = records[i] as Record<string, unknown>;
+      const value = record[rf.name];
+      if (value == null) continue;
+      if (Array.isArray(value)) {
+        isArrayMap.set(i, true);
+        for (const v of value as unknown[]) allIds.add(String(v));
+      } else {
+        isArrayMap.set(i, false);
+        allIds.add(String(value));
+      }
+    }
+
+    if (allIds.size === 0) continue;
+
+    const { data: relatedRecords } = await adapter.findMany(tableName, {
+      where: { id: [...allIds] },
+    });
+    const relatedMap = new Map<string, Record<string, unknown>>();
+    for (const row of relatedRecords) {
+      relatedMap.set(String(row.id), row);
+    }
+
+    for (let i = 0; i < records.length; i++) {
+      const record = records[i] as Record<string, unknown>;
+      const value = record[rf.name];
+      if (value == null) continue;
+      if (isArrayMap.get(i) === true) {
+        record[rf.name] = (value as unknown[]).map(
+          (v: unknown) => relatedMap.get(String(v)) ?? null,
+        );
+      } else {
+        record[rf.name] = relatedMap.get(String(value)) ?? null;
       }
     }
   }
@@ -175,8 +194,8 @@ export function createListHandler(
         await populateRelations(result.data, options.populate, collection, adapter);
       }
       return { statusCode: 200, body: result };
-    } catch (e) {
-      return errorResult(500, e instanceof Error ? e.message : "Internal server error");
+    } catch {
+      return errorResult(500, "Internal server error");
     }
   };
 }
@@ -199,8 +218,8 @@ export function createGetHandler(
         await populateRelations([record], populate, collection, adapter);
       }
       return { statusCode: 200, body: record };
-    } catch (e) {
-      return errorResult(500, e instanceof Error ? e.message : "Internal server error");
+    } catch {
+      return errorResult(500, "Internal server error");
     }
   };
 }
@@ -232,7 +251,7 @@ export function createCreateHandler(
           body: { error: "A record with this value already exists", code: "CONFLICT" },
         };
       }
-      return errorResult(500, e instanceof Error ? e.message : "Internal server error");
+      return errorResult(500, "Internal server error");
     }
   };
 }
@@ -267,7 +286,7 @@ export function createUpdateHandler(
           body: { error: "A record with this value already exists", code: "CONFLICT" },
         };
       }
-      return errorResult(500, e instanceof Error ? e.message : "Internal server error");
+      return errorResult(500, "Internal server error");
     }
   };
 }
@@ -281,8 +300,8 @@ export function createGlobalGetHandler(
       const tableName = collectionTableName(globalDef.slug);
       const record = await adapter.findOne(tableName, "1");
       return { statusCode: 200, body: record ?? {} };
-    } catch (e) {
-      return errorResult(500, e instanceof Error ? e.message : "Internal server error");
+    } catch {
+      return errorResult(500, "Internal server error");
     }
   };
 }
@@ -315,7 +334,7 @@ export function createGlobalUpsertHandler(
           body: { error: "A record with this value already exists", code: "CONFLICT" },
         };
       }
-      return errorResult(500, e instanceof Error ? e.message : "Internal server error");
+      return errorResult(500, "Internal server error");
     }
   };
 }
@@ -340,8 +359,8 @@ export function createBulkDeleteHandler(
       const tableName = collectionTableName(collection.slug);
       const deleted = await adapter.deleteMany(tableName, ids);
       return { statusCode: 200, body: { deleted } };
-    } catch (e) {
-      return errorResult(500, e instanceof Error ? e.message : "Internal server error");
+    } catch {
+      return errorResult(500, "Internal server error");
     }
   };
 }
@@ -358,8 +377,8 @@ export function createDeleteHandler(
       const deleted = await adapter.delete(tableName, id);
       if (!deleted) return errorResult(404, "Not found");
       return { statusCode: 200, body: { id, deleted: true } };
-    } catch (e) {
-      return errorResult(500, e instanceof Error ? e.message : "Internal server error");
+    } catch {
+      return errorResult(500, "Internal server error");
     }
   };
 }

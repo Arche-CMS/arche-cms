@@ -71,13 +71,13 @@ describe("AuthService", () => {
       ).rejects.toThrow("already exists");
     });
 
-    it("accepts custom role", async () => {
+    it("ignores custom role and enforces editor by default", async () => {
       const result = await service.register({
         email: "admin@example.com",
         password: "pass123",
         role: "admin",
       });
-      expect(result.user.role).toBe("admin");
+      expect(result.user.role).toBe("editor");
     });
   });
 

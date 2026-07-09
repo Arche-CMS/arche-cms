@@ -53,13 +53,25 @@ export class SQLiteAdapter implements DatabaseAdapter {
   ): Promise<{ data: Record<string, unknown>[]; total: number }> {
     const where = options?.where ?? {};
     const keys = Object.keys(where);
-    const conditions = keys.map((k) => `"${k}" = ?`).join(" AND ");
-    const whereClause = conditions ? `WHERE ${conditions}` : "";
-    const values = toArgs(Object.values(where));
+
+    const conditions: string[] = [];
+    const values: unknown[] = [];
+    for (const key of keys) {
+      const val = where[key];
+      if (Array.isArray(val)) {
+        conditions.push(`"${key}" IN (${val.map(() => "?").join(", ")})`);
+        values.push(...val);
+      } else {
+        conditions.push(`"${key}" = ?`);
+        values.push(val);
+      }
+    }
+
+    const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
 
     const countResult = await this.db.execute({
       sql: `SELECT COUNT(*) as count FROM "${collection}" ${whereClause}`,
-      args: values,
+      args: toArgs(values),
     });
     const total = Number((countResult.rows[0] as Record<string, unknown>)?.count ?? 0);
 
@@ -74,7 +86,7 @@ export class SQLiteAdapter implements DatabaseAdapter {
 
     const dataResult = await this.db.execute({
       sql: `SELECT * FROM "${collection}" ${whereClause} ${sortClause} ${limitClause} ${offsetClause}`,
-      args: values,
+      args: toArgs(values),
     });
 
     return { data: dataResult.rows as Record<string, unknown>[], total };
@@ -90,12 +102,11 @@ export class SQLiteAdapter implements DatabaseAdapter {
     const columns = keys.map((k) => `"${k}"`).join(", ");
 
     const result = await this.db.execute({
-      sql: `INSERT INTO "${collection}" (${columns}) VALUES (${placeholders})`,
+      sql: `INSERT INTO "${collection}" (${columns}) VALUES (${placeholders}) RETURNING *`,
       args: values,
     });
 
-    const id = Number(result.lastInsertRowid);
-    return this.findOne(collection, String(id)) as Promise<Record<string, unknown>>;
+    return result.rows[0] as Record<string, unknown>;
   }
 
   async update(
@@ -107,12 +118,12 @@ export class SQLiteAdapter implements DatabaseAdapter {
     const values = toArgs(Object.values(data));
     const setClause = keys.map((k) => `"${k}" = ?`).join(", ");
 
-    await this.db.execute({
-      sql: `UPDATE "${collection}" SET ${setClause} WHERE id = ?`,
+    const result = await this.db.execute({
+      sql: `UPDATE "${collection}" SET ${setClause} WHERE id = ? RETURNING *`,
       args: [...values, id],
     });
 
-    return this.findOne(collection, id);
+    return (result.rows[0] as Record<string, unknown> | undefined) ?? null;
   }
 
   async delete(collection: string, id: string): Promise<boolean> {

@@ -54,7 +54,7 @@ export class AuthService {
     const created = await this.db.create(USERS_TABLE, {
       email: input.email,
       password: passwordHash,
-      role: input.role ?? "editor",
+      role: "editor",
       createdAt: now,
       updatedAt: now,
     });
@@ -125,7 +125,6 @@ export class AuthService {
 
     return {
       message: "If that email is registered, a reset link has been sent",
-      resetToken: rawToken,
     };
   }
 

@@ -1,24 +1,33 @@
 import { mkdir, writeFile, unlink, stat } from "node:fs/promises";
 import { createReadStream } from "node:fs";
-import { join, dirname } from "node:path";
+import { join, dirname, resolve } from "node:path";
 import type { Readable } from "node:stream";
 import type { StorageAdapter } from "./types.js";
+
+function safePath(baseDir: string, filePath: string): string {
+  const fullPath = resolve(join(baseDir, filePath));
+  const resolvedBase = resolve(baseDir);
+  if (!fullPath.startsWith(resolvedBase)) {
+    throw new Error("Invalid file path");
+  }
+  return fullPath;
+}
 
 export class LocalStorageAdapter implements StorageAdapter {
   private readonly baseDir: string;
 
   constructor(baseDir: string) {
-    this.baseDir = baseDir;
+    this.baseDir = resolve(baseDir);
   }
 
   async save(filePath: string, buffer: Buffer, _mimeType: string): Promise<void> {
-    const fullPath = join(this.baseDir, filePath);
+    const fullPath = safePath(this.baseDir, filePath);
     await mkdir(dirname(fullPath), { recursive: true });
     await writeFile(fullPath, buffer);
   }
 
   async delete(filePath: string): Promise<boolean> {
-    const fullPath = join(this.baseDir, filePath);
+    const fullPath = safePath(this.baseDir, filePath);
     try {
       await unlink(fullPath);
       return true;
@@ -28,12 +37,12 @@ export class LocalStorageAdapter implements StorageAdapter {
   }
 
   async getStream(filePath: string): Promise<Readable> {
-    const fullPath = join(this.baseDir, filePath);
+    const fullPath = safePath(this.baseDir, filePath);
     return createReadStream(fullPath);
   }
 
   async exists(filePath: string): Promise<boolean> {
-    const fullPath = join(this.baseDir, filePath);
+    const fullPath = safePath(this.baseDir, filePath);
     try {
       await stat(fullPath);
       return true;

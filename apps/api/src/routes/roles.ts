@@ -28,7 +28,7 @@ export function registerRoleRoutes(fastify: FastifyInstance, adapter: DatabaseAd
 
   fastify.post(
     "/api/roles",
-    { preHandler: [fastify.authenticate] },
+    { preHandler: [fastify.authenticate, fastify.requirePermission("manage", "roles")] },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const body = request.body as {
         name: string;
@@ -51,7 +51,7 @@ export function registerRoleRoutes(fastify: FastifyInstance, adapter: DatabaseAd
 
   fastify.patch(
     "/api/roles/:id",
-    { preHandler: [fastify.authenticate] },
+    { preHandler: [fastify.authenticate, fastify.requirePermission("manage", "roles")] },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const { id } = request.params as { id: string };
       const body = request.body as {
@@ -70,7 +70,7 @@ export function registerRoleRoutes(fastify: FastifyInstance, adapter: DatabaseAd
 
   fastify.delete(
     "/api/roles/:id",
-    { preHandler: [fastify.authenticate] },
+    { preHandler: [fastify.authenticate, fastify.requirePermission("manage", "roles")] },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const { id } = request.params as { id: string };
       const deleted = await ac.deleteRole(id);

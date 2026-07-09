@@ -82,6 +82,7 @@ export function registerCollectionRoutes(
     void fastify.route({
       method: routeDef.method,
       url: routeDef.path,
+      preHandler: [fastify.authenticate],
       handler: asHandler(handler),
     });
   }
@@ -100,6 +101,7 @@ export function registerGlobalRoutes(
     void fastify.route({
       method: routeDef.method,
       url: routeDef.path,
+      preHandler: [fastify.authenticate],
       handler: asHandler(handler),
     });
   }

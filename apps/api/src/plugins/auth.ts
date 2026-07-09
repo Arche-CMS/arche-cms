@@ -58,7 +58,7 @@ export async function registerAuth(
             .send({ error: "Password must be at least 8 characters", code: "VALIDATION_ERROR" });
         }
 
-        const result = await authService.register(request.body);
+        const result = await authService.register({ ...request.body, role: undefined });
         return reply.status(201).send(result);
       } catch (error) {
         const message = error instanceof Error ? error.message : "Registration failed";
@@ -100,8 +100,16 @@ export async function registerAuth(
     "/api/auth/forgot-password",
     async (request: FastifyRequest<{ Body: { email: string } }>, reply: FastifyReply) => {
       try {
-        const result = await authService.forgotPassword(request.body);
-        return reply.send(result);
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(request.body.email)) {
+          return reply
+            .status(400)
+            .send({ error: "Invalid email format", code: "VALIDATION_ERROR" });
+        }
+        await authService.forgotPassword(request.body);
+        return reply.send({
+          message: "If that email is registered, a reset link has been sent",
+        });
       } catch (error) {
         const message = error instanceof Error ? error.message : "Failed to process request";
         return reply.status(400).send({ error: message });

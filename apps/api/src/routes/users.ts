@@ -32,7 +32,7 @@ export function registerUserRoutes(
 
   fastify.patch(
     "/api/users/:id",
-    { preHandler: [fastify.authenticate] },
+    { preHandler: [fastify.authenticate, fastify.requirePermission("update", "users")] },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const { id } = request.params as { id: string };
       const body = request.body as { email?: string; role?: string };
@@ -44,7 +44,7 @@ export function registerUserRoutes(
 
   fastify.delete(
     "/api/users/:id",
-    { preHandler: [fastify.authenticate] },
+    { preHandler: [fastify.authenticate, fastify.requirePermission("delete", "users")] },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const { id } = request.params as { id: string };
       const deleted = await authService.deleteUser(id);

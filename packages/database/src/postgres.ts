@@ -49,9 +49,24 @@ export class PostgresAdapter implements DatabaseAdapter {
   ): Promise<{ data: Record<string, unknown>[]; total: number }> {
     const where = options?.where ?? {};
     const keys = Object.keys(where);
-    const conditions = keys.map((k, i) => `"${k}" = $${i + 1}`).join(" AND ");
-    const whereClause = conditions ? `WHERE ${conditions}` : "";
-    const values = Object.values(where);
+
+    let paramIndex = 0;
+    const conditions: string[] = [];
+    const values: unknown[] = [];
+    for (const key of keys) {
+      const val = where[key];
+      if (Array.isArray(val)) {
+        const placeholders = val.map(() => `$${++paramIndex}`);
+        conditions.push(`"${key}" IN (${placeholders.join(", ")})`);
+        values.push(...val);
+      } else {
+        paramIndex++;
+        conditions.push(`"${key}" = $${paramIndex}`);
+        values.push(val);
+      }
+    }
+
+    const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
 
     const countResult = await this.query(
       `SELECT COUNT(*) as count FROM "${collection}" ${whereClause}`,
