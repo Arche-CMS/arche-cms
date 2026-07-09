@@ -1,6 +1,20 @@
 {
   "$schema": "https://raw.githubusercontent.com/fallow-rs/fallow/main/schema.json",
-  "ignorePatterns": ["**/node_modules/**", "**/dist/**", "**/.turbo/**", "**/coverage/**"],
+  "ignorePatterns": [
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/.turbo/**",
+    "**/coverage/**",
+    ".vitepress/cache/**"
+  ],
+  "ignoreDependencies": [
+    "@altrugenix/types",
+    "@altrugenix/core",
+    "@altrugenix/database",
+    "@altrugenix/rest-api",
+    "@altrugenix/schema",
+    "@altrugenix/validation"
+  ],
   "audit": {
     "gate": "new-only"
   },

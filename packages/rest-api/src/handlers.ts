@@ -119,6 +119,45 @@ function getRelationFields(collection: CollectionDefinition): RelationField[] {
   return collection.fields.filter(isRelationField);
 }
 
+type IdCollection = { allIds: Set<string>; isArrayMap: Map<number, boolean> };
+
+function collectRelationIds(records: Record<string, unknown>[], field: string): IdCollection {
+  const allIds = new Set<string>();
+  const isArrayMap = new Map<number, boolean>();
+  for (let i = 0; i < records.length; i++) {
+    const record = records[i];
+    if (!record) continue;
+    const value = record[field];
+    if (value == null) continue;
+    if (Array.isArray(value)) {
+      isArrayMap.set(i, true);
+      for (const v of value as unknown[]) allIds.add(String(v));
+    } else {
+      isArrayMap.set(i, false);
+      allIds.add(String(value));
+    }
+  }
+  return { allIds, isArrayMap };
+}
+
+function attachRelatedRecords(
+  records: Record<string, unknown>[],
+  field: string,
+  relatedMap: Map<string, Record<string, unknown>>,
+  isArrayMap: Map<number, boolean>,
+): void {
+  for (let i = 0; i < records.length; i++) {
+    const record = records[i];
+    if (!record) continue;
+    const value = record[field];
+    if (value == null) continue;
+    record[field] =
+      isArrayMap.get(i) === true
+        ? (value as unknown[]).map((v: unknown) => relatedMap.get(String(v)) ?? null)
+        : (relatedMap.get(String(value)) ?? null);
+  }
+}
+
 async function populateRelations(
   records: Record<string, unknown>[],
   populateFields: string[],
@@ -132,22 +171,7 @@ async function populateRelations(
 
   for (const rf of relationFields) {
     const tableName = collectionTableName(rf.to);
-    const allIds = new Set<string>();
-    const isArrayMap = new Map<number, boolean>();
-
-    for (let i = 0; i < records.length; i++) {
-      const record = records[i] as Record<string, unknown>;
-      const value = record[rf.name];
-      if (value == null) continue;
-      if (Array.isArray(value)) {
-        isArrayMap.set(i, true);
-        for (const v of value as unknown[]) allIds.add(String(v));
-      } else {
-        isArrayMap.set(i, false);
-        allIds.add(String(value));
-      }
-    }
-
+    const { allIds, isArrayMap } = collectRelationIds(records, rf.name);
     if (allIds.size === 0) continue;
 
     const { data: relatedRecords } = await adapter.findMany(tableName, {
@@ -158,18 +182,7 @@ async function populateRelations(
       relatedMap.set(String(row.id), row);
     }
 
-    for (let i = 0; i < records.length; i++) {
-      const record = records[i] as Record<string, unknown>;
-      const value = record[rf.name];
-      if (value == null) continue;
-      if (isArrayMap.get(i) === true) {
-        record[rf.name] = (value as unknown[]).map(
-          (v: unknown) => relatedMap.get(String(v)) ?? null,
-        );
-      } else {
-        record[rf.name] = relatedMap.get(String(value)) ?? null;
-      }
-    }
+    attachRelatedRecords(records, rf.name, relatedMap, isArrayMap);
   }
 }
 

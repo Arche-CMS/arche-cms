@@ -26,7 +26,9 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@altrugenix/types": "workspace:*",
+    "@altrugenix/types": "workspace:*"
+  },
+  "peerDependencies": {
     "zod": "^4.4.3"
   }
 }

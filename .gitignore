@@ -10,6 +10,8 @@ dist/
 .DS_Store
 *.log
 coverage/
+.vitepress/cache/
+.fallow/
 
 # SQLite dev database
 *.db

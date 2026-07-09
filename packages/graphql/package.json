@@ -28,7 +28,9 @@
   "dependencies": {
     "@altrugenix/database": "workspace:*",
     "@altrugenix/types": "workspace:*",
-    "@altrugenix/validation": "workspace:*",
+    "@altrugenix/validation": "workspace:*"
+  },
+  "peerDependencies": {
     "graphql": "^16.0.0",
     "mercurius": "^16.9.0"
   }

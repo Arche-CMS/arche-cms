@@ -132,94 +132,147 @@ export function registerSchemaRoutes(fastify: FastifyInstance, config: ServerCon
     return `{ ${entries.map(([k, v]) => `${k}: ${JSON.stringify(v)}`).join(", ")} }`;
   }
 
+  function serializeCommon(field: Record<string, unknown>): string {
+    const pushIf = (parts: string[], cond: unknown, val: string) => {
+      if (cond) parts.push(val);
+      return parts;
+    };
+    let parts: string[] = [];
+    parts = pushIf(parts, field.label, `label: ${JSON.stringify(field.label)}`);
+    parts = pushIf(parts, field.localized, "localized: true");
+    parts = pushIf(
+      parts,
+      field.defaultValue !== undefined,
+      `defaultValue: ${JSON.stringify(field.defaultValue)}`,
+    );
+    const v = serializeValidation(field.validation as Record<string, unknown> | undefined);
+    parts = pushIf(parts, v, `validation: ${v}`);
+    const a = serializeAdmin(field.admin as Record<string, unknown> | undefined);
+    parts = pushIf(parts, a, `admin: ${a}`);
+    return parts.join(", ");
+  }
+
+  const TYPE_SERIALIZERS: Record<string, (f: FieldDefinition) => string> = {
+    relation(f) {
+      const rf = f as { to?: string; kind?: string };
+      return [
+        rf.to && `to: ${JSON.stringify(rf.to)}`,
+        rf.kind && `kind: ${JSON.stringify(rf.kind)}`,
+      ]
+        .filter(Boolean)
+        .join(", ");
+    },
+    component(f) {
+      const cf = f as { component?: string; repeatable?: boolean };
+      return [
+        cf.component && `component: ${JSON.stringify(cf.component)}`,
+        cf.repeatable !== undefined && `repeatable: ${String(cf.repeatable)}`,
+      ]
+        .filter(Boolean)
+        .join(", ");
+    },
+    dynamicZone(f) {
+      const df = f as { components?: string[] };
+      return df.components ? `components: ${JSON.stringify(df.components)}` : "";
+    },
+    slug(f) {
+      const sf = f as { source?: string; unique?: boolean };
+      return [
+        sf.source && `source: ${JSON.stringify(sf.source)}`,
+        sf.unique !== undefined && `unique: ${String(sf.unique)}`,
+      ]
+        .filter(Boolean)
+        .join(", ");
+    },
+    code(f) {
+      const cf = f as { language?: string };
+      return cf.language ? `language: ${JSON.stringify(cf.language)}` : "";
+    },
+    color(f) {
+      const cf = f as { format?: string };
+      return cf.format ? `format: ${JSON.stringify(cf.format)}` : "";
+    },
+    media(f) {
+      const mf = f as { multiple?: boolean; allowedTypes?: string[] };
+      return [
+        mf.multiple !== undefined && `multiple: ${String(mf.multiple)}`,
+        mf.allowedTypes && `allowedTypes: ${JSON.stringify(mf.allowedTypes)}`,
+      ]
+        .filter(Boolean)
+        .join(", ");
+    },
+    upload(f) {
+      const mf = f as { multiple?: boolean; allowedTypes?: string[] };
+      return [
+        mf.multiple !== undefined && `multiple: ${String(mf.multiple)}`,
+        mf.allowedTypes && `allowedTypes: ${JSON.stringify(mf.allowedTypes)}`,
+      ]
+        .filter(Boolean)
+        .join(", ");
+    },
+    array(f) {
+      return serializeNested(f);
+    },
+    object(f) {
+      return serializeNested(f);
+    },
+    group(f) {
+      return serializeNested(f);
+    },
+    repeater(f) {
+      return serializeNested(f);
+    },
+  };
+
+  function serializeNested(f: FieldDefinition): string {
+    const nf = f as { fields?: FieldDefinition[] };
+    if (!nf.fields || nf.fields.length === 0) return "";
+    return `fields: [${nf.fields.map((f) => generateFieldCode(f)).join(", ")}]`;
+  }
+
+  function serializeTabs(f: FieldDefinition): string {
+    const tf = f as { tabs?: Array<{ label: string; fields: FieldDefinition[] }> };
+    if (!tf.tabs || tf.tabs.length === 0) return "";
+    const tabsCode = tf.tabs
+      .map(
+        (t) =>
+          `{ label: ${JSON.stringify(t.label)}, fields: [${t.fields.map((f) => generateFieldCode(f)).join(", ")}] }`,
+      )
+      .join(", ");
+    return `tabs: [${tabsCode}]`;
+  }
+
+  function serializeSelectOptions(f: FieldDefinition): string {
+    const sf = f as { options?: Array<{ label: string; value: string } | string> };
+    if (!sf.options || sf.options.length === 0) return "";
+    const optsCode = sf.options
+      .map((o) => {
+        if (typeof o === "string") return JSON.stringify(o);
+        return `{ label: ${JSON.stringify(o.label)}, value: ${JSON.stringify(o.value)} }`;
+      })
+      .join(", ");
+    return `options: [${optsCode}]`;
+  }
+
   function serializeFieldOptions(field: FieldDefinition): string {
-    const parts: string[] = [];
-    const f = field as unknown as Record<string, unknown>;
-    if (f.label) parts.push(`label: ${JSON.stringify(f.label)}`);
-    if (f.localized) parts.push("localized: true");
-    if (f.defaultValue !== undefined) parts.push(`defaultValue: ${JSON.stringify(f.defaultValue)}`);
-    const validation = f.validation as Record<string, unknown> | undefined;
-    if (validation && Object.keys(validation).length > 0) {
-      const v = serializeValidation(validation);
-      if (v) parts.push(`validation: ${v}`);
-    }
-    const adminOpts = f.admin as Record<string, unknown> | undefined;
-    if (adminOpts && Object.keys(adminOpts).length > 0) {
-      const a = serializeAdmin(adminOpts);
-      if (a) parts.push(`admin: ${a}`);
-    }
+    const typeSerializer = TYPE_SERIALIZERS[field.type];
+    const typePart = typeSerializer ? typeSerializer(field) : "";
+    const tabsPart = field.type === "tabs" ? serializeTabs(field) : "";
+    const selectPart =
+      field.type === "select" || field.type === "multiSelect" || field.type === "radio"
+        ? serializeSelectOptions(field)
+        : "";
 
-    // Type-specific options
-    if (field.type === "relation") {
-      const rf = field as { to?: string; kind?: string };
-      if (rf.to) parts.push(`to: ${JSON.stringify(rf.to)}`);
-      if (rf.kind) parts.push(`kind: ${JSON.stringify(rf.kind)}`);
-    }
-    if (field.type === "component") {
-      const cf = field as { component?: string; repeatable?: boolean };
-      if (cf.component) parts.push(`component: ${JSON.stringify(cf.component)}`);
-      if (cf.repeatable !== undefined) parts.push(`repeatable: ${String(cf.repeatable)}`);
-    }
-    if (field.type === "dynamicZone") {
-      const df = field as { components?: string[] };
-      if (df.components) parts.push(`components: ${JSON.stringify(df.components)}`);
-    }
-    if (field.type === "slug") {
-      const sf = field as { source?: string; unique?: boolean };
-      if (sf.source) parts.push(`source: ${JSON.stringify(sf.source)}`);
-      if (sf.unique !== undefined) parts.push(`unique: ${String(sf.unique)}`);
-    }
-    if (field.type === "code") {
-      const cf = field as { language?: string };
-      if (cf.language) parts.push(`language: ${JSON.stringify(cf.language)}`);
-    }
-    if (field.type === "color") {
-      const cf = field as { format?: string };
-      if (cf.format) parts.push(`format: ${JSON.stringify(cf.format)}`);
-    }
-    if (field.type === "media" || field.type === "upload") {
-      const mf = field as { multiple?: boolean; allowedTypes?: string[] };
-      if (mf.multiple !== undefined) parts.push(`multiple: ${String(mf.multiple)}`);
-      if (mf.allowedTypes) parts.push(`allowedTypes: ${JSON.stringify(mf.allowedTypes)}`);
-    }
+    const allParts = [
+      serializeCommon(field as unknown as Record<string, unknown>),
+      typePart,
+      tabsPart,
+      selectPart,
+    ]
+      .filter(Boolean)
+      .join(", ");
 
-    // Nested fields (array, object, group, repeater)
-    if (["array", "object", "group", "repeater"].includes(field.type)) {
-      const nf = field as { fields?: FieldDefinition[] };
-      if (nf.fields && nf.fields.length > 0) {
-        parts.push(`fields: [${nf.fields.map((f) => generateFieldCode(f)).join(", ")}]`);
-      }
-    }
-
-    // tabs
-    if (field.type === "tabs") {
-      const tf = field as { tabs?: Array<{ label: string; fields: FieldDefinition[] }> };
-      if (tf.tabs && tf.tabs.length > 0) {
-        const tabsCode = tf.tabs
-          .map(
-            (t) =>
-              `{ label: ${JSON.stringify(t.label)}, fields: [${t.fields.map((f) => generateFieldCode(f)).join(", ")}] }`,
-          )
-          .join(", ");
-        parts.push(`tabs: [${tabsCode}]`);
-      }
-    }
-
-    // select/multiSelect/radio options
-    if (field.type === "select" || field.type === "multiSelect" || field.type === "radio") {
-      const sf = field as { options?: Array<{ label: string; value: string } | string> };
-      if (sf.options && sf.options.length > 0) {
-        const optsCode = sf.options
-          .map((o) => {
-            if (typeof o === "string") return JSON.stringify(o);
-            return `{ label: ${JSON.stringify(o.label)}, value: ${JSON.stringify(o.value)} }`;
-          })
-          .join(", ");
-        parts.push(`options: [${optsCode}]`);
-      }
-    }
-
-    return parts.length > 0 ? `{ ${parts.join(", ")} }` : "";
+    return allParts ? `{ ${allParts} }` : "";
   }
 
   function generateFieldCode(field: FieldDefinition): string {
