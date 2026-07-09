@@ -42,7 +42,15 @@ export class EventBus {
     const run = async () => {
       const handlers = this.handlers.get(event);
       if (!handlers) return;
-      const promises = Array.from(handlers).map((h) => h(payload, context));
+      const promises = Array.from(handlers).map((h) =>
+        (async () => {
+          try {
+            await h(payload, context);
+          } catch {
+            /* ignore handler errors */
+          }
+        })(),
+      );
       await Promise.all(promises);
     };
 

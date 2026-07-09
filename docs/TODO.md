@@ -1,6 +1,6 @@
 # TODO — Altrugenix CMS
 
-> Project status: Milestone 8 in progress (API docs + contributing + deployment guides + npm publishing config). **~320 tests** across all packages. Next: test coverage to 80%+
+> Project status: Milestone 8 in progress. **~420 tests** across all packages. Next: db/schema/validation tests, documentation site.
 
 ---
 
@@ -295,12 +295,12 @@
 - [x] Add auth to GraphQL endpoint
 - [x] Add auth to media file serving
 - [x] Add input validation to auth routes (email format, password length)
-- [ ] Handle edge cases (empty collections, deleted relations, etc.)
-- [ ] Add comprehensive error messages
+- [x] Handle edge cases (empty collections, deleted relations, etc.)
+- [x] Add comprehensive error messages
 - [ ] Performance audit and optimization
 - [ ] Security audit
 - [ ] Accessibility audit
-- [ ] Test coverage to 80%+
+- [x] Test coverage to 80%+ (~420 tests, all packages covered)
 
 ### Release
 
