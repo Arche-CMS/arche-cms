@@ -158,7 +158,7 @@ function attachRelatedRecords(
   }
 }
 
-async function populateRelations(
+function populateRelations(
   records: Record<string, unknown>[],
   populateFields: string[],
   collection: CollectionDefinition,
@@ -167,27 +167,76 @@ async function populateRelations(
   const relationFields = getRelationFields(collection).filter((rf) =>
     populateFields.includes(rf.name),
   );
-  if (relationFields.length === 0 || records.length === 0) return;
+  if (relationFields.length === 0 || records.length === 0) return Promise.resolve();
 
-  for (const rf of relationFields) {
-    const tableName = collectionTableName(rf.to);
-    const { allIds, isArrayMap } = collectRelationIds(records, rf.name);
-    if (allIds.size === 0) continue;
+  return Promise.all(
+    relationFields.map(async (rf) => {
+      const tableName = collectionTableName(rf.to);
+      const { allIds, isArrayMap } = collectRelationIds(records, rf.name);
+      if (allIds.size === 0) return;
 
-    const { data: relatedRecords } = await adapter.findMany(tableName, {
-      where: { id: [...allIds] },
-    });
-    const relatedMap = new Map<string, Record<string, unknown>>();
-    for (const row of relatedRecords) {
-      relatedMap.set(String(row.id), row);
-    }
+      const { data: relatedRecords } = await adapter.findMany(tableName, {
+        where: { id: [...allIds] },
+      });
+      const relatedMap = new Map<string, Record<string, unknown>>();
+      for (const row of relatedRecords) {
+        relatedMap.set(String(row.id), row);
+      }
 
-    attachRelatedRecords(records, rf.name, relatedMap, isArrayMap);
-  }
+      attachRelatedRecords(records, rf.name, relatedMap, isArrayMap);
+    }),
+  ).then(() => undefined);
 }
 
 function errorResult(statusCode: number, message: string): RouteHandlerResult {
   return { statusCode, body: { error: message } };
+}
+
+function hasDrafts(collection: CollectionDefinition): boolean {
+  return collection.versions?.drafts === true;
+}
+
+export function createPublishHandler(
+  collection: CollectionDefinition,
+  adapter: DatabaseAdapter,
+): RouteHandler {
+  return async (ctx) => {
+    try {
+      const { id } = ctx.params;
+      if (!id) return errorResult(400, "Missing id parameter");
+      const tableName = collectionTableName(collection.slug);
+      const record = await adapter.update(tableName, id, {
+        _status: "published",
+        _publishedAt: new Date().toISOString(),
+      } as Record<string, unknown>);
+      if (!record) return errorResult(404, "Not found");
+      return { statusCode: 200, body: record };
+    } catch {
+      return errorResult(500, "Internal server error");
+    }
+  };
+}
+
+export function createUnpublishHandler(
+  collection: CollectionDefinition,
+  adapter: DatabaseAdapter,
+): RouteHandler {
+  return async (ctx) => {
+    try {
+      const { id } = ctx.params;
+      if (!id) return errorResult(400, "Missing id parameter");
+      const tableName = collectionTableName(collection.slug);
+      const record = await adapter.update(tableName, id, {
+        _status: "draft",
+        _publishedAt: null,
+        _publishedBy: null,
+      } as Record<string, unknown>);
+      if (!record) return errorResult(404, "Not found");
+      return { statusCode: 200, body: record };
+    } catch {
+      return errorResult(500, "Internal server error");
+    }
+  };
 }
 
 export function createListHandler(
@@ -201,6 +250,9 @@ export function createListHandler(
       const validationError = validateQueryParams(ctx.query);
       if (validationError) return errorResult(400, validationError);
       const options = queryOptions(ctx, maxPageSize, defaultPageSize);
+      if (hasDrafts(collection) && !options.where?._status) {
+        options.where = { ...options.where, _status: "published" };
+      }
       const tableName = collectionTableName(collection.slug);
       const result = await adapter.findMany(tableName, options);
       if (options.populate && result.data.length > 0) {
@@ -254,8 +306,15 @@ export function createCreateHandler(
           body: { error: "Validation failed", details: parsed.error.issues },
         };
       }
+      const data = parsed.data as Record<string, unknown>;
+      if (hasDrafts(collection)) {
+        data._status = data._status ?? "draft";
+        if (data._status === "published") {
+          data._publishedAt = new Date().toISOString();
+        }
+      }
       const tableName = collectionTableName(collection.slug);
-      const record = await adapter.create(tableName, parsed.data as Record<string, unknown>);
+      const record = await adapter.create(tableName, data);
       return { statusCode: 201, body: record };
     } catch (e) {
       if (isUniqueConstraintError(e)) {
@@ -288,8 +347,16 @@ export function createUpdateHandler(
           body: { error: "Validation failed", details: parsed.error.issues },
         };
       }
+      const data = parsed.data as Record<string, unknown>;
+      if (hasDrafts(collection)) {
+        const { _status, _publishedAt, _publishedBy, ...rest } = data;
+        const tableName = collectionTableName(collection.slug);
+        const record = await adapter.update(tableName, id, rest);
+        if (!record) return errorResult(404, "Not found");
+        return { statusCode: 200, body: record };
+      }
       const tableName = collectionTableName(collection.slug);
-      const record = await adapter.update(tableName, id, parsed.data as Record<string, unknown>);
+      const record = await adapter.update(tableName, id, data);
       if (!record) return errorResult(404, "Not found");
       return { statusCode: 200, body: record };
     } catch (e) {

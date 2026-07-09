@@ -108,6 +108,31 @@ describe("createCollectionRouter", () => {
     expect(routes[0]).toHaveProperty("operationId", "listBlogPosts");
     expect(routes[0]).toHaveProperty("path", "/api/blog-posts");
   });
+
+  it("adds publish/unpublish routes when drafts enabled", () => {
+    const collection: CollectionDefinition = {
+      slug: "posts",
+      labels: { singular: "Post", plural: "Posts" },
+      fields: [{ name: "title", type: "text" }],
+      versions: { drafts: true },
+    };
+    const { routes } = createCollectionRouter(collection, mockAdapter);
+    expect(routes).toHaveLength(8);
+    expect(routes.find((r) => r.operationId === "publishPosts")).toBeDefined();
+    expect(routes.find((r) => r.operationId === "unpublishPosts")).toBeDefined();
+    const publish = routes.find((r) => r.operationId === "publishPosts") as {
+      method: string;
+      path: string;
+    };
+    expect(publish.method).toBe("POST");
+    expect(publish.path).toBe("/api/posts/:id/publish");
+    const unpublish = routes.find((r) => r.operationId === "unpublishPosts") as {
+      method: string;
+      path: string;
+    };
+    expect(unpublish.method).toBe("POST");
+    expect(unpublish.path).toBe("/api/posts/:id/unpublish");
+  });
 });
 
 describe("middleware hooks", () => {

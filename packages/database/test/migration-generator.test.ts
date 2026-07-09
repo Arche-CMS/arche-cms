@@ -142,4 +142,43 @@ describe("MigrationGenerator", () => {
     const [m] = generator.generate(collections, emptySchema);
     expect(m.up).toContain("id INTEGER PRIMARY KEY AUTOINCREMENT");
   });
+
+  it("adds draft system columns when versions.drafts is true", () => {
+    const generator = new MigrationGenerator();
+    const collections: CollectionDefinition[] = [
+      {
+        slug: "posts",
+        labels: { singular: "Post", plural: "Posts" },
+        fields: [{ name: "title", type: "text" }],
+        versions: { drafts: true },
+      },
+    ];
+
+    const [m] = generator.generate(collections, emptySchema);
+    expect(m.up).toContain("_status TEXT DEFAULT 'draft'");
+    expect(m.up).toContain("_publishedAt TEXT");
+    expect(m.up).toContain("_publishedBy TEXT");
+  });
+
+  it("adds draft columns when enabling drafts on existing table", () => {
+    const generator = new MigrationGenerator();
+    const collections: CollectionDefinition[] = [
+      {
+        slug: "posts",
+        labels: { singular: "Post", plural: "Posts" },
+        fields: [{ name: "title", type: "text" }],
+        versions: { drafts: true },
+      },
+    ];
+
+    const existing: ExistingSchema = {
+      tables: new Map([["__cms_posts", ["id", "title"]]]),
+    };
+
+    const [m] = generator.generate(collections, existing);
+    expect(m.name).toBe("add_fields_posts");
+    expect(m.up).toContain("ADD COLUMN _status");
+    expect(m.up).toContain("ADD COLUMN _publishedAt");
+    expect(m.up).toContain("ADD COLUMN _publishedBy");
+  });
 });

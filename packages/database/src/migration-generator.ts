@@ -47,6 +47,14 @@ function fieldColumnName(name: string): string {
   return name.replace(/-/g, "_");
 }
 
+function hasDrafts(collection: CollectionDefinition): boolean {
+  return collection.versions?.drafts === true;
+}
+
+function draftColumns(): string[] {
+  return ["_status", "_publishedAt", "_publishedBy"];
+}
+
 export class MigrationGenerator {
   generate(collections: CollectionDefinition[], existing: ExistingSchema): Migration[] {
     const migrations: Migration[] = [];
@@ -62,8 +70,13 @@ export class MigrationGenerator {
         const newColumns = collection.fields.filter(
           (f) => !existingColumns.includes(fieldColumnName(f.name)),
         );
-        if (newColumns.length > 0) {
-          migrations.push(this.addColumnsMigration(collection, newColumns, tableName, now));
+        const missingDraftColumns = hasDrafts(collection)
+          ? draftColumns().filter((c) => !existingColumns.includes(c))
+          : [];
+        if (newColumns.length > 0 || missingDraftColumns.length > 0) {
+          migrations.push(
+            this.addColumnsMigration(collection, newColumns, missingDraftColumns, tableName, now),
+          );
         }
       }
     }
@@ -79,6 +92,11 @@ export class MigrationGenerator {
     const columns = collection.fields.map(
       (f) => `  ${fieldColumnName(f.name)} ${sqlTypeForField(f)}`,
     );
+    if (hasDrafts(collection)) {
+      columns.push("  _status TEXT DEFAULT 'draft'");
+      columns.push("  _publishedAt TEXT");
+      columns.push("  _publishedBy TEXT");
+    }
     const up = `CREATE TABLE IF NOT EXISTS "${tableName}" (\n  id INTEGER PRIMARY KEY AUTOINCREMENT,\n${columns.join(",\n")}\n);`;
     const down = `DROP TABLE IF EXISTS "${tableName}";`;
 
@@ -93,6 +111,7 @@ export class MigrationGenerator {
   private addColumnsMigration(
     collection: CollectionDefinition,
     newFields: FieldDefinition[],
+    draftCols: string[],
     tableName: string,
     timestamp: string,
   ): Migration {
@@ -100,10 +119,16 @@ export class MigrationGenerator {
       (f) =>
         `ALTER TABLE "${tableName}" ADD COLUMN ${fieldColumnName(f.name)} ${sqlTypeForField(f)};`,
     );
-    // No reliable way to remove columns in SQLite, mark as destructive
-    const downLines = newFields.map(
-      (f) => `-- WARNING: Cannot automatically revert ADD COLUMN for ${fieldColumnName(f.name)}`,
-    );
+    for (const col of draftCols) {
+      const def = col === "_status" ? "TEXT DEFAULT 'draft'" : "TEXT";
+      upLines.push(`ALTER TABLE "${tableName}" ADD COLUMN ${col} ${def};`);
+    }
+    const downLines = [
+      ...newFields.map(
+        (f) => `-- WARNING: Cannot automatically revert ADD COLUMN for ${fieldColumnName(f.name)}`,
+      ),
+      ...draftCols.map((col) => `-- WARNING: Cannot automatically revert ADD COLUMN for ${col}`),
+    ];
 
     return {
       id: `mig_${timestamp}_add_fields_${collection.slug}`,

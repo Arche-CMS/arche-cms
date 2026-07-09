@@ -170,6 +170,10 @@ export function collectionToCreateSchema(
     entries[field.name] = fieldToZodSchema(field);
   }
 
+  if (collection.versions?.drafts) {
+    entries._status = z.enum(["draft", "published", "archived"]).optional();
+  }
+
   return z.object(entries);
 }
 
@@ -184,6 +188,10 @@ export function collectionToUpdateSchema(
       continue;
     }
     entries[field.name] = fieldToZodSchema(field).optional();
+  }
+
+  if (collection.versions?.drafts) {
+    entries._status = z.enum(["draft", "published", "archived"]).optional();
   }
 
   return z.object(entries);

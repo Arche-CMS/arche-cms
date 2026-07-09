@@ -7,6 +7,8 @@ import {
   createUpdateHandler,
   createListHandler,
   createGetHandler,
+  createPublishHandler,
+  createUnpublishHandler,
 } from "../src/handlers.js";
 
 function createGlobalAdapter(): DatabaseAdapter {
@@ -306,5 +308,182 @@ describe("query validation edge cases", () => {
       headers: {},
     });
     expect(result.statusCode).toBe(400);
+  });
+});
+
+function createDraftAdapter(): DatabaseAdapter {
+  const store: Record<string, unknown>[] = [];
+  let nextId = 1;
+  return {
+    findOne: async (_c, id) => store.find((r) => String(r.id) === id) ?? null,
+    findMany: async (_c, opts) => {
+      let data = [...store];
+      if (opts?.where) {
+        for (const [key, value] of Object.entries(opts.where)) {
+          if (Array.isArray(value)) {
+            data = data.filter((r) => value.includes(String(r[key])));
+          } else {
+            data = data.filter((r) => r[key] === value);
+          }
+        }
+      }
+      const total = data.length;
+      return { data, total };
+    },
+    create: async (_c, d) => {
+      const record = { id: nextId++, ...d } as Record<string, unknown>;
+      store.push(record);
+      return record;
+    },
+    update: async (_c, id, d) => {
+      const idx = store.findIndex((r) => String(r.id) === id);
+      if (idx === -1) return null;
+      store[idx] = { ...store[idx], ...d } as Record<string, unknown>;
+      return store[idx];
+    },
+    delete: async () => false,
+    deleteMany: async () => 0,
+    connect: async () => {},
+    disconnect: async () => {},
+    transaction: async <T>(fn: () => Promise<T>) => fn(),
+    raw: async () => [],
+    createTable: async () => {},
+    dropTable: async () => {},
+    runMigration: async () => {},
+    getExecutedMigrations: async () => [],
+  };
+}
+
+const draftCollection: CollectionDefinition = {
+  slug: "posts",
+  labels: { singular: "Post", plural: "Posts" },
+  fields: [{ name: "title", type: "text", validation: { required: true } }],
+  versions: { drafts: true },
+};
+
+describe("draft/publish handlers", () => {
+  it("createHandler sets _status to draft by default", async () => {
+    const adapter = createDraftAdapter();
+    const handler = createCreateHandler(draftCollection, adapter);
+    const result = await handler({
+      params: {},
+      query: {},
+      body: { title: "Test" },
+      headers: {},
+    });
+    expect(result.statusCode).toBe(201);
+    const body = result.body as Record<string, unknown>;
+    expect(body._status).toBe("draft");
+  });
+
+  it("createHandler sets _status to published when specified", async () => {
+    const adapter = createDraftAdapter();
+    const handler = createCreateHandler(draftCollection, adapter);
+    const result = await handler({
+      params: {},
+      query: {},
+      body: { title: "Test", _status: "published" },
+      headers: {},
+    });
+    expect(result.statusCode).toBe(201);
+    const body = result.body as Record<string, unknown>;
+    expect(body._status).toBe("published");
+    expect(body._publishedAt).toBeDefined();
+  });
+
+  it("listHandler filters to published by default for draft-enabled collections", async () => {
+    const adapter = createDraftAdapter();
+    await adapter.create("__cms_posts", { title: "Draft 1", _status: "draft" });
+    await adapter.create("__cms_posts", { title: "Pub 1", _status: "published" });
+    await adapter.create("__cms_posts", { title: "Pub 2", _status: "published" });
+
+    const handler = createListHandler(draftCollection, adapter, 100, 10);
+    const result = await handler({ params: {}, query: {}, body: null, headers: {} });
+    expect(result.statusCode).toBe(200);
+    const body = result.body as { data: Record<string, unknown>[]; total: number };
+    expect(body.total).toBe(2);
+    expect(body.data.map((r: Record<string, unknown>) => r.title)).toEqual(["Pub 1", "Pub 2"]);
+  });
+
+  it("listHandler respects explicit _status filter", async () => {
+    const adapter = createDraftAdapter();
+    await adapter.create("__cms_posts", { title: "Draft 1", _status: "draft" });
+    await adapter.create("__cms_posts", { title: "Pub 1", _status: "published" });
+
+    const handler = createListHandler(draftCollection, adapter, 100, 10);
+    const result = await handler({
+      params: {},
+      query: { "where[_status]": "draft" },
+      body: null,
+      headers: {},
+    });
+    expect(result.statusCode).toBe(200);
+    const body = result.body as { data: Record<string, unknown>[]; total: number };
+    expect(body.total).toBe(1);
+    expect(body.data[0].title).toBe("Draft 1");
+  });
+
+  it("publishHandler sets _status to published", async () => {
+    const adapter = createDraftAdapter();
+    const created = await adapter.create("__cms_posts", { title: "Test", _status: "draft" });
+    const handler = createPublishHandler(draftCollection, adapter);
+    const result = await handler({
+      params: { id: String(created.id) },
+      query: {},
+      body: null,
+      headers: {},
+    });
+    expect(result.statusCode).toBe(200);
+    const body = result.body as Record<string, unknown>;
+    expect(body._status).toBe("published");
+    expect(body._publishedAt).toBeDefined();
+  });
+
+  it("unpublishHandler sets _status to draft", async () => {
+    const adapter = createDraftAdapter();
+    const created = await adapter.create("__cms_posts", {
+      title: "Test",
+      _status: "published",
+      _publishedAt: "2024-01-01T00:00:00.000Z",
+    });
+    const handler = createUnpublishHandler(draftCollection, adapter);
+    const result = await handler({
+      params: { id: String(created.id) },
+      query: {},
+      body: null,
+      headers: {},
+    });
+    expect(result.statusCode).toBe(200);
+    const body = result.body as Record<string, unknown>;
+    expect(body._status).toBe("draft");
+    expect(body._publishedAt).toBeNull();
+  });
+
+  it("publishHandler returns 404 for missing entry", async () => {
+    const adapter = createDraftAdapter();
+    const handler = createPublishHandler(draftCollection, adapter);
+    const result = await handler({
+      params: { id: "999" },
+      query: {},
+      body: null,
+      headers: {},
+    });
+    expect(result.statusCode).toBe(404);
+  });
+
+  it("updateHandler strips system fields from body", async () => {
+    const adapter = createDraftAdapter();
+    const created = await adapter.create("__cms_posts", { title: "Original", _status: "draft" });
+    const handler = createUpdateHandler(draftCollection, adapter);
+    const result = await handler({
+      params: { id: String(created.id) },
+      query: {},
+      body: { title: "Updated", _status: "published" },
+      headers: {},
+    });
+    expect(result.statusCode).toBe(200);
+    const body = result.body as Record<string, unknown>;
+    expect(body.title).toBe("Updated");
+    expect((body as Record<string, unknown>)._status).toBe("draft");
   });
 });

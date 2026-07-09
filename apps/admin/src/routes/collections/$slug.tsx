@@ -6,7 +6,7 @@ import { useToast } from "@/components/toast-provider";
 import { fetchCollections, apiFetch, type CollectionMeta } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/confirm-dialog";
-import { ArrowLeft, Plus, Pencil, Trash2 } from "lucide-react";
+import { ArrowLeft, Plus, Pencil, Trash2, CheckCircle, XCircle } from "lucide-react";
 
 export const Route = createRoute({
   getParentRoute: () => rootRoute,
@@ -172,7 +172,32 @@ function CollectionEntries() {
 
   if (!collection) return null;
 
-  const displayFields = collection.fields.slice(0, 4);
+  const displayFields = collection.fields.slice(0, collection.versions?.drafts ? 3 : 4);
+  const hasDrafts = collection.versions?.drafts === true;
+
+  const handlePublish = async (id: string) => {
+    try {
+      await apiFetch(`/api/${slug}/${id}/publish`, { method: "POST" });
+      const data = await apiFetch<{ data: Entry[]; total: number }>(`/api/${slug}`);
+      setEntries(data.data);
+      setTotal(data.total);
+      toast("Entry published", "success");
+    } catch (err) {
+      toast(err instanceof Error ? err.message : "Failed to publish entry", "error");
+    }
+  };
+
+  const handleUnpublish = async (id: string) => {
+    try {
+      await apiFetch(`/api/${slug}/${id}/unpublish`, { method: "POST" });
+      const data = await apiFetch<{ data: Entry[]; total: number }>(`/api/${slug}`);
+      setEntries(data.data);
+      setTotal(data.total);
+      toast("Entry unpublished", "success");
+    } catch (err) {
+      toast(err instanceof Error ? err.message : "Failed to unpublish entry", "error");
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -235,6 +260,11 @@ function CollectionEntries() {
                       {f.label}
                     </th>
                   ))}
+                  {hasDrafts && (
+                    <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">
+                      Status
+                    </th>
+                  )}
                   <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
                     Actions
                   </th>
@@ -256,8 +286,33 @@ function CollectionEntries() {
                         {formatValue(entry[f.name])}
                       </td>
                     ))}
+                    {hasDrafts && (
+                      <td className="px-4 py-3 text-sm">
+                        {renderStatus(entry._status as string | undefined)}
+                      </td>
+                    )}
                     <td className="px-4 py-3 text-right">
                       <div className="flex items-center justify-end gap-1">
+                        {hasDrafts && entry._status !== "published" && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handlePublish(entry.id)}
+                            title="Publish"
+                          >
+                            <CheckCircle className="h-4 w-4 text-green-500" />
+                          </Button>
+                        )}
+                        {hasDrafts && entry._status === "published" && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleUnpublish(entry.id)}
+                            title="Unpublish"
+                          >
+                            <XCircle className="h-4 w-4 text-amber-500" />
+                          </Button>
+                        )}
                         <Link to="/collections/$slug/$id" params={{ slug, id: entry.id }}>
                           <Button variant="ghost" size="icon">
                             <Pencil className="h-4 w-4" />
@@ -301,4 +356,27 @@ function formatValue(val: unknown): string {
   if (typeof val === "boolean") return val ? "Yes" : "No";
   if (typeof val === "object") return JSON.stringify(val);
   return String(val);
+}
+
+function renderStatus(status: string | undefined) {
+  if (!status) return <span className="text-muted-foreground">—</span>;
+  if (status === "published") {
+    return (
+      <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700 dark:bg-green-900/30 dark:text-green-400">
+        <CheckCircle className="h-3 w-3" /> Published
+      </span>
+    );
+  }
+  if (status === "draft") {
+    return (
+      <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
+        Draft
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700 dark:bg-gray-800 dark:text-gray-400">
+      {status}
+    </span>
+  );
 }

@@ -97,6 +97,7 @@ export async function createApp(options: AppOptions): Promise<FastifyInstance> {
     slug: c.slug,
     label: c.labels?.plural ?? c.slug,
     labels: c.labels,
+    versions: c.versions,
     fields: c.fields.map((f) => {
       const base = {
         name: f.name,

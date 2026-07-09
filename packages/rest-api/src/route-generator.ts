@@ -9,6 +9,8 @@ import {
   createUpdateHandler,
   createDeleteHandler,
   createBulkDeleteHandler,
+  createPublishHandler,
+  createUnpublishHandler,
   createGlobalGetHandler,
   createGlobalUpsertHandler,
 } from "./handlers.js";
@@ -87,6 +89,27 @@ export function createCollectionRouter(
       handler: applyMiddleware(createBulkDeleteHandler(collection, adapter), hooks, collection),
     },
   ];
+
+  if (collection.versions?.drafts) {
+    routes.push(
+      {
+        method: "POST",
+        path: `${basePath}/${slug}/:id/publish`,
+        operationId: `publish${pascalCase(slug)}`,
+        summary: `Publish a ${tag}`,
+        tags: [tag],
+        handler: applyMiddleware(createPublishHandler(collection, adapter), hooks, collection),
+      },
+      {
+        method: "POST",
+        path: `${basePath}/${slug}/:id/unpublish`,
+        operationId: `unpublish${pascalCase(slug)}`,
+        summary: `Unpublish a ${tag}`,
+        tags: [tag],
+        handler: applyMiddleware(createUnpublishHandler(collection, adapter), hooks, collection),
+      },
+    );
+  }
 
   return { routes };
 }
