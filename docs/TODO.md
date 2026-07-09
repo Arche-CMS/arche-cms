@@ -316,6 +316,7 @@
 ### DevOps
 
 - [ ] Add Docker setup to run API locally
+- [ ] Add CI/CD to build docs site (`apps/docs`) and deploy build output to `docs/` folder
 
 ### Release
 
