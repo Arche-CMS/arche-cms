@@ -234,3 +234,16 @@ export async function deleteMedia(id: string): Promise<void> {
 export function getMediaUrl(id: string): string {
   return `${API_URL}/api/media/file/${id}`;
 }
+
+export type ActivityEntry = {
+  id: string;
+  action: "create" | "update" | "delete" | "bulkDelete" | "upsert";
+  collection: string;
+  documentId: string | null;
+  label: string;
+  createdAt: string;
+};
+
+export async function fetchActivity(): Promise<{ data: ActivityEntry[]; total: number }> {
+  return apiFetch("/api/activity");
+}

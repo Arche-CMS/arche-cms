@@ -1,9 +1,17 @@
 import { useEffect, useState } from "react";
 import { createRoute, Link } from "@tanstack/react-router";
 import { Route as rootRoute } from "@/routes/__root";
-import { fetchCollections, fetchUsers, fetchMedia, apiFetch } from "@/lib/api";
+import {
+  fetchCollections,
+  fetchUsers,
+  fetchMedia,
+  apiFetch,
+  fetchActivity,
+  type ActivityEntry,
+} from "@/lib/api";
 import { Button } from "@/components/ui/button";
-import { Plus, Users, FileText, Database, Image } from "lucide-react";
+import { Skeleton } from "@/components/skeleton";
+import { Plus, Users, FileText, Database, Image, Clock, Trash2, Pencil, Check } from "lucide-react";
 
 export const Route = createRoute({
   getParentRoute: () => rootRoute,
@@ -13,10 +21,91 @@ export const Route = createRoute({
 
 type CollectionInfo = { slug: string; label: string; entryCount: number };
 
+const ACTION_ICONS: Record<string, typeof Plus> = {
+  create: Plus,
+  update: Pencil,
+  delete: Trash2,
+  bulkDelete: Trash2,
+  upsert: Check,
+};
+
+const ACTION_LABELS: Record<string, string> = {
+  create: "Created",
+  update: "Updated",
+  delete: "Deleted",
+  bulkDelete: "Bulk deleted",
+  upsert: "Updated",
+};
+
+function timeAgo(dateStr: string): string {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins}m ago`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  return `${days}d ago`;
+}
+
+function RecentActivity({ loading, activity }: { loading: boolean; activity: ActivityEntry[] }) {
+  return (
+    <div className="rounded-lg border">
+      <div className="flex items-center justify-between border-b px-4 py-3">
+        <div className="flex items-center gap-2">
+          <Clock className="h-4 w-4 text-muted-foreground" />
+          <h2 className="font-semibold">Recent Activity</h2>
+        </div>
+      </div>
+      <div className="divide-y">
+        {loading ? (
+          Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="flex items-center gap-3 px-4 py-3">
+              <Skeleton className="h-6 w-6 rounded-full" />
+              <div className="flex-1 space-y-1">
+                <Skeleton className="h-4 w-40" />
+                <Skeleton className="h-3 w-20" />
+              </div>
+              <Skeleton className="h-3 w-12" />
+            </div>
+          ))
+        ) : activity.length === 0 ? (
+          <p className="p-4 text-sm text-muted-foreground">No recent activity</p>
+        ) : (
+          activity.map((entry) => {
+            const Icon = ACTION_ICONS[entry.action] ?? Plus;
+            return (
+              <div key={entry.id} className="flex items-center gap-3 px-4 py-3">
+                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10">
+                  <Icon className="h-3 w-3 text-primary" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="truncate text-sm">
+                    <span className="font-medium">
+                      {ACTION_LABELS[entry.action] ?? entry.action}
+                    </span>{" "}
+                    {entry.collection}{" "}
+                    {entry.label && <span className="text-muted-foreground">"{entry.label}"</span>}
+                  </p>
+                  <p className="text-xs text-muted-foreground capitalize">{entry.collection}</p>
+                </div>
+                <span className="shrink-0 text-xs text-muted-foreground">
+                  {timeAgo(entry.createdAt)}
+                </span>
+              </div>
+            );
+          })
+        )}
+      </div>
+    </div>
+  );
+}
+
 function Dashboard() {
   const [collections, setCollections] = useState<CollectionInfo[]>([]);
   const [userCount, setUserCount] = useState(0);
   const [mediaCount, setMediaCount] = useState(0);
+  const [activity, setActivity] = useState<ActivityEntry[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -37,10 +126,15 @@ function Dashboard() {
         if (cancelled) return;
         setCollections(counts);
 
-        const [usersRes, mediaRes] = await Promise.all([fetchUsers(), fetchMedia()]);
+        const [usersRes, mediaRes, activityRes] = await Promise.all([
+          fetchUsers(),
+          fetchMedia(),
+          fetchActivity().catch(() => ({ data: [], total: 0 })),
+        ]);
         if (!cancelled) {
           setUserCount(usersRes.total);
           setMediaCount(mediaRes.total);
+          setActivity(activityRes.data);
         }
       } catch {
         // silently ignore dashboard errors
@@ -139,6 +233,8 @@ function Dashboard() {
           </div>
         </div>
       </div>
+
+      <RecentActivity loading={loading && activity.length === 0} activity={activity} />
     </div>
   );
 }

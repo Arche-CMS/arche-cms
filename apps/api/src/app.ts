@@ -17,6 +17,8 @@ import { registerCollectionRoutes, registerGlobalRoutes } from "./routes/collect
 import { registerUserRoutes } from "./routes/users.js";
 import { registerRoleRoutes } from "./routes/roles.js";
 import { registerMediaRoutes } from "./routes/media.js";
+import { registerActivityRoutes } from "./routes/activity.js";
+import { ensureActivityTable } from "./lib/activity.js";
 
 export interface AppOptions {
   config: ServerConfig;
@@ -47,6 +49,8 @@ export async function createApp(options: AppOptions): Promise<FastifyInstance> {
   await registerPermissions(fastify, { adapter });
   registerUserRoutes(fastify, adapter, config.auth);
   registerRoleRoutes(fastify, adapter);
+  registerActivityRoutes(fastify, adapter);
+  await ensureActivityTable(adapter);
 
   if (options.storageAdapter) {
     registerMediaRoutes(fastify, adapter, options.storageAdapter);

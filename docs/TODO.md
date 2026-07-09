@@ -1,6 +1,6 @@
 # TODO — Altrugenix CMS
 
-> Project status: Milestone 5 (settings page, responsive design, dashboard, user & role management, enhanced field inputs, inline validation, media library with drag & drop + rename/alt editing, relation picker, bulk delete, global views, error boundaries, toast notifications, loading skeletons, confirmation dialogs, command palette + keyboard shortcuts). **269 tests** across all packages. Next: activity feed, folder organization
+> Project status: Milestone 5 (activity feed, settings page, responsive design, dashboard, user & role management, enhanced field inputs, inline validation, media library with drag & drop + rename/alt editing, relation picker, bulk delete, global views, error boundaries, toast notifications, loading skeletons, confirmation dialogs, command palette + keyboard shortcuts). **269 tests** across all packages. Next: media folder organization
 
 ---
 
@@ -152,7 +152,7 @@
 
 - [x] Build dashboard overview page
 - [x] Show collection stats (entry counts)
-- [ ] Show recent activity feed
+- [x] Show recent activity feed
 - [x] Add quick-action buttons
 
 ### Collection Views

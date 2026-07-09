@@ -3,6 +3,7 @@ import type { DatabaseAdapter } from "@altrugenix/database";
 import type { CollectionDefinition, GlobalDefinition } from "@altrugenix/types";
 import { createCollectionRouters, createGlobalRouters } from "@altrugenix/rest-api";
 import type { RouteHandlerContext } from "@altrugenix/rest-api";
+import { recordActivity } from "../lib/activity.js";
 
 function asHandler(
   handler: (ctx: RouteHandlerContext) => Promise<{ statusCode: number; body: unknown }>,
@@ -18,6 +19,56 @@ function asHandler(
   };
 }
 
+function slugFromPath(path: string): string {
+  const parts = path.split("/");
+  return parts[2] ?? "";
+}
+
+function isMutation(method: string, path: string): boolean {
+  if (method === "GET") return false;
+  if (path.endsWith("/bulk-delete")) return true;
+  return ["POST", "PATCH", "PUT", "DELETE"].includes(method);
+}
+
+function actionFor(method: string, path: string): string {
+  if (path.endsWith("/bulk-delete")) return "bulkDelete";
+  if (method === "POST") return "create";
+  if (method === "PATCH") return "update";
+  if (method === "DELETE") return "delete";
+  if (method === "PUT") return "upsert";
+  return "unknown";
+}
+
+function labelFromBody(body: unknown): string {
+  if (body && typeof body === "object") {
+    const b = body as Record<string, unknown>;
+    return String(b.title ?? b.name ?? b.email ?? b.id ?? "");
+  }
+  return "";
+}
+
+function wrapWithActivity(
+  handler: (ctx: RouteHandlerContext) => Promise<{ statusCode: number; body: unknown }>,
+  method: string,
+  path: string,
+  adapter: DatabaseAdapter,
+) {
+  if (!isMutation(method, path)) return handler;
+  return async (ctx: RouteHandlerContext) => {
+    const result = await handler(ctx);
+    if (result.statusCode >= 200 && result.statusCode < 300) {
+      const body = result.body as Record<string, unknown> | undefined;
+      recordActivity(adapter, {
+        action: actionFor(method, path) as "create" | "update" | "delete" | "bulkDelete" | "upsert",
+        collection: slugFromPath(path),
+        documentId: body?.id != null ? String(body.id) : undefined,
+        label: labelFromBody(body),
+      }).catch(() => {});
+    }
+    return result;
+  };
+}
+
 export function registerCollectionRoutes(
   fastify: FastifyInstance,
   collections: CollectionDefinition[],
@@ -27,10 +78,11 @@ export function registerCollectionRoutes(
   const allRoutes = routers.flatMap((r) => r.routes);
 
   for (const routeDef of allRoutes) {
+    const handler = wrapWithActivity(routeDef.handler, routeDef.method, routeDef.path, adapter);
     void fastify.route({
       method: routeDef.method,
       url: routeDef.path,
-      handler: asHandler(routeDef.handler),
+      handler: asHandler(handler),
     });
   }
 }
@@ -44,10 +96,11 @@ export function registerGlobalRoutes(
   const allRoutes = routers.flatMap((r) => r.routes);
 
   for (const routeDef of allRoutes) {
+    const handler = wrapWithActivity(routeDef.handler, routeDef.method, routeDef.path, adapter);
     void fastify.route({
       method: routeDef.method,
       url: routeDef.path,
-      handler: asHandler(routeDef.handler),
+      handler: asHandler(handler),
     });
   }
 }
