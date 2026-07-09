@@ -306,22 +306,22 @@
 - [ ] Scheduled publishing
 - [ ] Soft delete
 - [ ] Localization / i18n
+- [ ] Version history and revisions
 
 ### Release
 
 - [x] Configure npm package publishing for all packages
 - [x] Set up CHANGELOG generation
 - [x] Create v0.1.0 release (changeset)
-- [ ] Write launch blog post
-- [ ] Set up community channels (Discord, GitHub Discussions)
 
 ---
 
 ## Backlog (Future Milestones)
 
+- [ ] Write launch blog post
+- [ ] Set up community channels (Discord, GitHub Discussions)
 - [ ] Support subscriptions (future)
 - [ ] Implement email verification (optional)
-- [ ] Version history and revisions
 - [ ] Autosave
 - [ ] Visual page builder
 - [ ] Form builder
