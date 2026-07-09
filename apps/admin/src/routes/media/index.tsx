@@ -5,16 +5,28 @@ import { Skeleton } from "@/components/skeleton";
 import { useToast } from "@/components/toast-provider";
 import {
   fetchMedia,
+  fetchFolders,
+  createFolder,
   uploadMedia,
   updateMedia,
   deleteMedia,
   getMediaUrl,
   type MediaMeta,
+  type MediaFolder,
 } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ConfirmDialog } from "@/components/confirm-dialog";
-import { Trash2, Upload, UploadCloud, Pencil } from "lucide-react";
+import {
+  Trash2,
+  Upload,
+  UploadCloud,
+  Pencil,
+  Folder,
+  FolderPlus,
+  ChevronRight,
+  Home,
+} from "lucide-react";
 
 export const Route = createRoute({
   getParentRoute: () => rootRoute,
@@ -22,36 +34,84 @@ export const Route = createRoute({
   component: MediaLibrary,
 });
 
+interface BreadcrumbItem {
+  id: number | null;
+  name: string;
+}
+
 function MediaLibrary() {
   const { toast } = useToast();
   const [media, setMedia] = useState<MediaMeta[]>([]);
   const [total, setTotal] = useState(0);
+  const [folders, setFolders] = useState<MediaFolder[]>([]);
+  const [currentFolderId, setCurrentFolderId] = useState<number | null>(null);
+  const [folderPath, setFolderPath] = useState<BreadcrumbItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const dragCountRef = useRef(0);
+  const [showNewFolder, setShowNewFolder] = useState(false);
+  const [newFolderName, setNewFolderName] = useState("");
+  const newFolderInputRef = useRef<HTMLInputElement>(null);
+
+  const load = useCallback(async (folderId: number | null) => {
+    setLoading(true);
+    setError(null);
+    const folderIdStr = folderId != null ? String(folderId) : null;
+    try {
+      const [mediaData, folderData] = await Promise.all([
+        fetchMedia(folderIdStr),
+        fetchFolders(folderIdStr),
+      ]);
+      setMedia(mediaData.data);
+      setTotal(mediaData.total);
+      setFolders(folderData.data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to load media");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    let cancelled = false;
-    async function load() {
-      try {
-        const data = await fetchMedia();
-        if (cancelled) return;
-        setMedia(data.data);
-        setTotal(data.total);
-      } catch (err) {
-        if (!cancelled) setError(err instanceof Error ? err.message : "Failed to load media");
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
+    load(currentFolderId);
+  }, [currentFolderId, load]);
+
+  const navigateInto = (folder: MediaFolder) => {
+    setFolderPath((prev) => [...prev, { id: folder.id, name: folder.name }]);
+    setCurrentFolderId(folder.id);
+  };
+
+  const navigateBreadcrumb = (index: number) => {
+    const target = folderPath[index];
+    setFolderPath(folderPath.slice(0, index));
+    setCurrentFolderId(target?.id ?? null);
+  };
+
+  const navigateRoot = () => {
+    setFolderPath([]);
+    setCurrentFolderId(null);
+  };
+
+  const handleCreateFolder = async () => {
+    const name = newFolderName.trim();
+    if (!name) {
+      toast("Folder name is required", "error");
+      return;
     }
-    load();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+    try {
+      await createFolder(name, currentFolderId);
+      setNewFolderName("");
+      setShowNewFolder(false);
+      toast("Folder created", "success");
+      await load(currentFolderId);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Failed to create folder";
+      toast(msg, "error");
+    }
+  };
 
   const uploadFiles = useCallback(
     async (files: FileList | File[]) => {
@@ -59,9 +119,10 @@ function MediaLibrary() {
       let successCount = 0;
       let failCount = 0;
       const items: MediaMeta[] = [];
+      const folderIdStr = currentFolderId != null ? String(currentFolderId) : undefined;
       for (const file of Array.from(files)) {
         try {
-          const item = await uploadMedia(file);
+          const item = await uploadMedia(file, undefined, folderIdStr);
           items.push(item);
           successCount++;
         } catch {
@@ -80,7 +141,7 @@ function MediaLibrary() {
       }
       setUploading(false);
     },
-    [toast],
+    [toast, currentFolderId],
   );
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -186,6 +247,12 @@ function MediaLibrary() {
 
   const isImage = (mime: string) => mime.startsWith("image/");
 
+  useEffect(() => {
+    if (showNewFolder) {
+      setTimeout(() => newFolderInputRef.current?.focus(), 0);
+    }
+  }, [showNewFolder]);
+
   if (loading) {
     return (
       <div className="space-y-6">
@@ -236,6 +303,14 @@ function MediaLibrary() {
             onChange={handleUpload}
           />
           <Button
+            variant="outline"
+            onClick={() => setShowNewFolder(true)}
+            className="w-full sm:w-auto"
+          >
+            <FolderPlus className="mr-2 h-4 w-4" />
+            New Folder
+          </Button>
+          <Button
             onClick={() => fileInputRef.current?.click()}
             disabled={uploading}
             className="w-full sm:w-auto"
@@ -245,6 +320,35 @@ function MediaLibrary() {
           </Button>
         </div>
       </div>
+
+      {/* Breadcrumb */}
+      {folderPath.length > 0 && (
+        <nav className="flex items-center gap-1 text-sm text-muted-foreground">
+          <button
+            onClick={navigateRoot}
+            className="flex items-center gap-1 rounded px-2 py-1 hover:bg-muted hover:text-foreground transition-colors"
+          >
+            <Home className="h-3.5 w-3.5" />
+            Root
+          </button>
+          <ChevronRight className="h-3.5 w-3.5" />
+          {folderPath.map((crumb, i) => (
+            <span key={crumb.id ?? "root"} className="flex items-center gap-1">
+              {i > 0 && <ChevronRight className="h-3.5 w-3.5" />}
+              {i === folderPath.length - 1 ? (
+                <span className="font-medium text-foreground">{crumb.name}</span>
+              ) : (
+                <button
+                  onClick={() => navigateBreadcrumb(i)}
+                  className="rounded px-2 py-1 hover:bg-muted hover:text-foreground transition-colors"
+                >
+                  {crumb.name}
+                </button>
+              )}
+            </span>
+          ))}
+        </nav>
+      )}
 
       {error && (
         <div className="rounded-md bg-destructive/10 p-4 text-destructive">
@@ -270,7 +374,41 @@ function MediaLibrary() {
         </div>
       )}
 
-      {media.length === 0 ? (
+      {/* New Folder Input */}
+      {showNewFolder && (
+        <div className="flex items-center gap-2 rounded-lg border bg-muted/30 p-3">
+          <Folder className="h-5 w-5 text-muted-foreground" />
+          <Input
+            ref={newFolderInputRef}
+            value={newFolderName}
+            onChange={(e) => setNewFolderName(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleCreateFolder();
+              if (e.key === "Escape") {
+                setShowNewFolder(false);
+                setNewFolderName("");
+              }
+            }}
+            placeholder="Folder name"
+            className="h-8 flex-1"
+          />
+          <Button size="sm" onClick={handleCreateFolder}>
+            Create
+          </Button>
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => {
+              setShowNewFolder(false);
+              setNewFolderName("");
+            }}
+          >
+            Cancel
+          </Button>
+        </div>
+      )}
+
+      {folders.length === 0 && media.length === 0 ? (
         <div
           className="flex flex-col items-center gap-4 rounded-lg border p-12 text-center transition-colors"
           onDragEnter={handleDragEnter}
@@ -286,6 +424,16 @@ function MediaLibrary() {
         </div>
       ) : (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+          {folders.map((folder) => (
+            <div
+              key={`folder-${folder.id}`}
+              onClick={() => navigateInto(folder)}
+              className="group flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border bg-card p-6 transition-shadow hover:shadow-md"
+            >
+              <Folder className="h-10 w-10 text-primary/70" />
+              <p className="truncate text-center text-sm font-medium">{folder.name}</p>
+            </div>
+          ))}
           {media.map((item) => (
             <div
               key={item.id}
@@ -312,7 +460,10 @@ function MediaLibrary() {
                   variant="secondary"
                   size="icon"
                   className="h-7 w-7"
-                  onClick={() => startEditing(item)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    startEditing(item);
+                  }}
                 >
                   <Pencil className="h-3.5 w-3.5" />
                 </Button>
@@ -320,7 +471,10 @@ function MediaLibrary() {
                   variant="destructive"
                   size="icon"
                   className="h-7 w-7"
-                  onClick={() => handleDelete(item.id)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDelete(item.id);
+                  }}
                 >
                   <Trash2 className="h-3.5 w-3.5" />
                 </Button>

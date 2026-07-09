@@ -4,6 +4,7 @@ import type { DatabaseAdapter } from "@altrugenix/database";
 import type { StorageAdapter } from "@altrugenix/storage";
 
 const MEDIA_TABLE = "__cms_media";
+const FOLDERS_TABLE = "__cms_media_folders";
 
 interface MediaRecord {
   id: string;
@@ -16,16 +17,30 @@ interface MediaRecord {
   updatedAt: string;
 }
 
-async function ensureMediaTable(adapter: DatabaseAdapter): Promise<void> {
+async function ensureTables(adapter: DatabaseAdapter): Promise<void> {
   await adapter.createTable(MEDIA_TABLE, {
     filename: "TEXT NOT NULL UNIQUE",
     originalName: "TEXT NOT NULL",
     mimeType: "TEXT NOT NULL",
     size: "INTEGER NOT NULL",
     alt: "TEXT NOT NULL DEFAULT ''",
+    folderId: "INTEGER DEFAULT NULL",
     createdAt: "TEXT NOT NULL",
     updatedAt: "TEXT NOT NULL",
   });
+
+  await adapter.createTable(FOLDERS_TABLE, {
+    name: "TEXT NOT NULL",
+    parentId: "INTEGER DEFAULT NULL",
+    createdAt: "TEXT NOT NULL",
+  });
+
+  // Add folderId column if it doesn't exist (for already-created tables)
+  try {
+    await adapter.raw(`ALTER TABLE ${MEDIA_TABLE} ADD COLUMN folderId INTEGER DEFAULT NULL`);
+  } catch {
+    // column already exists
+  }
 }
 
 export function registerMediaRoutes(
@@ -37,17 +52,35 @@ export function registerMediaRoutes(
 
   async function init(): Promise<void> {
     if (!initialized) {
-      await ensureMediaTable(adapter);
+      await ensureTables(adapter);
       initialized = true;
     }
   }
 
+  // ─── Media CRUD ───────────────────────────────────────────
+
   fastify.get(
     "/api/media",
     { preHandler: [fastify.authenticate] },
-    async (_request: FastifyRequest, reply: FastifyReply) => {
+    async (request: FastifyRequest, reply: FastifyReply) => {
       await init();
-      const results = await adapter.findMany(MEDIA_TABLE, { sort: { createdAt: "desc" } });
+      const query = request.query as Record<string, string>;
+      if (query.folderId) {
+        const id = Number(query.folderId);
+        const results = await adapter.findMany(MEDIA_TABLE, {
+          where: { folderId: id },
+          sort: { createdAt: "desc" as const },
+        });
+        return reply.send({ data: results.data, total: results.total });
+      }
+      if (query.folderId === "" || query.folderId === "null") {
+        const rows = await adapter.raw(
+          `SELECT * FROM "${MEDIA_TABLE}" WHERE "folderId" IS NULL ORDER BY "createdAt" DESC`,
+        );
+        const data = rows as Record<string, unknown>[];
+        return reply.send({ data, total: data.length });
+      }
+      const results = await adapter.findMany(MEDIA_TABLE, { sort: { createdAt: "desc" as const } });
       return reply.send({ data: results.data, total: results.total });
     },
   );
@@ -74,6 +107,7 @@ export function registerMediaRoutes(
         mimeType?: string;
         data?: string;
         alt?: string;
+        folderId?: string | null;
       };
 
       if (!body.fileName || !body.mimeType || !body.data) {
@@ -98,6 +132,7 @@ export function registerMediaRoutes(
         mimeType: body.mimeType,
         size: buffer.length,
         alt: body.alt ?? "",
+        folderId: body.folderId != null ? Number(body.folderId) : null,
         createdAt: now,
         updatedAt: now,
       });
@@ -112,13 +147,20 @@ export function registerMediaRoutes(
     async (request: FastifyRequest, reply: FastifyReply) => {
       await init();
       const { id } = request.params as { id: string };
-      const body = request.body as { originalName?: string; alt?: string };
+      const body = request.body as {
+        originalName?: string;
+        alt?: string;
+        folderId?: string | null;
+      };
       const record = await adapter.findOne(MEDIA_TABLE, id);
       if (!record) return reply.status(404).send({ error: "Media not found" });
 
-      const updates: Record<string, string> = {};
+      const updates: Record<string, unknown> = {};
       if (body.originalName !== undefined) updates.originalName = body.originalName;
       if (body.alt !== undefined) updates.alt = body.alt;
+      if (body.folderId !== undefined) {
+        updates.folderId = body.folderId !== null ? Number(body.folderId) : null;
+      }
       updates.updatedAt = new Date().toISOString();
 
       const updated = await adapter.update(MEDIA_TABLE, id, updates);
@@ -161,6 +203,136 @@ export function registerMediaRoutes(
       reply.header("Content-Disposition", `inline; filename="${typed.originalName}"`);
       reply.header("Content-Length", String(typed.size));
       return reply.send(stream);
+    },
+  );
+
+  // ─── Folder CRUD ──────────────────────────────────────────
+
+  fastify.get(
+    "/api/media/folders",
+    { preHandler: [fastify.authenticate] },
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      await init();
+      const query = request.query as Record<string, string>;
+      if (query.parentId) {
+        const rows = await adapter.raw(
+          `SELECT id, name, parentId, createdAt FROM ${FOLDERS_TABLE} WHERE parentId = ? ORDER BY name ASC`,
+          [Number(query.parentId)],
+        );
+        return reply.send({ data: rows, total: (rows as unknown[]).length });
+      }
+      if (query.parentId === "" || query.parentId === "null") {
+        const rows = await adapter.raw(
+          `SELECT id, name, parentId, createdAt FROM ${FOLDERS_TABLE} WHERE parentId IS NULL ORDER BY name ASC`,
+        );
+        return reply.send({ data: rows, total: (rows as unknown[]).length });
+      }
+      const rows = await adapter.raw(
+        `SELECT id, name, parentId, createdAt FROM ${FOLDERS_TABLE} ORDER BY name ASC`,
+      );
+      return reply.send({ data: rows, total: (rows as unknown[]).length });
+    },
+  );
+
+  fastify.get(
+    "/api/media/folders/:id",
+    { preHandler: [fastify.authenticate] },
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      await init();
+      const { id } = request.params as { id: string };
+      const rows = await adapter.raw(
+        `SELECT id, name, parentId, createdAt FROM ${FOLDERS_TABLE} WHERE id = ?`,
+        [Number(id)],
+      );
+      const folders = rows as {
+        id: number;
+        name: string;
+        parentId: number | null;
+        createdAt: string;
+      }[];
+      if (folders.length === 0) return reply.status(404).send({ error: "Folder not found" });
+      return reply.send(folders[0]);
+    },
+  );
+
+  fastify.post(
+    "/api/media/folders",
+    { preHandler: [fastify.authenticate] },
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      await init();
+      const body = request.body as { name?: string; parentId?: number | null };
+      if (!body.name || !body.name.trim()) {
+        return reply.status(400).send({ error: "Folder name is required" });
+      }
+      const now = new Date().toISOString();
+      await adapter.raw(
+        `INSERT INTO ${FOLDERS_TABLE} (name, parentId, createdAt) VALUES (?, ?, ?)`,
+        [body.name.trim(), body.parentId != null ? Number(body.parentId) : null, now],
+      );
+      const rows = await adapter.raw(
+        `SELECT id, name, parentId, createdAt FROM ${FOLDERS_TABLE} ORDER BY id DESC LIMIT 1`,
+      );
+      const created = (
+        rows as { id: number; name: string; parentId: number | null; createdAt: string }[]
+      )[0];
+      return reply.status(201).send(created);
+    },
+  );
+
+  fastify.patch(
+    "/api/media/folders/:id",
+    { preHandler: [fastify.authenticate] },
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      await init();
+      const { id } = request.params as { id: string };
+      const body = request.body as { name?: string; parentId?: number | null };
+      const sets: string[] = [];
+      const params: unknown[] = [];
+      if (body.name !== undefined) {
+        if (!body.name.trim())
+          return reply.status(400).send({ error: "Folder name cannot be empty" });
+        sets.push("name = ?");
+        params.push(body.name.trim());
+      }
+      if (body.parentId !== undefined) {
+        sets.push("parentId = ?");
+        params.push(body.parentId != null ? Number(body.parentId) : null);
+      }
+      if (sets.length === 0) return reply.status(400).send({ error: "No fields to update" });
+      params.push(Number(id));
+      await adapter.raw(`UPDATE ${FOLDERS_TABLE} SET ${sets.join(", ")} WHERE id = ?`, params);
+      const rows = await adapter.raw(
+        `SELECT id, name, parentId, createdAt FROM ${FOLDERS_TABLE} WHERE id = ?`,
+        [Number(id)],
+      );
+      const updated = (
+        rows as { id: number; name: string; parentId: number | null; createdAt: string }[]
+      )[0];
+      if (!updated) return reply.status(404).send({ error: "Folder not found" });
+      return reply.send(updated);
+    },
+  );
+
+  fastify.delete(
+    "/api/media/folders/:id",
+    { preHandler: [fastify.authenticate] },
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      await init();
+      const { id } = request.params as { id: string };
+      const numericId = Number(id);
+
+      // Move media in this folder to root
+      await adapter.raw(`UPDATE ${MEDIA_TABLE} SET folderId = NULL WHERE folderId = ?`, [
+        numericId,
+      ]);
+      // Move child folders to root
+      await adapter.raw(`UPDATE ${FOLDERS_TABLE} SET parentId = NULL WHERE parentId = ?`, [
+        numericId,
+      ]);
+      // Delete the folder
+      await adapter.raw(`DELETE FROM ${FOLDERS_TABLE} WHERE id = ?`, [numericId]);
+
+      return reply.send({ message: "Folder deleted" });
     },
   );
 }

@@ -1,6 +1,6 @@
 # TODO — Altrugenix CMS
 
-> Project status: Milestone 5 (activity feed, settings page, responsive design, dashboard, user & role management, enhanced field inputs, inline validation, media library with drag & drop + rename/alt editing, relation picker, bulk delete, global views, error boundaries, toast notifications, loading skeletons, confirmation dialogs, command palette + keyboard shortcuts). **269 tests** across all packages. Next: media folder organization
+> Project status: Milestone 5 (activity feed, settings page, responsive design, dashboard, user & role management, enhanced field inputs, inline validation, media library with folder organization + drag & drop + rename/alt editing, relation picker, bulk delete, global views, error boundaries, toast notifications, loading skeletons, confirmation dialogs, command palette + keyboard shortcuts). **267 tests** across all packages. Next: schema builder
 
 ---
 
@@ -179,7 +179,7 @@
 - [x] Implement file upload (base64 via JSON API)
 - [x] Show file metadata (size, type, preview)
 - [x] Implement file rename / alt text editing
-- [ ] Create folder organization
+- [x] Create folder organization
 - [x] Implement drag & drop upload
 
 ### User & Role Management

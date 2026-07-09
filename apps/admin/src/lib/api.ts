@@ -193,38 +193,103 @@ export type MediaMeta = {
   mimeType: string;
   size: number;
   alt: string;
+  folderId: number | null;
   createdAt: string;
   updatedAt: string;
 };
 
-export async function fetchMedia(): Promise<{ data: MediaMeta[]; total: number }> {
-  return apiFetch("/api/media");
+export type MediaFolder = {
+  id: number;
+  name: string;
+  parentId: number | null;
+  createdAt: string;
+};
+
+export async function fetchMedia(
+  folderId?: string | null,
+): Promise<{ data: MediaMeta[]; total: number }> {
+  let path = "/api/media";
+  if (folderId) {
+    path += `?folderId=${folderId}`;
+  } else if (folderId === null) {
+    path += "?folderId=null";
+  }
+  return apiFetch(path);
 }
 
-export async function uploadMedia(file: File, alt?: string): Promise<MediaMeta> {
+export async function uploadMedia(
+  file: File,
+  alt?: string,
+  folderId?: string | null,
+): Promise<MediaMeta> {
   const buffer = await file.arrayBuffer();
   const base64 = btoa(
     new Uint8Array(buffer).reduce((data, byte) => data + String.fromCharCode(byte), ""),
   );
+  const body: Record<string, unknown> = {
+    fileName: file.name,
+    mimeType: file.type,
+    data: base64,
+    alt: alt ?? "",
+  };
+  if (folderId !== undefined) {
+    body.folderId = folderId;
+  }
   return apiFetch("/api/media", {
     method: "POST",
-    body: JSON.stringify({
-      fileName: file.name,
-      mimeType: file.type,
-      data: base64,
-      alt: alt ?? "",
-    }),
+    body: JSON.stringify(body),
   });
 }
 
 export async function updateMedia(
   id: string,
-  updates: { originalName?: string; alt?: string },
+  updates: { originalName?: string; alt?: string; folderId?: string | null },
 ): Promise<MediaMeta> {
   return apiFetch(`/api/media/${id}`, {
     method: "PATCH",
     body: JSON.stringify(updates),
   });
+}
+
+export async function fetchFolders(
+  parentId?: string | null,
+): Promise<{ data: MediaFolder[]; total: number }> {
+  let path = "/api/media/folders";
+  if (parentId) {
+    path += `?parentId=${parentId}`;
+  } else if (parentId === null) {
+    path += "?parentId=null";
+  }
+  return apiFetch(path);
+}
+
+export async function fetchFolder(id: number): Promise<MediaFolder> {
+  return apiFetch(`/api/media/folders/${id}`);
+}
+
+export async function createFolder(name: string, parentId?: number | null): Promise<MediaFolder> {
+  const body: Record<string, unknown> = { name };
+  if (parentId !== undefined) {
+    body.parentId = parentId;
+  }
+  return apiFetch("/api/media/folders", {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+}
+
+export async function updateFolder(
+  id: number,
+  data: { name?: string; parentId?: number | null },
+): Promise<MediaFolder> {
+  return apiFetch(`/api/media/folders/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify(data),
+  });
+}
+
+export async function deleteFolder(id: number): Promise<void> {
+  await apiFetch(`/api/media/folders/${id}`, { method: "DELETE" });
 }
 
 export async function deleteMedia(id: string): Promise<void> {
