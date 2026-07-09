@@ -17,6 +17,7 @@
     "test:watch": {
       "cache": false
     },
+    "preview": {},
     "clean": {
       "cache": false
     }

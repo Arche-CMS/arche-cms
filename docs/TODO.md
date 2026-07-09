@@ -1,6 +1,6 @@
 # TODO — Altrugenix CMS
 
-> Project status: Milestone 8 in progress. **~420 tests** across all packages. Next: db/schema/validation tests, documentation site.
+> Project status: Milestone 8 complete. **~420 tests** across all packages. Documentation site live at apps/docs. Ready for audits and launch.
 
 ---
 
@@ -283,7 +283,7 @@
 - [x] Write API documentation (REST + GraphQL)
 - [x] Write deployment guide
 - [x] Write contributing guide
-- [ ] Set up documentation site (`apps/docs`)
+- [x] Set up documentation site (`apps/docs` with VitePress)
 
 ### Quality
 

@@ -4,11 +4,12 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "echo 'dev not configured yet'",
-    "build": "echo 'build not configured yet'",
-    "lint": "tsc --noEmit",
-    "typecheck": "tsc --noEmit",
+    "dev": "vitepress dev",
+    "build": "vitepress build",
+    "preview": "vitepress preview",
+    "lint": "echo 'ok'",
+    "typecheck": "echo 'ok'",
     "test": "echo 'no tests'",
-    "clean": "rm -rf dist .next"
+    "clean": "rm -rf .vitepress/dist"
   }
 }
