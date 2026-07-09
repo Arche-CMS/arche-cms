@@ -17,6 +17,7 @@ import { registerCollectionRoutes, registerGlobalRoutes } from "./routes/collect
 import { registerUserRoutes } from "./routes/users.js";
 import { registerRoleRoutes } from "./routes/roles.js";
 import { registerMediaRoutes } from "./routes/media.js";
+import { registerSchemaRoutes } from "./routes/schemas.js";
 import { registerActivityRoutes } from "./routes/activity.js";
 import { ensureActivityTable } from "./lib/activity.js";
 
@@ -64,6 +65,8 @@ export async function createApp(options: AppOptions): Promise<FastifyInstance> {
   if (globals && globals.length > 0) {
     registerGlobalRoutes(fastify, globals, adapter);
   }
+
+  registerSchemaRoutes(fastify, config);
 
   // Expose collection metadata for admin UI
   fastify.get("/api/collections", async () => {

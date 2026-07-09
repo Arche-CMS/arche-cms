@@ -1,6 +1,6 @@
 # TODO — Altrugenix CMS
 
-> Project status: Milestone 5 (activity feed, settings page, responsive design, dashboard, user & role management, enhanced field inputs, inline validation, media library with folder organization + drag & drop + rename/alt editing, relation picker, bulk delete, global views, error boundaries, toast notifications, loading skeletons, confirmation dialogs, command palette + keyboard shortcuts). **267 tests** across all packages. Next: schema builder
+> Project status: Milestone 5 complete (schema builder, activity feed, settings page, responsive design, dashboard, user & role management, enhanced field inputs, inline validation, media library with folder organization + drag & drop + rename/alt editing, relation picker, bulk delete, global views, error boundaries, toast notifications, loading skeletons, confirmation dialogs, command palette + keyboard shortcuts). **277 tests** across all packages. Next: code generation generators (Milestone 6)
 
 ---
 
@@ -190,11 +190,11 @@
 
 ### Schema Builder
 
-- [ ] Build drag-and-drop field editor
-- [ ] Field settings panel (type, name, validation, help text)
-- [ ] Field reordering
-- [ ] Preview generated TypeScript schema
-- [ ] Save schema to file
+- [x] Build drag-and-drop field editor
+- [x] Field settings panel (type, name, validation, help text)
+- [x] Field reordering
+- [x] Preview generated TypeScript schema
+- [x] Save schema to file
 
 ### Settings
 

@@ -9,6 +9,7 @@ import {
   Settings,
   ChevronLeft,
   Globe,
+  Layers,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -21,6 +22,7 @@ const navItems = [
   { to: "/media", label: "Media", icon: Image },
   { to: "/users", label: "Users", icon: Users },
   { to: "/roles", label: "Roles", icon: Shield },
+  { to: "/schemas", label: "Schema Builder", icon: Layers },
   { to: "/settings", label: "Settings", icon: Settings },
 ];
 

@@ -17,6 +17,9 @@ import { Route as mediaRoute } from "@/routes/media/index";
 import { Route as globalsListRoute } from "@/routes/globals/index";
 import { Route as globalEditRoute } from "@/routes/globals/$slug";
 import { Route as settingsRoute } from "@/routes/settings/index";
+import { Route as schemasListRoute } from "@/routes/schemas/index";
+import { Route as schemasNewRoute } from "@/routes/schemas/new";
+import { Route as schemaEditRoute } from "@/routes/schemas/$type.$slug";
 
 const routeTree = rootRoute.addChildren([
   indexRoute,
@@ -36,6 +39,9 @@ const routeTree = rootRoute.addChildren([
   globalsListRoute,
   globalEditRoute,
   settingsRoute,
+  schemasListRoute,
+  schemasNewRoute,
+  schemaEditRoute,
 ]);
 
 export const router = createRouter({ routeTree });

@@ -1,5 +1,76 @@
 const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
 
+export type SchemaInfo = {
+  slug: string;
+  label: string;
+  type: "collection" | "global" | "component";
+  fields: FieldDefinition[];
+  meta: Record<string, unknown>;
+};
+
+export type FieldDefinition = {
+  name: string;
+  type: string;
+  label?: string;
+  localized?: boolean;
+  defaultValue?: unknown;
+  validation?: Record<string, unknown>;
+  admin?: Record<string, unknown>;
+  options?: Array<{ label: string; value: string } | string>;
+  to?: string;
+  kind?: string;
+  component?: string;
+  repeatable?: boolean;
+  components?: string[];
+  fields?: FieldDefinition[];
+  tabs?: Array<{ label: string; fields: FieldDefinition[] }>;
+  source?: string;
+  unique?: boolean;
+  language?: string;
+  format?: string;
+  multiple?: boolean;
+  allowedTypes?: string[];
+};
+
+export async function fetchSchemas(): Promise<SchemaInfo[]> {
+  const res = await apiFetch<{ data: SchemaInfo[] }>("/api/schemas");
+  return res.data;
+}
+
+export async function fetchSchema(type: string, slug: string): Promise<SchemaInfo> {
+  return apiFetch(`/api/schemas/${type}/${slug}`);
+}
+
+export async function createSchema(
+  type: string,
+  data: {
+    slug: string;
+    fields?: FieldDefinition[];
+    meta?: Record<string, unknown>;
+    label?: string;
+  },
+): Promise<void> {
+  await apiFetch(`/api/schemas/${type}`, {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
+export async function saveSchema(
+  type: string,
+  slug: string,
+  data: { fields?: FieldDefinition[]; meta?: Record<string, unknown>; label?: string },
+): Promise<void> {
+  await apiFetch(`/api/schemas/${type}/${slug}`, {
+    method: "PUT",
+    body: JSON.stringify(data),
+  });
+}
+
+export async function deleteSchema(type: string, slug: string): Promise<void> {
+  await apiFetch(`/api/schemas/${type}/${slug}`, { method: "DELETE" });
+}
+
 export function getApiUrl(): string {
   return API_URL;
 }
