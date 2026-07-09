@@ -308,6 +308,15 @@
 - [ ] Localization / i18n
 - [ ] Version history and revisions
 
+### Setup & Onboarding
+
+- [ ] Add onboarding form to register initial admin user
+- [ ] Check if database is working on startup and return error
+
+### DevOps
+
+- [ ] Add Docker setup to run API locally
+
 ### Release
 
 - [x] Configure npm package publishing for all packages
