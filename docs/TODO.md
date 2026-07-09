@@ -1,6 +1,6 @@
 # TODO — Altrugenix CMS
 
-> Project status: Milestone 6 in progress (code generation generators: pipeline architecture + API routes + Zod validation + DB migrations + GraphQL schema + OpenAPI spec + SDK + admin form generators). **287 tests** across all packages. Next: generators tests + plugin system (Milestone 7)
+> Project status: Milestone 7 in progress (plugin system: PluginManager, auto-discovery, hook system, extension points). **301 tests** across all packages. Next: official plugins + S3 adapter
 
 ---
 
@@ -243,11 +243,11 @@
 
 ### Plugin Infrastructure
 
-- [ ] Design plugin API (hooks, events, extensions)
-- [ ] Implement plugin registry
-- [ ] Implement plugin loader (auto-discover from `node_modules`)
-- [ ] Implement hook system (before/after lifecycle hooks)
-- [ ] Implement extension points (custom fields, custom routes, custom admin panels)
+- [x] Design plugin API (hooks, events, extensions)
+- [x] Implement plugin registry (PluginManager with register/unregister/enable/disable)
+- [x] Implement plugin loader (auto-discover from `node_modules`)
+- [x] Implement hook system (beforeSchemaLoad, afterSchemaLoad, beforeRouteRegister, afterRouteRegister, beforeRequest, afterRequest)
+- [x] Implement extension points (custom fields via `getCustomFields()`, custom admin panels via `getAdminPanels()`, custom routes via `runRouteHook()`)
 - [ ] Write plugin developer documentation
 
 ### Official Plugins
