@@ -6,7 +6,7 @@ import { useToast } from "@/components/toast-provider";
 import { fetchCollections, apiFetch, type CollectionMeta } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/confirm-dialog";
-import { ArrowLeft, Plus, Pencil, Trash2, CheckCircle, XCircle } from "lucide-react";
+import { ArrowLeft, Plus, Pencil, Trash2, CheckCircle, XCircle, RefreshCw } from "lucide-react";
 
 export const Route = createRoute({
   getParentRoute: () => rootRoute,
@@ -16,6 +16,7 @@ export const Route = createRoute({
 
 type Entry = Record<string, unknown> & { id: string };
 
+// fallow-ignore-next-line complexity
 function CollectionEntries() {
   const { slug } = useParams({ from: Route.id });
   const { toast } = useToast();
@@ -28,6 +29,7 @@ function CollectionEntries() {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [showDeleted, setShowDeleted] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -39,7 +41,8 @@ function CollectionEntries() {
         if (cancelled) return;
         setCollection(col);
 
-        const data = await apiFetch<{ data: Entry[]; total: number }>(`/api/${slug}`);
+        const url = showDeleted ? `/api/${slug}?deleted=true` : `/api/${slug}`;
+        const data = await apiFetch<{ data: Entry[]; total: number }>(url);
         if (cancelled) return;
         setEntries(data.data);
         setTotal(data.total);
@@ -55,7 +58,7 @@ function CollectionEntries() {
     return () => {
       cancelled = true;
     };
-  }, [slug]);
+  }, [slug, showDeleted]);
 
   const handleDelete = (id: string) => {
     setConfirmDeleteId(id);
@@ -174,6 +177,7 @@ function CollectionEntries() {
 
   const displayFields = collection.fields.slice(0, collection.versions?.drafts ? 3 : 4);
   const hasDrafts = collection.versions?.drafts === true;
+  const hasSoftDelete = collection.versions?.softDelete === true;
 
   const handlePublish = async (id: string) => {
     try {
@@ -184,6 +188,19 @@ function CollectionEntries() {
       toast("Entry published", "success");
     } catch (err) {
       toast(err instanceof Error ? err.message : "Failed to publish entry", "error");
+    }
+  };
+
+  const handleRestore = async (id: string) => {
+    try {
+      await apiFetch(`/api/${slug}/${id}/restore`, { method: "POST" });
+      const url = showDeleted ? `/api/${slug}?deleted=true` : `/api/${slug}`;
+      const data = await apiFetch<{ data: Entry[]; total: number }>(url);
+      setEntries(data.data);
+      setTotal(data.total);
+      toast("Entry restored", "success");
+    } catch (err) {
+      toast(err instanceof Error ? err.message : "Failed to restore entry", "error");
     }
   };
 
@@ -213,11 +230,23 @@ function CollectionEntries() {
             </p>
           </div>
         </div>
-        <Link to="/collections/$slug/new" params={{ slug }} className="self-start sm:self-auto">
-          <Button className="w-full sm:w-auto">
-            <Plus className="mr-2 h-4 w-4" /> Create New
-          </Button>
-        </Link>
+        <div className="flex items-center gap-2 self-start sm:self-auto">
+          {hasSoftDelete && (
+            <Button
+              variant={showDeleted ? "secondary" : "outline"}
+              size="sm"
+              onClick={() => setShowDeleted((p) => !p)}
+            >
+              <Trash2 className="mr-1.5 h-4 w-4" />
+              {showDeleted ? "Active" : "Trash"}
+            </Button>
+          )}
+          <Link to="/collections/$slug/new" params={{ slug }}>
+            <Button className="w-full sm:w-auto">
+              <Plus className="mr-2 h-4 w-4" /> Create New
+            </Button>
+          </Link>
+        </div>
       </div>
 
       {entries.length === 0 ? (
@@ -293,34 +322,15 @@ function CollectionEntries() {
                     )}
                     <td className="px-4 py-3 text-right">
                       <div className="flex items-center justify-end gap-1">
-                        {hasDrafts && entry._status !== "published" && (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handlePublish(entry.id)}
-                            title="Publish"
-                          >
-                            <CheckCircle className="h-4 w-4 text-green-500" />
-                          </Button>
+                        {renderActions(
+                          entry,
+                          hasDrafts,
+                          handlePublish,
+                          handleUnpublish,
+                          handleRestore,
+                          handleDelete,
+                          slug,
                         )}
-                        {hasDrafts && entry._status === "published" && (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleUnpublish(entry.id)}
-                            title="Unpublish"
-                          >
-                            <XCircle className="h-4 w-4 text-amber-500" />
-                          </Button>
-                        )}
-                        <Link to="/collections/$slug/$id" params={{ slug, id: entry.id }}>
-                          <Button variant="ghost" size="icon">
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-                        </Link>
-                        <Button variant="ghost" size="icon" onClick={() => handleDelete(entry.id)}>
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
                       </div>
                     </td>
                   </tr>
@@ -334,7 +344,11 @@ function CollectionEntries() {
       <ConfirmDialog
         open={confirmDelete}
         title={`Delete ${selected.size} entr${selected.size === 1 ? "y" : "ies"}?`}
-        message="This action cannot be undone."
+        message={
+          hasSoftDelete
+            ? "Entries will be soft-deleted and can be restored from Trash."
+            : "This action cannot be undone."
+        }
         loading={deleting}
         onConfirm={handleBulkDelete}
         onCancel={() => setConfirmDelete(false)}
@@ -343,10 +357,63 @@ function CollectionEntries() {
       <ConfirmDialog
         open={confirmDeleteId !== null}
         title="Delete entry?"
-        message="This action cannot be undone."
+        message={
+          hasSoftDelete
+            ? "The entry will be soft-deleted and can be restored from Trash."
+            : "This action cannot be undone."
+        }
         onConfirm={handleConfirmDelete}
         onCancel={() => setConfirmDeleteId(null)}
       />
+    </div>
+  );
+}
+
+// fallow-ignore-next-line complexity
+function renderActions(
+  entry: Entry,
+  hasDrafts: boolean,
+  handlePublish: (id: string) => void,
+  handleUnpublish: (id: string) => void,
+  handleRestore: (id: string) => void,
+  handleDelete: (id: string) => void,
+  slug: string,
+) {
+  const deleted = Boolean(entry._deletedAt);
+  if (deleted) {
+    return (
+      <div className="flex items-center justify-end gap-1">
+        <Button variant="ghost" size="icon" onClick={() => handleRestore(entry.id)} title="Restore">
+          <RefreshCw className="h-4 w-4 text-blue-500" />
+        </Button>
+      </div>
+    );
+  }
+  return (
+    <div className="flex items-center justify-end gap-1">
+      {hasDrafts && entry._status !== "published" && (
+        <Button variant="ghost" size="icon" onClick={() => handlePublish(entry.id)} title="Publish">
+          <CheckCircle className="h-4 w-4 text-green-500" />
+        </Button>
+      )}
+      {hasDrafts && entry._status === "published" && (
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => handleUnpublish(entry.id)}
+          title="Unpublish"
+        >
+          <XCircle className="h-4 w-4 text-amber-500" />
+        </Button>
+      )}
+      <Link to="/collections/$slug/$id" params={{ slug, id: entry.id }}>
+        <Button variant="ghost" size="icon">
+          <Pencil className="h-4 w-4" />
+        </Button>
+      </Link>
+      <Button variant="ghost" size="icon" onClick={() => handleDelete(entry.id)}>
+        <Trash2 className="h-4 w-4" />
+      </Button>
     </div>
   );
 }

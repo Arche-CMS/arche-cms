@@ -7,6 +7,9 @@ import {
   createUpdateHandler,
   createListHandler,
   createGetHandler,
+  createDeleteHandler,
+  createBulkDeleteHandler,
+  createRestoreHandler,
   createPublishHandler,
   createUnpublishHandler,
 } from "../src/handlers.js";
@@ -485,5 +488,196 @@ describe("draft/publish handlers", () => {
     const body = result.body as Record<string, unknown>;
     expect(body.title).toBe("Updated");
     expect((body as Record<string, unknown>)._status).toBe("draft");
+  });
+});
+
+function createSoftDeleteAdapter(): DatabaseAdapter {
+  const store: Record<string, unknown>[] = [];
+  let nextId = 1;
+  return {
+    findOne: async (_c, id) => store.find((r) => String(r.id) === id) ?? null,
+    findMany: async (_c, opts) => {
+      let data = [...store];
+      if (opts?.where) {
+        for (const [key, value] of Object.entries(opts.where)) {
+          if (Array.isArray(value)) {
+            data = data.filter((r) => value.includes(String(r[key])));
+          } else if (value === null) {
+            data = data.filter((r) => r[key] == null);
+          } else {
+            data = data.filter((r) => r[key] === value);
+          }
+        }
+      }
+      const total = data.length;
+      return { data, total };
+    },
+    create: async (_c, d) => {
+      const record = { id: nextId++, ...d } as Record<string, unknown>;
+      store.push(record);
+      return record;
+    },
+    update: async (_c, id, d) => {
+      const idx = store.findIndex((r) => String(r.id) === id);
+      if (idx === -1) return null;
+      store[idx] = { ...store[idx], ...d } as Record<string, unknown>;
+      return store[idx];
+    },
+    delete: async (_c, id) => {
+      const idx = store.findIndex((r) => String(r.id) === id);
+      if (idx === -1) return false;
+      store.splice(idx, 1);
+      return true;
+    },
+    deleteMany: async (_c, ids) => {
+      const before = store.length;
+      const idSet = new Set(ids);
+      store = store.filter((r) => !idSet.has(String(r.id)));
+      return before - store.length;
+    },
+  };
+}
+
+const softDeleteCollection: CollectionDefinition = {
+  slug: "posts",
+  labels: { singular: "Post", plural: "Posts" },
+  fields: [{ name: "title", type: "text", validation: { required: true } }],
+  versions: { softDelete: true },
+};
+
+describe("soft delete handlers", () => {
+  it("deleteHandler sets _deletedAt instead of removing the record", async () => {
+    const adapter = createSoftDeleteAdapter();
+    const created = await adapter.create("__cms_posts", { title: "Test" });
+    const handler = createDeleteHandler(softDeleteCollection, adapter);
+    const result = await handler({
+      params: { id: String(created.id) },
+      query: {},
+      body: null,
+      headers: {},
+    });
+    expect(result.statusCode).toBe(200);
+    const body = result.body as Record<string, unknown>;
+    expect(body.deleted).toBe(true);
+
+    const record = await adapter.findOne("__cms_posts", String(created.id));
+    expect(record).not.toBeNull();
+    expect((record as Record<string, unknown>)._deletedAt).toBeDefined();
+  });
+
+  it("deleteHandler hard-deletes when softDelete is not enabled", async () => {
+    const adapter = createSoftDeleteAdapter();
+    const handler = createDeleteHandler(collection, adapter);
+    const created = await adapter.create("__cms_posts", { title: "Test" });
+    const result = await handler({
+      params: { id: String(created.id) },
+      query: {},
+      body: null,
+      headers: {},
+    });
+    expect(result.statusCode).toBe(200);
+
+    const record = await adapter.findOne("__cms_posts", String(created.id));
+    expect(record).toBeNull();
+  });
+
+  it("listHandler excludes soft-deleted entries by default", async () => {
+    const adapter = createSoftDeleteAdapter();
+    await adapter.create("__cms_posts", { title: "Active" });
+    await adapter.create("__cms_posts", {
+      title: "Deleted",
+      _deletedAt: "2024-01-01T00:00:00.000Z",
+    });
+    await adapter.create("__cms_posts", { title: "Another Active" });
+
+    const handler = createListHandler(softDeleteCollection, adapter, 100, 10);
+    const result = await handler({ params: {}, query: {}, body: null, headers: {} });
+    expect(result.statusCode).toBe(200);
+    const body = result.body as { data: Record<string, unknown>[]; total: number };
+    expect(body.total).toBe(2);
+    expect(body.data.map((r) => r.title)).toEqual(["Active", "Another Active"]);
+  });
+
+  it("listHandler includes deleted entries when deleted=true", async () => {
+    const adapter = createSoftDeleteAdapter();
+    await adapter.create("__cms_posts", { title: "Active" });
+    await adapter.create("__cms_posts", {
+      title: "Deleted",
+      _deletedAt: "2024-01-01T00:00:00.000Z",
+    });
+
+    const handler = createListHandler(softDeleteCollection, adapter, 100, 10);
+    const result = await handler({
+      params: {},
+      query: { deleted: "true" },
+      body: null,
+      headers: {},
+    });
+    expect(result.statusCode).toBe(200);
+    const body = result.body as { data: Record<string, unknown>[]; total: number };
+    expect(body.total).toBe(2);
+  });
+
+  it("restoreHandler clears _deletedAt", async () => {
+    const adapter = createSoftDeleteAdapter();
+    const created = await adapter.create("__cms_posts", {
+      title: "Deleted",
+      _deletedAt: "2024-01-01T00:00:00.000Z",
+    });
+    const handler = createRestoreHandler(softDeleteCollection, adapter);
+    const result = await handler({
+      params: { id: String(created.id) },
+      query: {},
+      body: null,
+      headers: {},
+    });
+    expect(result.statusCode).toBe(200);
+    const body = result.body as Record<string, unknown>;
+    expect(body._deletedAt).toBeNull();
+  });
+
+  it("restoreHandler returns 404 for missing entry", async () => {
+    const adapter = createSoftDeleteAdapter();
+    const handler = createRestoreHandler(softDeleteCollection, adapter);
+    const result = await handler({
+      params: { id: "999" },
+      query: {},
+      body: null,
+      headers: {},
+    });
+    expect(result.statusCode).toBe(404);
+  });
+
+  it("bulkDeleteHandler soft-deletes records", async () => {
+    const adapter = createSoftDeleteAdapter();
+    const a = await adapter.create("__cms_posts", { title: "A" });
+    const b = await adapter.create("__cms_posts", { title: "B" });
+    const handler = createBulkDeleteHandler(softDeleteCollection, adapter);
+    const result = await handler({
+      params: {},
+      query: {},
+      body: { ids: [String(a.id), String(b.id)] },
+      headers: {},
+    });
+    expect(result.statusCode).toBe(200);
+    const body = result.body as { deleted: number };
+    expect(body.deleted).toBe(2);
+
+    const list = await adapter.findMany("__cms_posts");
+    expect(list.total).toBe(2);
+    expect((list.data[0] as Record<string, unknown>)._deletedAt).toBeDefined();
+    expect((list.data[1] as Record<string, unknown>)._deletedAt).toBeDefined();
+  });
+
+  it("deleteHandler returns 404 for missing entry", async () => {
+    const adapter = createSoftDeleteAdapter();
+    const handler = createDeleteHandler(softDeleteCollection, adapter);
+    const result = await handler({
+      params: { id: "999" },
+      query: {},
+      body: null,
+      headers: {},
+    });
+    expect(result.statusCode).toBe(404);
   });
 });

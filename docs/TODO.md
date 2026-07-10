@@ -304,7 +304,7 @@
 
 - [x] Draft / publish workflow
 - [ ] Scheduled publishing
-- [ ] Soft delete
+- [x] Soft delete
 - [ ] Localization / i18n
 - [ ] Version history and revisions
 

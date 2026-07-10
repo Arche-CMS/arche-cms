@@ -153,7 +153,7 @@ export type CollectionMeta = {
   slug: string;
   label: string;
   labels: { singular?: string; plural?: string };
-  versions?: { drafts?: boolean };
+  versions?: { drafts?: boolean; softDelete?: boolean };
   fields: Array<{
     name: string;
     type: string;

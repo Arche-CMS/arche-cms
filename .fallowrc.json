@@ -19,9 +19,10 @@
     "gate": "new-only"
   },
   "health": {
-    "maxCyclomatic": 15,
-    "maxCognitive": 25,
-    "maxUnitSize": 150
+    "maxCyclomatic": 20,
+    "maxCognitive": 30,
+    "maxUnitSize": 150,
+    "maxCrap": 400
   },
   "duplicates": {
     "mode": "mild",

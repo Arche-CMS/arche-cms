@@ -55,6 +55,14 @@ function draftColumns(): string[] {
   return ["_status", "_publishedAt", "_publishedBy"];
 }
 
+function hasSoftDelete(collection: CollectionDefinition): boolean {
+  return collection.versions?.softDelete === true;
+}
+
+function softDeleteColumns(): string[] {
+  return ["_deletedAt", "_deletedBy"];
+}
+
 export class MigrationGenerator {
   generate(collections: CollectionDefinition[], existing: ExistingSchema): Migration[] {
     const migrations: Migration[] = [];
@@ -73,9 +81,23 @@ export class MigrationGenerator {
         const missingDraftColumns = hasDrafts(collection)
           ? draftColumns().filter((c) => !existingColumns.includes(c))
           : [];
-        if (newColumns.length > 0 || missingDraftColumns.length > 0) {
+        const missingSoftDeleteColumns = hasSoftDelete(collection)
+          ? softDeleteColumns().filter((c) => !existingColumns.includes(c))
+          : [];
+        if (
+          newColumns.length > 0 ||
+          missingDraftColumns.length > 0 ||
+          missingSoftDeleteColumns.length > 0
+        ) {
           migrations.push(
-            this.addColumnsMigration(collection, newColumns, missingDraftColumns, tableName, now),
+            this.addColumnsMigration(
+              collection,
+              newColumns,
+              missingDraftColumns,
+              missingSoftDeleteColumns,
+              tableName,
+              now,
+            ),
           );
         }
       }
@@ -97,6 +119,10 @@ export class MigrationGenerator {
       columns.push("  _publishedAt TEXT");
       columns.push("  _publishedBy TEXT");
     }
+    if (hasSoftDelete(collection)) {
+      columns.push("  _deletedAt TEXT");
+      columns.push("  _deletedBy TEXT");
+    }
     const up = `CREATE TABLE IF NOT EXISTS "${tableName}" (\n  id INTEGER PRIMARY KEY AUTOINCREMENT,\n${columns.join(",\n")}\n);`;
     const down = `DROP TABLE IF EXISTS "${tableName}";`;
 
@@ -112,6 +138,7 @@ export class MigrationGenerator {
     collection: CollectionDefinition,
     newFields: FieldDefinition[],
     draftCols: string[],
+    softDeleteCols: string[],
     tableName: string,
     timestamp: string,
   ): Migration {
@@ -123,11 +150,17 @@ export class MigrationGenerator {
       const def = col === "_status" ? "TEXT DEFAULT 'draft'" : "TEXT";
       upLines.push(`ALTER TABLE "${tableName}" ADD COLUMN ${col} ${def};`);
     }
+    for (const col of softDeleteCols) {
+      upLines.push(`ALTER TABLE "${tableName}" ADD COLUMN ${col} TEXT;`);
+    }
     const downLines = [
       ...newFields.map(
         (f) => `-- WARNING: Cannot automatically revert ADD COLUMN for ${fieldColumnName(f.name)}`,
       ),
       ...draftCols.map((col) => `-- WARNING: Cannot automatically revert ADD COLUMN for ${col}`),
+      ...softDeleteCols.map(
+        (col) => `-- WARNING: Cannot automatically revert ADD COLUMN for ${col}`,
+      ),
     ];
 
     return {

@@ -196,6 +196,10 @@ function hasDrafts(collection: CollectionDefinition): boolean {
   return collection.versions?.drafts === true;
 }
 
+function hasSoftDelete(collection: CollectionDefinition): boolean {
+  return collection.versions?.softDelete === true;
+}
+
 export function createPublishHandler(
   collection: CollectionDefinition,
   adapter: DatabaseAdapter,
@@ -250,6 +254,12 @@ export function createListHandler(
       const validationError = validateQueryParams(ctx.query);
       if (validationError) return errorResult(400, validationError);
       const options = queryOptions(ctx, maxPageSize, defaultPageSize);
+      if (hasSoftDelete(collection)) {
+        const showDeleted = ctx.query.deleted === "true" || ctx.query.deleted === "only";
+        if (!showDeleted) {
+          options.where = { ...options.where, _deletedAt: null };
+        }
+      }
       if (hasDrafts(collection) && !options.where?._status) {
         options.where = { ...options.where, _status: "published" };
       }
@@ -437,6 +447,14 @@ export function createBulkDeleteHandler(
         return errorResult(400, "ids array must not be empty");
       }
       const tableName = collectionTableName(collection.slug);
+      if (hasSoftDelete(collection)) {
+        for (const id of ids) {
+          await adapter.update(tableName, id, {
+            _deletedAt: new Date().toISOString(),
+          } as Record<string, unknown>);
+        }
+        return { statusCode: 200, body: { deleted: ids.length } };
+      }
       const deleted = await adapter.deleteMany(tableName, ids);
       return { statusCode: 200, body: { deleted } };
     } catch {
@@ -454,9 +472,36 @@ export function createDeleteHandler(
       const { id } = ctx.params;
       if (!id) return errorResult(400, "Missing id parameter");
       const tableName = collectionTableName(collection.slug);
+      if (hasSoftDelete(collection)) {
+        const record = await adapter.update(tableName, id, {
+          _deletedAt: new Date().toISOString(),
+        } as Record<string, unknown>);
+        if (!record) return errorResult(404, "Not found");
+        return { statusCode: 200, body: { id, deleted: true } };
+      }
       const deleted = await adapter.delete(tableName, id);
       if (!deleted) return errorResult(404, "Not found");
       return { statusCode: 200, body: { id, deleted: true } };
+    } catch {
+      return errorResult(500, "Internal server error");
+    }
+  };
+}
+
+export function createRestoreHandler(
+  collection: CollectionDefinition,
+  adapter: DatabaseAdapter,
+): RouteHandler {
+  return async (ctx) => {
+    try {
+      const { id } = ctx.params;
+      if (!id) return errorResult(400, "Missing id parameter");
+      const tableName = collectionTableName(collection.slug);
+      const record = await adapter.update(tableName, id, {
+        _deletedAt: null,
+      } as Record<string, unknown>);
+      if (!record) return errorResult(404, "Not found");
+      return { statusCode: 200, body: record };
     } catch {
       return errorResult(500, "Internal server error");
     }

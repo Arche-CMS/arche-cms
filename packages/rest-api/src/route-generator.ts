@@ -11,6 +11,7 @@ import {
   createBulkDeleteHandler,
   createPublishHandler,
   createUnpublishHandler,
+  createRestoreHandler,
   createGlobalGetHandler,
   createGlobalUpsertHandler,
 } from "./handlers.js";
@@ -109,6 +110,17 @@ export function createCollectionRouter(
         handler: applyMiddleware(createUnpublishHandler(collection, adapter), hooks, collection),
       },
     );
+  }
+
+  if (collection.versions?.softDelete) {
+    routes.push({
+      method: "POST",
+      path: `${basePath}/${slug}/:id/restore`,
+      operationId: `restore${pascalCase(slug)}`,
+      summary: `Restore a soft-deleted ${tag}`,
+      tags: [tag],
+      handler: applyMiddleware(createRestoreHandler(collection, adapter), hooks, collection),
+    });
   }
 
   return { routes };

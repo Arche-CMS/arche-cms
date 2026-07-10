@@ -160,6 +160,61 @@ describe("MigrationGenerator", () => {
     expect(m.up).toContain("_publishedBy TEXT");
   });
 
+  it("adds soft delete columns when versions.softDelete is true", () => {
+    const generator = new MigrationGenerator();
+    const collections: CollectionDefinition[] = [
+      {
+        slug: "posts",
+        labels: { singular: "Post", plural: "Posts" },
+        fields: [{ name: "title", type: "text" }],
+        versions: { drafts: false, softDelete: true },
+      },
+    ];
+
+    const [m] = generator.generate(collections, emptySchema);
+    expect(m.up).toContain("_deletedAt TEXT");
+    expect(m.up).toContain("_deletedBy TEXT");
+  });
+
+  it("adds soft delete columns when enabling on existing table", () => {
+    const generator = new MigrationGenerator();
+    const collections: CollectionDefinition[] = [
+      {
+        slug: "posts",
+        labels: { singular: "Post", plural: "Posts" },
+        fields: [{ name: "title", type: "text" }],
+        versions: { drafts: false, softDelete: true },
+      },
+    ];
+
+    const existing: ExistingSchema = {
+      tables: new Map([["__cms_posts", ["id", "title"]]]),
+    };
+
+    const [m] = generator.generate(collections, existing);
+    expect(m.name).toBe("add_fields_posts");
+    expect(m.up).toContain("ADD COLUMN _deletedAt");
+    expect(m.up).toContain("ADD COLUMN _deletedBy");
+  });
+
+  it("adds both draft and soft delete columns together", () => {
+    const generator = new MigrationGenerator();
+    const collections: CollectionDefinition[] = [
+      {
+        slug: "posts",
+        labels: { singular: "Post", plural: "Posts" },
+        fields: [{ name: "title", type: "text" }],
+        versions: { drafts: true, softDelete: true },
+      },
+    ];
+
+    const [m] = generator.generate(collections, emptySchema);
+    expect(m.up).toContain("_status TEXT DEFAULT 'draft'");
+    expect(m.up).toContain("_publishedAt TEXT");
+    expect(m.up).toContain("_deletedAt TEXT");
+    expect(m.up).toContain("_deletedBy TEXT");
+  });
+
   it("adds draft columns when enabling drafts on existing table", () => {
     const generator = new MigrationGenerator();
     const collections: CollectionDefinition[] = [

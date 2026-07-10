@@ -109,6 +109,24 @@ describe("createCollectionRouter", () => {
     expect(routes[0]).toHaveProperty("path", "/api/blog-posts");
   });
 
+  it("adds restore route when softDelete enabled", () => {
+    const collection: CollectionDefinition = {
+      slug: "posts",
+      labels: { singular: "Post", plural: "Posts" },
+      fields: [{ name: "title", type: "text" }],
+      versions: { drafts: false, softDelete: true },
+    };
+    const { routes } = createCollectionRouter(collection, mockAdapter);
+    expect(routes).toHaveLength(7);
+    const restore = routes.find((r) => r.operationId === "restorePosts") as {
+      method: string;
+      path: string;
+    };
+    expect(restore).toBeDefined();
+    expect(restore.method).toBe("POST");
+    expect(restore.path).toBe("/api/posts/:id/restore");
+  });
+
   it("adds publish/unpublish routes when drafts enabled", () => {
     const collection: CollectionDefinition = {
       slug: "posts",
