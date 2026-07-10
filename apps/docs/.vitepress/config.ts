@@ -6,6 +6,7 @@ export default defineConfig({
   lang: "en-US",
   lastUpdated: true,
   cleanUrls: true,
+  base: process.env.DOCS_BASE || "/cms/",
 
   themeConfig: {
     logo: "/logo.svg",
