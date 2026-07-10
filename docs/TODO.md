@@ -323,9 +323,3 @@
 - [x] Configure npm package publishing for all packages
 - [x] Set up CHANGELOG generation
 - [x] Create v0.1.0 release (changeset)
-
----
-
-## Backlog
-
-See [BACKLOG.md](./BACKLOG.md) for future milestones and feature ideas.
