@@ -27,6 +27,8 @@ jobs:
           node-version: 22
       - run: corepack enable && corepack prepare yarn@4.17.0 --activate
       - run: yarn install --immutable
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
       - run: yarn workspace @arche-cms/docs build
         env:
           DOCS_BASE: /arche-cms/
@@ -44,4 +46,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5

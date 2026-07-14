@@ -6,7 +6,7 @@ export default defineConfig({
   lang: "en-US",
   lastUpdated: true,
   cleanUrls: true,
-  base: process.env.DOCS_BASE || "/cms/",
+  base: process.env.DOCS_BASE || "/arche-cms/",
 
   themeConfig: {
     logo: "/logo.svg",
