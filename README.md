@@ -54,7 +54,7 @@ cms dev
 ### Or clone the monorepo
 
 ```bash
-git clone https://github.com/ArcheCMS/cms.git
+git clone https://github.com/Arche-CMS/arche-cms.git
 cd cms
 yarn install
 yarn dev

@@ -29,7 +29,7 @@ jobs:
       - run: yarn install --immutable
       - run: yarn workspace @arche-cms/docs build
         env:
-          DOCS_BASE: /cms/
+          DOCS_BASE: /arche-cms/
       - name: Upload Pages Artifact
         uses: actions/upload-pages-artifact@v3
         with:

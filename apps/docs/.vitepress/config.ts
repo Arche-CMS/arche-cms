@@ -19,7 +19,7 @@ export default defineConfig({
         items: [
           { text: "Changelog", link: "/changelog" },
           { text: "Contributing", link: "/contributing" },
-          { text: "GitHub", link: "https://github.com/ArcheCMS/cms" },
+          { text: "GitHub", link: "https://github.com/Arche-CMS/arche-cms" },
         ],
       },
     ],
@@ -72,7 +72,7 @@ export default defineConfig({
       ],
     },
 
-    socialLinks: [{ icon: "github", link: "https://github.com/ArcheCMS/cms" }],
+    socialLinks: [{ icon: "github", link: "https://github.com/Arche-CMS/arche-cms" }],
 
     footer: {
       message: "Released under the MIT License.",

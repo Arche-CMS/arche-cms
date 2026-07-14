@@ -10,7 +10,7 @@
 
 ```bash
 # Clone and install
-git clone https://github.com/ArcheCMS/cms.git
+git clone https://github.com/Arche-CMS/arche-cms.git
 cd cms
 corepack enable
 yarn install

@@ -12,7 +12,7 @@ hero:
       link: /guide/getting-started
     - theme: alt
       text: View on GitHub
-      link: https://github.com/ArcheCMS/cms
+      link: https://github.com/Arche-CMS/arche-cms
 
 features:
   - title: Schema-Driven
