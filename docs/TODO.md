@@ -1,6 +1,6 @@
 # TODO — ArcheCMS CMS
 
-> Project status: Milestone 8 complete. **~430 tests** across all packages. Documentation site live at apps/docs. Audits complete (performance, security, accessibility). All content workflow features done (draft/publish, soft delete, scheduled publishing, version history, localization). Standalone app started — `cms dev` now starts a full Fastify server with REST + GraphQL + schema watching.
+> Project status: Milestone 9 complete (standalone CMS app). `cms dev` starts a Fastify server with REST + GraphQL + admin UI + auto-migration. Renamed scope from `@altrugenix/*` → `@arche-cms/*`. Publish workflow configured — pending `NPM_TOKEN` secret and `@arche-cms` npm org setup.
 
 ---
 
@@ -365,11 +365,15 @@ Currently the API server lives in `apps/api` and the CLI is a schema watcher tha
 - [x] Rename `@arche-cms/cli` → `@arche-cms/cms` as the main package
 - [x] Rename directory `packages/cli/` → `packages/cms/`
 - [x] Update all workspace references, docs, changesets, lockfile
+- [x] Rename npm scope `@altrugenix/*` → `@arche-cms/*` across entire monorepo (560+ occurrences)
 - [x] Verify `packages/cms/bin/cms.js` entry point with proper shebang
 - [x] Verify pack tarball: 42KB, includes `dist/` + `bin/cms.js` + `package.json` with resolved workspace versions
 - [x] Bump all packages to v0.1.0 via changeset
-- [x] Fix bin field format in cms and create-app (use object form)
-- [ ] Publish `@arche-cms/cms` and all `@arche-cms/*` workspace packages to npm via GitHub Actions
+- [x] Fix bin field format in cms (object form required for scoped packages)
+- [x] Create publish workflow (`.github/workflows/publish.yml` with changesets/action)
+- [ ] **Manual:** Set `NPM_TOKEN` as a GitHub Actions secret in repo settings
+- [ ] **Manual:** Ensure `@arche-cms` org exists on npm with publish-capable token
+- [ ] **Manual:** Merge a changeset PR or push to `main` with pending changesets to trigger publish
 
 ### Scaffolding (`create-arche-cms-app`)
 
@@ -377,8 +381,9 @@ Currently the API server lives in `apps/api` and the CLI is a schema watcher tha
 - [x] Prompt for project name, database choice, default locale
 - [x] Scaffold example project with `cms/collections/`, `cms/globals/`, `.env`, config
 - [x] Add `"dev": "cms dev"`, `"build": "cms build"`, `"start": "cms start"` scripts
-- [x] Fix bin field format
-- [ ] Publish `create-arche-cms-app` to npm via GitHub Actions
+- [x] Fix bin field format (unscoped package — string form is fine)
+- [x] Create publish workflow (same publish.yml handles all packages)
+- [ ] **Manual:** Published automatically by the same publish workflow above
 
 ### Production Build (`cms build`)
 
@@ -390,4 +395,4 @@ Currently the API server lives in `apps/api` and the CLI is a schema watcher tha
 
 - [x] Update root README with `npx @arche-cms/cms dev` quick start
 - [x] Write "Usage as a Standalone App" guide in `docs/standalone-usage.md`
-- [ ] Create v0.2.0 release (after npm publish via GitHub Actions)
+- [ ] Create v0.2.0 release (after npm publish via GitHub Actions — tag + GitHub Release)
