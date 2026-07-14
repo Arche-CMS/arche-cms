@@ -1,4 +1,4 @@
-import type { DatabaseAdapter } from "@altrugenix/database";
+import type { DatabaseAdapter } from "@arche-cms/database";
 
 export type ActivityAction = "create" | "update" | "delete" | "bulkDelete" | "upsert";
 

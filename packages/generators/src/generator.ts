@@ -1,8 +1,4 @@
-import type {
-  CollectionDefinition,
-  GlobalDefinition,
-  ComponentDefinition,
-} from "@altrugenix/types";
+import type { CollectionDefinition, GlobalDefinition, ComponentDefinition } from "@arche-cms/types";
 
 export interface GeneratedFile {
   path: string;

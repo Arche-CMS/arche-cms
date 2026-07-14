@@ -1,11 +1,11 @@
-# @altrugenix/plugins
+# @arche-cms/plugins
 
-Plugin system for Altrugenix CMS. Includes the plugin registry, auto-discovery, hook system, extension points, and official plugins.
+Plugin system for ArcheCMS CMS. Includes the plugin registry, auto-discovery, hook system, extension points, and official plugins.
 
 ## Installation
 
 ```bash
-yarn add @altrugenix/plugins
+yarn add @arche-cms/plugins
 ```
 
 ## Usage
@@ -15,8 +15,8 @@ yarn add @altrugenix/plugins
 Central registry for managing plugins:
 
 ```ts
-import { PluginManager, seoPlugin, auditLogPlugin } from "@altrugenix/plugins";
-import { EventBus, Lifecycle, createLogger } from "@altrugenix/core";
+import { PluginManager, seoPlugin, auditLogPlugin } from "@arche-cms/plugins";
+import { EventBus, Lifecycle, createLogger } from "@arche-cms/core";
 
 const pm = new PluginManager({
   eventBus: new EventBus(),
@@ -39,7 +39,7 @@ await pm.initPlugins();
 Discover plugins installed in `node_modules`:
 
 ```ts
-import { discoverPlugins } from "@altrugenix/plugins";
+import { discoverPlugins } from "@arche-cms/plugins";
 
 const discovered = await discoverPlugins();
 for (const plugin of discovered) {
@@ -47,7 +47,7 @@ for (const plugin of discovered) {
 }
 ```
 
-Plugins are discovered by the prefixes `@altrugenix/plugin-*` and `altrugenix-plugin-*`.
+Plugins are discovered by the prefixes `@arche-cms/plugin-*` and `arche-cms-plugin-*`.
 
 ### Hook System
 

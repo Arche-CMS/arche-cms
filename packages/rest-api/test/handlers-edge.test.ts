@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import type { CollectionDefinition, GlobalDefinition, DatabaseAdapter } from "@altrugenix/database";
+import type { CollectionDefinition, GlobalDefinition, DatabaseAdapter } from "@arche-cms/database";
 import {
   createGlobalGetHandler,
   createGlobalUpsertHandler,

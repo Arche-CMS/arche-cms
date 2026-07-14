@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import type { CollectionDefinition, DatabaseAdapter, QueryOptions } from "@altrugenix/database";
+import type { CollectionDefinition, DatabaseAdapter, QueryOptions } from "@arche-cms/database";
 import {
   createListHandler,
   createGetHandler,

@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import type { FastifyInstance } from "fastify";
-import type { DatabaseAdapter, CollectionDefinition } from "@altrugenix/types";
+import type { DatabaseAdapter, CollectionDefinition } from "@arche-cms/types";
 import { createApp } from "../src/app.js";
 import type { ServerConfig } from "../src/config.js";
 

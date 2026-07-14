@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import type { CollectionDefinition } from "@altrugenix/types";
-import type { DatabaseAdapter } from "@altrugenix/database";
+import type { CollectionDefinition } from "@arche-cms/types";
+import type { DatabaseAdapter } from "@arche-cms/database";
 import { generateResolvers } from "../src/resolvers.js";
 
 const mockAdapter = {

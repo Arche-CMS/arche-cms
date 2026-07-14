@@ -44,7 +44,7 @@ function scaffold(
           start: "cms start",
         },
         dependencies: {
-          "@altrugenix/cms": "^0.1.0",
+          "@arche-cms/cms": "^0.1.0",
         },
       },
       null,
@@ -66,11 +66,11 @@ function scaffold(
     ].join("\n"),
   );
 
-  // altrugenix.config.ts
+  // arche-cms.config.ts
   writeFileSync(
-    resolve(projectDir, "altrugenix.config.ts"),
+    resolve(projectDir, "arche-cms.config.ts"),
     [
-      `import { defineConfig } from "@altrugenix/cms";`,
+      `import { defineConfig } from "@arche-cms/cms";`,
       "",
       "export default defineConfig({",
       `  database: { adapter: "${opts.dbAdapter}" },`,
@@ -84,7 +84,7 @@ function scaffold(
   writeFileSync(
     resolve(projectDir, "cms/collections/posts.ts"),
     [
-      'import { defineCollection, text, slug, richText, select } from "@altrugenix/schema";',
+      'import { defineCollection, text, slug, richText, select } from "@arche-cms/schema";',
       "",
       "export default defineCollection({",
       '  slug: "posts",',
@@ -104,7 +104,7 @@ function scaffold(
   writeFileSync(
     resolve(projectDir, "cms/globals/site-settings.ts"),
     [
-      'import { defineGlobal, text, textarea, media } from "@altrugenix/schema";',
+      'import { defineGlobal, text, textarea, media } from "@arche-cms/schema";',
       "",
       "export default defineGlobal({",
       '  slug: "site-settings",',
@@ -138,9 +138,9 @@ async function main(): Promise<void> {
 
   if (arg === "--help" || arg === "-h") {
     console.log(`
-Usage: npm create altrugenix-app [project-name]
+Usage: npm create arche-cms-app [project-name]
 
-Creates a new Altrugenix CMS project in the specified directory.
+Creates a new ArcheCMS CMS project in the specified directory.
 `);
     process.exit(0);
   }

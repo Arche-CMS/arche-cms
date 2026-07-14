@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import type { CollectionDefinition, DatabaseAdapter } from "@altrugenix/database";
+import type { CollectionDefinition, DatabaseAdapter } from "@arche-cms/database";
 import type { RouteHandlerContext, RouteHandlerResult, MiddlewareHooks } from "../src/types.js";
 import { createCollectionRouter, createCollectionRouters } from "../src/route-generator.js";
 import { applyMiddleware } from "../src/middleware.js";

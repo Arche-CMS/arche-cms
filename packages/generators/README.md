@@ -1,17 +1,17 @@
-# @altrugenix/generators
+# @arche-cms/generators
 
 Code generation pipeline. Orchestrates all code generators (types, routes, validation, migrations, GraphQL, OpenAPI, SDK, admin forms).
 
 ## Installation
 
 ```bash
-yarn add @altrugenix/generators
+yarn add @arche-cms/generators
 ```
 
 ## Usage
 
 ```ts
-import { GenerationPipeline } from "@altrugenix/generators";
+import { GenerationPipeline } from "@arche-cms/generators";
 
 const pipeline = new GenerationPipeline({
   collections,
@@ -36,14 +36,14 @@ await pipeline.generate({
 Each generator can be used independently:
 
 ```ts
-import { TypeGenerator } from "@altrugenix/generators";
-import { ApiRouteGenerator } from "@altrugenix/generators";
-import { ValidationGenerator } from "@altrugenix/generators";
-import { MigrationGenerator } from "@altrugenix/generators";
-import { GraphQLGenerator } from "@altrugenix/generators";
-import { OpenApiGenerator } from "@altrugenix/generators";
-import { SdkGenerator } from "@altrugenix/generators";
-import { AdminFormGenerator } from "@altrugenix/generators";
+import { TypeGenerator } from "@arche-cms/generators";
+import { ApiRouteGenerator } from "@arche-cms/generators";
+import { ValidationGenerator } from "@arche-cms/generators";
+import { MigrationGenerator } from "@arche-cms/generators";
+import { GraphQLGenerator } from "@arche-cms/generators";
+import { OpenApiGenerator } from "@arche-cms/generators";
+import { SdkGenerator } from "@arche-cms/generators";
+import { AdminFormGenerator } from "@arche-cms/generators";
 ```
 
 ## Generator Interface

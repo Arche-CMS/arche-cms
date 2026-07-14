@@ -1,4 +1,4 @@
-import { defineGlobal, text, textarea, email, select } from "@altrugenix/schema";
+import { defineGlobal, text, textarea, email, select } from "@arche-cms/schema";
 
 export default defineGlobal({
   slug: "site-settings",

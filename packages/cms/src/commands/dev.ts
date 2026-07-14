@@ -1,10 +1,10 @@
 /* eslint-disable no-console */
 
-import { SchemaWatcher } from "@altrugenix/schema";
-import type { SchemaChangeEvent } from "@altrugenix/schema";
-import { SQLiteAdapter, PostgresAdapter } from "@altrugenix/database";
-import { PluginManager, seoPlugin, discoverPlugins } from "@altrugenix/plugins";
-import { EventBus, Lifecycle, createLogger } from "@altrugenix/core";
+import { SchemaWatcher } from "@arche-cms/schema";
+import type { SchemaChangeEvent } from "@arche-cms/schema";
+import { SQLiteAdapter, PostgresAdapter } from "@arche-cms/database";
+import { PluginManager, seoPlugin, discoverPlugins } from "@arche-cms/plugins";
+import { EventBus, Lifecycle, createLogger } from "@arche-cms/core";
 import { loadConfig } from "../server/config.js";
 import {
   ensureDevAuthSecret,

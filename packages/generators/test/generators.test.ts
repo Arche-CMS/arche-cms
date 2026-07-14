@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import type { CollectionDefinition } from "@altrugenix/types";
+import type { CollectionDefinition } from "@arche-cms/types";
 import { GenerationPipeline } from "../src/pipeline.js";
 import { apiRoutesGenerator } from "../src/api-routes.js";
 import { validationGenerator } from "../src/validation.js";
@@ -118,7 +118,7 @@ describe("openApiGenerator", () => {
 
     const spec = JSON.parse(files[0]?.content ?? "null");
     expect(spec?.openapi).toBe("3.1.0");
-    expect(spec?.info?.title).toBe("Altrugenix CMS API");
+    expect(spec?.info?.title).toBe("ArcheCMS CMS API");
     expect(spec?.paths?.["/api/collections/posts"]).toBeDefined();
     expect(spec?.paths?.["/api/collections/posts/{id}"]).toBeDefined();
     expect(spec?.paths?.["/api/collections/users"]).toBeDefined();
@@ -135,7 +135,7 @@ describe("sdkGenerator", () => {
     });
     expect(files).toHaveLength(1);
     expect(files[0]?.path).toBe("sdk/index.ts");
-    expect(files[0]?.content).toContain("class AltrugenixClient");
+    expect(files[0]?.content).toContain("class ArcheCMSClient");
     expect(files[0]?.content).toContain("getPosts");
     expect(files[0]?.content).toContain("listPosts");
     expect(files[0]?.content).toContain("createPosts");

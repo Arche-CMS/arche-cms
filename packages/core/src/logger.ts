@@ -1,4 +1,4 @@
-import type { Logger } from "@altrugenix/types";
+import type { Logger } from "@arche-cms/types";
 
 export interface LoggerOptions {
   level?: "debug" | "info" | "warn" | "error" | "fatal";

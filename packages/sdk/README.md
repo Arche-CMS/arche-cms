@@ -1,17 +1,17 @@
-# @altrugenix/sdk
+# @arche-cms/sdk
 
-TypeScript client SDK for the Altrugenix CMS API. Provides a typed client for interacting with any Altrugenix CMS instance.
+TypeScript client SDK for the ArcheCMS CMS API. Provides a typed client for interacting with any ArcheCMS CMS instance.
 
 ## Installation
 
 ```bash
-yarn add @altrugenix/sdk
+yarn add @arche-cms/sdk
 ```
 
 ## Usage
 
 ```ts
-import { createClient } from "@altrugenix/sdk";
+import { createClient } from "@arche-cms/sdk";
 
 const client = createClient({
   baseUrl: "https://cms.example.com",

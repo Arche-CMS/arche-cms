@@ -1,8 +1,8 @@
 import Fastify from "fastify";
 import type { FastifyInstance } from "fastify";
-import type { DatabaseAdapter } from "@altrugenix/database";
-import type { CollectionDefinition, GlobalDefinition } from "@altrugenix/types";
-import type { StorageAdapter } from "@altrugenix/storage";
+import type { DatabaseAdapter } from "@arche-cms/database";
+import type { CollectionDefinition, GlobalDefinition } from "@arche-cms/types";
+import type { StorageAdapter } from "@arche-cms/storage";
 import type { ServerConfig } from "./config.js";
 import { registerCors } from "./plugins/cors.js";
 import { registerHealth } from "./plugins/health.js";

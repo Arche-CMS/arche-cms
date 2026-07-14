@@ -2,7 +2,7 @@
 
 ## v0.1.0 (Initial Release)
 
-Initial release of Altrugenix CMS.
+Initial release of ArcheCMS CMS.
 
 ### Features
 

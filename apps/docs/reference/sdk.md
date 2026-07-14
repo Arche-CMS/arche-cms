@@ -5,7 +5,7 @@ The auto-generated TypeScript SDK provides a fully-typed client for interacting 
 ## Usage
 
 ```ts
-import { createClient } from "@altrugenix/sdk";
+import { createClient } from "@arche-cms/sdk";
 
 const client = createClient({
   baseUrl: "http://localhost:3001/api",

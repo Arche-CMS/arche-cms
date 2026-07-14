@@ -1,8 +1,8 @@
 import { describe, it, expect } from "vitest";
-import type { CollectionDefinition } from "@altrugenix/database";
+import type { CollectionDefinition } from "@arche-cms/database";
 import { generateOpenApiSpec } from "../src/openapi.js";
 import { createCollectionRouter, createCollectionRouters } from "../src/route-generator.js";
-import type { DatabaseAdapter } from "@altrugenix/database";
+import type { DatabaseAdapter } from "@arche-cms/database";
 
 const mockAdapter = {
   findOne: async () => null,
@@ -54,7 +54,7 @@ describe("generateOpenApiSpec", () => {
     const collectionRouter = createCollectionRouter(postCollection, mockAdapter);
     const spec = generateOpenApiSpec([postCollection], collectionRouter.routes);
     expect(spec.openapi).toBe("3.1.0");
-    expect(spec.info.title).toBe("Altrugenix CMS API");
+    expect(spec.info.title).toBe("ArcheCMS CMS API");
     expect(spec.info.version).toBe("0.1.0");
   });
 

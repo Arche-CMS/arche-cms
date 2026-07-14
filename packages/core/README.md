@@ -1,11 +1,11 @@
-# @altrugenix/core
+# @arche-cms/core
 
-Foundation package for the Altrugenix CMS framework. Provides dependency injection, event bus, lifecycle management, logging, and configuration loading.
+Foundation package for the ArcheCMS CMS framework. Provides dependency injection, event bus, lifecycle management, logging, and configuration loading.
 
 ## Installation
 
 ```bash
-yarn add @altrugenix/core
+yarn add @arche-cms/core
 ```
 
 ## Exports
@@ -15,7 +15,7 @@ yarn add @altrugenix/core
 Typed, async-capable dependency injection container.
 
 ```ts
-import { Container } from "@altrugenix/core";
+import { Container } from "@arche-cms/core";
 
 const container = new Container();
 container.register("db", async () => new SQLiteAdapter("file:./db.sqlite"));
@@ -27,7 +27,7 @@ const db = await container.resolve("db");
 Typed event bus with async middleware support.
 
 ```ts
-import { EventBus } from "@altrugenix/core";
+import { EventBus } from "@arche-cms/core";
 
 const bus = new EventBus();
 bus.on("user:created", async (payload) => {
@@ -41,7 +41,7 @@ bus.emit("user:created", { email: "user@example.com" });
 Manages application lifecycle states (init, ready, shutdown).
 
 ```ts
-import { Lifecycle } from "@altrugenix/core";
+import { Lifecycle } from "@arche-cms/core";
 
 const lifecycle = new Lifecycle();
 lifecycle.onShutdown(async () => {
@@ -54,7 +54,7 @@ lifecycle.onShutdown(async () => {
 Creates a structured logger instance.
 
 ```ts
-import { createLogger } from "@altrugenix/core";
+import { createLogger } from "@arche-cms/core";
 
 const logger = createLogger({ level: "info" });
 logger.info("Server started", { port: 3000 });
@@ -65,7 +65,7 @@ logger.info("Server started", { port: 3000 });
 Loads configuration from environment variables, files, and defaults.
 
 ```ts
-import { createConfigLoader } from "@altrugenix/core";
+import { createConfigLoader } from "@arche-cms/core";
 
 const loader = createConfigLoader({ prefix: "CMS_" });
 const config = loader.load();

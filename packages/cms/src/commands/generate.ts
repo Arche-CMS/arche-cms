@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 
-import { SchemaLoader } from "@altrugenix/schema";
-import { generateTypesToFile } from "@altrugenix/generators";
+import { SchemaLoader } from "@arche-cms/schema";
+import { generateTypesToFile } from "@arche-cms/generators";
 
 export interface GenerateOptions {
   dir?: string;

@@ -10,7 +10,7 @@
 
 ```bash
 # Clone and install
-git clone https://github.com/Altrugenix/cms.git
+git clone https://github.com/ArcheCMS/cms.git
 cd cms
 corepack enable
 yarn install
@@ -30,10 +30,10 @@ yarn dev
 yarn build
 
 # Build the API server
-yarn workspace @altrugenix/api build
+yarn workspace @arche-cms/api build
 
 # Build the admin UI
-yarn workspace @altrugenix/admin build
+yarn workspace @arche-cms/admin build
 ```
 
 ## Configuration
@@ -67,7 +67,7 @@ COPY . .
 RUN corepack enable && yarn install --immutable
 RUN yarn build
 EXPOSE 3000
-CMD ["yarn", "workspace", "@altrugenix/api", "start"]
+CMD ["yarn", "workspace", "@arche-cms/api", "start"]
 ```
 
 ### Docker Compose

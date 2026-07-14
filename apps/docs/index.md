@@ -3,7 +3,7 @@
 layout: home
 
 hero:
-  name: "Altrugenix CMS"
+  name: "ArcheCMS CMS"
   text: "File-based, developer-first, open-source headless CMS"
   tagline: Schema in source files, not the database. Type-safe APIs auto-generated. Everything extensible via plugins.
   actions:
@@ -12,7 +12,7 @@ hero:
       link: /guide/getting-started
     - theme: alt
       text: View on GitHub
-      link: https://github.com/Altrugenix/cms
+      link: https://github.com/ArcheCMS/cms
 
 features:
   - title: Schema-Driven

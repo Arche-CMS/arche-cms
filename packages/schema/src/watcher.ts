@@ -2,11 +2,7 @@ import { watch, existsSync, mkdirSync } from "node:fs";
 import { resolve, relative } from "node:path";
 import { pathToFileURL } from "node:url";
 import { EventEmitter } from "node:events";
-import type {
-  CollectionDefinition,
-  GlobalDefinition,
-  ComponentDefinition,
-} from "@altrugenix/types";
+import type { CollectionDefinition, GlobalDefinition, ComponentDefinition } from "@arche-cms/types";
 
 type SchemaCategory = "collections" | "globals" | "components";
 type SchemaDefinition = CollectionDefinition | GlobalDefinition | ComponentDefinition;

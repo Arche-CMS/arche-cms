@@ -1,10 +1,10 @@
-# @altrugenix/plugins
+# @arche-cms/plugins
 
 ## 0.1.0
 
 ### Minor Changes
 
-- da9f85d: Initial v0.1.0 release of Altrugenix CMS
+- da9f85d: Initial v0.1.0 release of ArcheCMS CMS
 
   - File-based schema definition with 30 field types
   - Auto-generated REST API, GraphQL API, and TypeScript SDK
@@ -19,5 +19,5 @@
 ### Patch Changes
 
 - Updated dependencies [da9f85d]
-  - @altrugenix/core@0.1.0
-  - @altrugenix/types@0.1.0
+  - @arche-cms/core@0.1.0
+  - @arche-cms/types@0.1.0

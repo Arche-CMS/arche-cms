@@ -1,11 +1,11 @@
-# Using Altrugenix CMS as a Standalone App
+# Using ArcheCMS CMS as a Standalone App
 
-You can use Altrugenix CMS without cloning the monorepo. The `@altrugenix/cms` package provides a `cms` binary that runs a full CMS server (admin panel + REST API + GraphQL) from your project's schema files.
+You can use ArcheCMS CMS without cloning the monorepo. The `@arche-cms/cms` package provides a `cms` binary that runs a full CMS server (admin panel + REST API + GraphQL) from your project's schema files.
 
 ## Quick start
 
 ```bash
-npx @altrugenix/cms dev
+npx @arche-cms/cms dev
 ```
 
 This will:
@@ -19,7 +19,7 @@ This will:
 Build the CMS for production:
 
 ```bash
-npx @altrugenix/cms build
+npx @arche-cms/cms build
 ```
 
 This produces a production bundle with:
@@ -43,10 +43,10 @@ This produces a production bundle with:
 
 ## Configuration
 
-Create an `altrugenix.config.ts` file in your project root:
+Create an `arche-cms.config.ts` file in your project root:
 
 ```ts
-import { defineConfig } from "@altrugenix/cms";
+import { defineConfig } from "@arche-cms/cms";
 
 export default defineConfig({
   schema: {

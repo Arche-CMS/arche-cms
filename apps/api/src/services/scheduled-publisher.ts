@@ -1,5 +1,5 @@
-import type { DatabaseAdapter } from "@altrugenix/database";
-import type { CollectionDefinition } from "@altrugenix/types";
+import type { DatabaseAdapter } from "@arche-cms/database";
+import type { CollectionDefinition } from "@arche-cms/types";
 
 function collectionTableName(slug: string): string {
   return `__cms_${slug.replace(/-/g, "_")}`;

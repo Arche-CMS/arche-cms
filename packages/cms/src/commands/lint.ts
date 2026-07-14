@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 
-import { SchemaLoader, validateCollection } from "@altrugenix/schema";
+import { SchemaLoader, validateCollection } from "@arche-cms/schema";
 
 export interface LintOptions {
   dir?: string;

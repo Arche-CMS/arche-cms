@@ -1,8 +1,8 @@
 import type { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
-import type { DatabaseAdapter } from "@altrugenix/database";
-import type { CollectionDefinition, GlobalDefinition } from "@altrugenix/types";
-import { createCollectionRouters, createGlobalRouters } from "@altrugenix/rest-api";
-import type { RouteHandlerContext } from "@altrugenix/rest-api";
+import type { DatabaseAdapter } from "@arche-cms/database";
+import type { CollectionDefinition, GlobalDefinition } from "@arche-cms/types";
+import { createCollectionRouters, createGlobalRouters } from "@arche-cms/rest-api";
+import type { RouteHandlerContext } from "@arche-cms/rest-api";
 import { recordActivity } from "../lib/activity.js";
 
 function asHandler(

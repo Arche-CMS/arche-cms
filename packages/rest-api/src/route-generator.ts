@@ -1,5 +1,5 @@
-import type { DatabaseAdapter } from "@altrugenix/database";
-import type { CollectionDefinition, GlobalDefinition } from "@altrugenix/types";
+import type { DatabaseAdapter } from "@arche-cms/database";
+import type { CollectionDefinition, GlobalDefinition } from "@arche-cms/types";
 import type { RouteDefinition, RouteGeneratorConfig, CollectionRouter } from "./types.js";
 import { applyMiddleware } from "./middleware.js";
 import {

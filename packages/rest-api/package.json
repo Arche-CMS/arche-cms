@@ -1,5 +1,5 @@
 {
-  "name": "@altrugenix/rest-api",
+  "name": "@arche-cms/rest-api",
   "version": "0.1.0",
   "type": "module",
   "main": "dist/index.js",
@@ -26,8 +26,8 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@altrugenix/database": "workspace:*",
-    "@altrugenix/types": "workspace:*",
-    "@altrugenix/validation": "workspace:*"
+    "@arche-cms/database": "workspace:*",
+    "@arche-cms/types": "workspace:*",
+    "@arche-cms/validation": "workspace:*"
   }
 }

@@ -1,6 +1,6 @@
 export function collectionTemplate(slug: string): string {
   const pascal = toPascal(slug);
-  return `import { defineCollection, text, slug } from "@altrugenix/schema";
+  return `import { defineCollection, text, slug } from "@arche-cms/schema";
 
 export default defineCollection({
   slug: "${slug}",
@@ -18,7 +18,7 @@ export function pluginTemplate(slug: string): { files: Record<string, string> } 
     files: {
       "package.json": JSON.stringify(
         {
-          name: `@altrugenix/plugin-${slug}`,
+          name: `@arche-cms/plugin-${slug}`,
           version: "0.0.1",
           private: true,
           type: "module",
@@ -31,10 +31,10 @@ export function pluginTemplate(slug: string): { files: Record<string, string> } 
             clean: "rm -rf dist",
           },
           dependencies: {
-            "@altrugenix/types": "workspace:*",
+            "@arche-cms/types": "workspace:*",
           },
           peerDependencies: {
-            "@altrugenix/core": "workspace:*",
+            "@arche-cms/core": "workspace:*",
           },
         },
         null,
@@ -50,7 +50,7 @@ export function pluginTemplate(slug: string): { files: Record<string, string> } 
         null,
         2,
       ),
-      "src/index.ts": `import type { PluginDefinition } from "@altrugenix/types";
+      "src/index.ts": `import type { PluginDefinition } from "@arche-cms/types";
 
 const plugin: PluginDefinition = {
   slug: "${slug}",

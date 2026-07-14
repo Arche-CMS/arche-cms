@@ -1,5 +1,5 @@
 import type { FastifyInstance } from "fastify";
-import type { DatabaseAdapter } from "@altrugenix/database";
+import type { DatabaseAdapter } from "@arche-cms/database";
 
 export function registerHealth(fastify: FastifyInstance, adapter: DatabaseAdapter): void {
   fastify.get("/health", async () => {

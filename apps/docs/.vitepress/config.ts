@@ -1,7 +1,7 @@
 import { defineConfig } from "vitepress";
 
 export default defineConfig({
-  title: "Altrugenix CMS",
+  title: "ArcheCMS CMS",
   description: "File-based, open-source, developer-first headless CMS",
   lang: "en-US",
   lastUpdated: true,
@@ -19,7 +19,7 @@ export default defineConfig({
         items: [
           { text: "Changelog", link: "/changelog" },
           { text: "Contributing", link: "/contributing" },
-          { text: "GitHub", link: "https://github.com/Altrugenix/cms" },
+          { text: "GitHub", link: "https://github.com/ArcheCMS/cms" },
         ],
       },
     ],
@@ -72,11 +72,11 @@ export default defineConfig({
       ],
     },
 
-    socialLinks: [{ icon: "github", link: "https://github.com/Altrugenix/cms" }],
+    socialLinks: [{ icon: "github", link: "https://github.com/ArcheCMS/cms" }],
 
     footer: {
       message: "Released under the MIT License.",
-      copyright: "Copyright 2026 Altrugenix",
+      copyright: "Copyright 2026 ArcheCMS",
     },
 
     search: {

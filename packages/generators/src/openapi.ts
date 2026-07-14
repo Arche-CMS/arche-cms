@@ -1,5 +1,5 @@
 import type { Generator, GeneratedFile, GenerationOptions } from "./generator.js";
-import type { CollectionDefinition } from "@altrugenix/types";
+import type { CollectionDefinition } from "@arche-cms/types";
 
 function toPascal(s: string): string {
   return s.replace(/(^\w|[-_]\w)/g, (c) => c.replace(/[-_]/g, "").toUpperCase());
@@ -74,7 +74,7 @@ function generateOpenApiFile(collections: CollectionDefinition[]): string {
   const spec = {
     openapi: "3.1.0",
     info: {
-      title: "Altrugenix CMS API",
+      title: "ArcheCMS CMS API",
       version: "0.1.0",
     },
     paths,

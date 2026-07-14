@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import type { CollectionDefinition } from "@altrugenix/types";
+import type { CollectionDefinition } from "@arche-cms/types";
 import { generateTypeDefs } from "../src/type-defs.js";
 
 const postCollection: CollectionDefinition = {

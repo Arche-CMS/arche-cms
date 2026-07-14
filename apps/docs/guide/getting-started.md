@@ -10,7 +10,7 @@
 
 ```bash
 # Clone the repository
-git clone https://github.com/Altrugenix/cms.git
+git clone https://github.com/ArcheCMS/cms.git
 cd cms
 
 # Install dependencies
@@ -64,7 +64,7 @@ cms/
 Create `cms/collections/posts.ts`:
 
 ```ts
-import { defineCollection, text, slug, richText, relation, select } from "@altrugenix/schema";
+import { defineCollection, text, slug, richText, relation, select } from "@arche-cms/schema";
 
 export default defineCollection({
   slug: "posts",

@@ -1,4 +1,4 @@
-# TODO — Altrugenix CMS
+# TODO — ArcheCMS CMS
 
 > Project status: Milestone 8 complete. **~430 tests** across all packages. Documentation site live at apps/docs. Audits complete (performance, security, accessibility). All content workflow features done (draft/publish, soft delete, scheduled publishing, version history, localization). Standalone app started — `cms dev` now starts a full Fastify server with REST + GraphQL + schema watching.
 
@@ -94,7 +94,7 @@
 
 - [x] Scaffold Fastify server with plugin architecture (app factory with DI-style opts)
 - [x] Register REST routes (wired from schema defs)
-- [x] Register GraphQL routes (via Mercurius adapter with SDL + resolvers from `@altrugenix/graphql`)
+- [x] Register GraphQL routes (via Mercurius adapter with SDL + resolvers from `@arche-cms/graphql`)
 - [x] Add GraphiQL support (`/graphiql`)
 - [x] Write tests for GraphQL endpoint (6 tests: queries, mutations, GraphiQL)
 - [x] Add CORS, security headers, rate limiting (via @fastify/cors + @fastify/rate-limit)
@@ -330,12 +330,12 @@
 
 ### Objective
 
-Make `cms dev` work like Strapi — a single command that starts a full CMS server (REST + GraphQL + admin panel) with zero configuration. The package `@altrugenix/cms` exposes a `cms` binary so it works via:
+Make `cms dev` work like Strapi — a single command that starts a full CMS server (REST + GraphQL + admin panel) with zero configuration. The package `@arche-cms/cms` exposes a `cms` binary so it works via:
 
 ```bash
-npm install -g @altrugenix/cms     # global install → `cms dev`
-npm install @altrugenix/cms         # local dep → `yarn cms dev` / `npx cms dev`
-npx @altrugenix/cms dev             # one-off, no install
+npm install -g @arche-cms/cms     # global install → `cms dev`
+npm install @arche-cms/cms         # local dep → `yarn cms dev` / `npx cms dev`
+npx @arche-cms/cms dev             # one-off, no install
 ```
 
 Currently the API server lives in `apps/api` and the CLI is a schema watcher that doesn't start an HTTP server.
@@ -362,23 +362,23 @@ Currently the API server lives in `apps/api` and the CLI is a schema watcher tha
 
 ### Package Restructuring
 
-- [x] Rename `@altrugenix/cli` → `@altrugenix/cms` as the main package
+- [x] Rename `@arche-cms/cli` → `@arche-cms/cms` as the main package
 - [x] Rename directory `packages/cli/` → `packages/cms/`
 - [x] Update all workspace references, docs, changesets, lockfile
 - [x] Verify `packages/cms/bin/cms.js` entry point with proper shebang
 - [x] Verify pack tarball: 42KB, includes `dist/` + `bin/cms.js` + `package.json` with resolved workspace versions
 - [x] Bump all packages to v0.1.0 via changeset
 - [x] Fix bin field format in cms and create-app (use object form)
-- [ ] Publish `@altrugenix/cms` and all `@altrugenix/*` workspace packages to npm via GitHub Actions
+- [ ] Publish `@arche-cms/cms` and all `@arche-cms/*` workspace packages to npm via GitHub Actions
 
-### Scaffolding (`create-altrugenix-app`)
+### Scaffolding (`create-arche-cms-app`)
 
-- [x] Create `packages/create-app/` with `create-altrugenix-app` CLI
+- [x] Create `packages/create-app/` with `create-arche-cms-app` CLI
 - [x] Prompt for project name, database choice, default locale
 - [x] Scaffold example project with `cms/collections/`, `cms/globals/`, `.env`, config
 - [x] Add `"dev": "cms dev"`, `"build": "cms build"`, `"start": "cms start"` scripts
 - [x] Fix bin field format
-- [ ] Publish `create-altrugenix-app` to npm via GitHub Actions
+- [ ] Publish `create-arche-cms-app` to npm via GitHub Actions
 
 ### Production Build (`cms build`)
 
@@ -388,6 +388,6 @@ Currently the API server lives in `apps/api` and the CLI is a schema watcher tha
 
 ### Documentation
 
-- [x] Update root README with `npx @altrugenix/cms dev` quick start
+- [x] Update root README with `npx @arche-cms/cms dev` quick start
 - [x] Write "Usage as a Standalone App" guide in `docs/standalone-usage.md`
 - [ ] Create v0.2.0 release (after npm publish via GitHub Actions)

@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Altrugenix CMS API is auto-generated from your schema definitions. Every collection and global produces corresponding REST endpoints and GraphQL operations.
+The ArcheCMS CMS API is auto-generated from your schema definitions. Every collection and global produces corresponding REST endpoints and GraphQL operations.
 
 - **Base URL**: `http://localhost:3000`
 - **Auth**: JWT Bearer tokens via `Authorization: Bearer <token>` header
@@ -361,10 +361,10 @@ query {
 
 ## SDK
 
-A TypeScript SDK is available at `@altrugenix/sdk`:
+A TypeScript SDK is available at `@arche-cms/sdk`:
 
 ```ts
-import { createClient } from "@altrugenix/sdk";
+import { createClient } from "@arche-cms/sdk";
 
 const client = createClient({
   baseUrl: "https://cms.example.com",

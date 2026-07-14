@@ -1,7 +1,7 @@
 import type { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
-import type { DatabaseAdapter } from "@altrugenix/database";
-import type { AuthConfig } from "@altrugenix/auth";
-import { AuthService } from "@altrugenix/auth";
+import type { DatabaseAdapter } from "@arche-cms/database";
+import type { AuthConfig } from "@arche-cms/auth";
+import { AuthService } from "@arche-cms/auth";
 
 export function registerUserRoutes(
   fastify: FastifyInstance,

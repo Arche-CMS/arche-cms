@@ -1,8 +1,8 @@
-# AGENTS.md — Altrugenix CMS
+# AGENTS.md — ArcheCMS CMS
 
 ## Project
 
-Altrugenix CMS — a file-based, open-source, developer-first headless CMS (Strapi + Payload inspired). Schema is stored in source files, not in the database. Everything is designed for extensibility, plugins, type safety, and excellent developer experience.
+ArcheCMS CMS — a file-based, open-source, developer-first headless CMS (Strapi + Payload inspired). Schema is stored in source files, not in the database. Everything is designed for extensibility, plugins, type safety, and excellent developer experience.
 
 ## Principles
 
@@ -58,7 +58,7 @@ Priority order: 1) Developer Experience, 2) Type Safety, 3) Performance, 4) Exte
 ## Monorepo Structure
 
 ```
-altrugenix_cms/
+arche-cms/
 ├── apps/
 │   ├── admin/          # Admin panel UI
 │   ├── api/            # Fastify API server

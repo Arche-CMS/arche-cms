@@ -1,6 +1,6 @@
-import type { DatabaseAdapter, QueryOptions } from "@altrugenix/database";
-import type { CollectionDefinition, FieldDefinition, RelationField } from "@altrugenix/types";
-import { createMutationPayloadSchema, updateMutationPayloadSchema } from "@altrugenix/validation";
+import type { DatabaseAdapter, QueryOptions } from "@arche-cms/database";
+import type { CollectionDefinition, FieldDefinition, RelationField } from "@arche-cms/types";
+import { createMutationPayloadSchema, updateMutationPayloadSchema } from "@arche-cms/validation";
 import { pascalCase } from "./types.js";
 
 function collectionTableName(slug: string): string {

@@ -1,4 +1,4 @@
-import type { CollectionDefinition, FieldDefinition } from "@altrugenix/types";
+import type { CollectionDefinition, FieldDefinition } from "@arche-cms/types";
 import type { Migration, ExistingSchema } from "./types.js";
 
 const fieldToSqlType: Record<string, string> = {

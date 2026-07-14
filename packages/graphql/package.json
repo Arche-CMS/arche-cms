@@ -1,5 +1,5 @@
 {
-  "name": "@altrugenix/graphql",
+  "name": "@arche-cms/graphql",
   "version": "0.1.0",
   "type": "module",
   "main": "dist/index.js",
@@ -26,9 +26,9 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@altrugenix/database": "workspace:*",
-    "@altrugenix/types": "workspace:*",
-    "@altrugenix/validation": "workspace:*"
+    "@arche-cms/database": "workspace:*",
+    "@arche-cms/types": "workspace:*",
+    "@arche-cms/validation": "workspace:*"
   },
   "peerDependencies": {
     "graphql": "^16.0.0",

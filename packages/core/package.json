@@ -1,5 +1,5 @@
 {
-  "name": "@altrugenix/core",
+  "name": "@arche-cms/core",
   "version": "0.1.0",
   "type": "module",
   "main": "dist/index.js",
@@ -26,6 +26,6 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@altrugenix/types": "workspace:*"
+    "@arche-cms/types": "workspace:*"
   }
 }

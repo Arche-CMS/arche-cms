@@ -1,5 +1,5 @@
 {
-  "name": "altrugenix-cms",
+  "name": "arche-cms",
   "type": "module",
   "private": true,
   "packageManager": "yarn@4.17.0",

@@ -1,11 +1,11 @@
-# @altrugenix/graphql
+# @arche-cms/graphql
 
-GraphQL schema generator. Auto-generates GraphQL types, queries, and mutations from Altrugenix schema definitions.
+GraphQL schema generator. Auto-generates GraphQL types, queries, and mutations from ArcheCMS schema definitions.
 
 ## Installation
 
 ```bash
-yarn add @altrugenix/graphql
+yarn add @arche-cms/graphql
 ```
 
 ## Usage
@@ -13,9 +13,9 @@ yarn add @altrugenix/graphql
 Generate GraphQL schema SDL and resolvers:
 
 ```ts
-import { generateSchema, generateTypeResolvers } from "@altrugenix/graphql";
-import type { CollectionDefinition } from "@altrugenix/types";
-import type { DatabaseAdapter } from "@altrugenix/database";
+import { generateSchema, generateTypeResolvers } from "@arche-cms/graphql";
+import type { CollectionDefinition } from "@arche-cms/types";
+import type { DatabaseAdapter } from "@arche-cms/database";
 
 const collections: CollectionDefinition[] = [
   { slug: "posts", fields: [{ name: "title", type: "text" }] },

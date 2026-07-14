@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import type { FieldDefinition, CollectionDefinition } from "@altrugenix/types";
+import type { FieldDefinition, CollectionDefinition } from "@arche-cms/types";
 import {
   fieldToZodSchema,
   collectionToCreateSchema,

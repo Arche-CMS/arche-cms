@@ -48,7 +48,7 @@ describe("pluginCreate", () => {
     const pkg = JSON.parse(
       await readFile(resolve(testDir, "plugins", "my-plugin", "package.json"), "utf-8"),
     );
-    expect(pkg.name).toBe("@altrugenix/plugin-my-plugin");
+    expect(pkg.name).toBe("@arche-cms/plugin-my-plugin");
 
     const src = await readFile(
       resolve(testDir, "plugins", "my-plugin", "src", "index.ts"),
@@ -67,7 +67,7 @@ describe("collectionTemplate", () => {
   it("produces valid TypeScript output", () => {
     const output = collectionTemplate("test");
     expect(output).toContain('slug: "test"');
-    expect(output).toContain('import { defineCollection, text, slug } from "@altrugenix/schema"');
+    expect(output).toContain('import { defineCollection, text, slug } from "@arche-cms/schema"');
   });
 
   it("converts kebab-case to PascalCase for labels", () => {

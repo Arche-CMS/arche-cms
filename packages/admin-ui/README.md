@@ -1,11 +1,11 @@
-# @altrugenix/admin-ui
+# @arche-cms/admin-ui
 
-Shared admin UI components and blocks for the Altrugenix CMS admin panel. Built with React, shadcn/ui, and Tailwind CSS v4.
+Shared admin UI components and blocks for the ArcheCMS CMS admin panel. Built with React, shadcn/ui, and Tailwind CSS v4.
 
 ## Installation
 
 ```bash
-yarn add @altrugenix/admin-ui
+yarn add @arche-cms/admin-ui
 ```
 
 ## Components
@@ -23,8 +23,8 @@ The package provides shared UI components used across the admin panel:
 ## Usage
 
 ```tsx
-import { FieldInput } from "@altrugenix/admin-ui";
-import type { FieldDefinition } from "@altrugenix/types";
+import { FieldInput } from "@arche-cms/admin-ui";
+import type { FieldDefinition } from "@arche-cms/types";
 
 function MyForm() {
   const field: FieldDefinition = { name: "title", type: "text", label: "Title" };

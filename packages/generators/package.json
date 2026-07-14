@@ -1,5 +1,5 @@
 {
-  "name": "@altrugenix/generators",
+  "name": "@arche-cms/generators",
   "version": "0.1.0",
   "type": "module",
   "main": "dist/index.js",
@@ -17,11 +17,11 @@
     "access": "public"
   },
   "dependencies": {
-    "@altrugenix/database": "workspace:*",
-    "@altrugenix/rest-api": "workspace:*",
-    "@altrugenix/schema": "workspace:*",
-    "@altrugenix/types": "workspace:*",
-    "@altrugenix/validation": "workspace:*"
+    "@arche-cms/database": "workspace:*",
+    "@arche-cms/rest-api": "workspace:*",
+    "@arche-cms/schema": "workspace:*",
+    "@arche-cms/types": "workspace:*",
+    "@arche-cms/validation": "workspace:*"
   },
   "scripts": {
     "build": "tsc",

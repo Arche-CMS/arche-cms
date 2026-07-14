@@ -1,11 +1,11 @@
-# @altrugenix/auth
+# @arche-cms/auth
 
-Authentication package for Altrugenix CMS. Provides JWT-based auth with login, register, token refresh, and password reset flows.
+Authentication package for ArcheCMS CMS. Provides JWT-based auth with login, register, token refresh, and password reset flows.
 
 ## Installation
 
 ```bash
-yarn add @altrugenix/auth
+yarn add @arche-cms/auth
 ```
 
 ## Usage
@@ -13,7 +13,7 @@ yarn add @altrugenix/auth
 ### Auth Service
 
 ```ts
-import { AuthService } from "@altrugenix/auth";
+import { AuthService } from "@arche-cms/auth";
 
 const auth = new AuthService(adapter, {
   secret: "your-jwt-secret",
@@ -37,7 +37,7 @@ const user = await auth.verifyToken(accessToken);
 ### JWT Utilities
 
 ```ts
-import { generateTokens, verifyToken } from "@altrugenix/auth";
+import { generateTokens, verifyToken } from "@arche-cms/auth";
 
 const { accessToken, refreshToken } = await generateTokens(
   { id: "1", email: "user@example.com" },
@@ -50,7 +50,7 @@ const payload = await verifyToken(accessToken, "jwt-secret");
 ### Password Handling
 
 ```ts
-import { hashPassword, verifyPassword } from "@altrugenix/auth";
+import { hashPassword, verifyPassword } from "@arche-cms/auth";
 
 const hash = await hashPassword("my-password");
 const match = await verifyPassword("my-password", hash);

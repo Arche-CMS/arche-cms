@@ -7,7 +7,7 @@ Schemas are TypeScript files that define your content model. They live in `cms/c
 Collections are for repeatable content entries (like blog posts, users, products).
 
 ```ts
-import { defineCollection, text, slug, richText, relation, select } from "@altrugenix/schema";
+import { defineCollection, text, slug, richText, relation, select } from "@arche-cms/schema";
 
 export default defineCollection({
   slug: "posts",
@@ -27,7 +27,7 @@ export default defineCollection({
 Globals are for singleton content (like site settings, navigation).
 
 ```ts
-import { defineGlobal, text, textarea, image } from "@altrugenix/schema";
+import { defineGlobal, text, textarea, image } from "@arche-cms/schema";
 
 export default defineGlobal({
   slug: "site-settings",
@@ -45,7 +45,7 @@ export default defineGlobal({
 Components are reusable field groups that can be composed into collections and globals.
 
 ```ts
-import { defineComponent, text, textarea } from "@altrugenix/schema";
+import { defineComponent, text, textarea } from "@arche-cms/schema";
 
 export default defineComponent({
   slug: "seo",

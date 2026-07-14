@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import type { DatabaseAdapter } from "@altrugenix/database";
+import type { DatabaseAdapter } from "@arche-cms/database";
 import { AccessControl } from "../src/access-control.js";
 
 function createMockAdapter(): DatabaseAdapter {

@@ -1,4 +1,4 @@
-import type { PluginDefinition, PluginRegistration, CMSContext } from "@altrugenix/types";
+import type { PluginDefinition, PluginRegistration, CMSContext } from "@arche-cms/types";
 
 export interface PluginManagerOptions {
   eventBus: {

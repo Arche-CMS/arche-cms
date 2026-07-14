@@ -3,7 +3,7 @@
 ## Quick Deploy (Docker)
 
 ```bash
-docker run -p 3001:3001 altrugenix/cms
+docker run -p 3001:3001 arche-cms/cms
 ```
 
 ## Production Checklist

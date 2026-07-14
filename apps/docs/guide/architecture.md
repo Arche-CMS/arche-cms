@@ -2,7 +2,7 @@
 
 ## Modular Monolith
 
-Altrugenix CMS follows a **modular monolith** architecture — all packages live in a single process but are organized into distinct, loosely-coupled modules with well-defined interfaces.
+ArcheCMS CMS follows a **modular monolith** architecture — all packages live in a single process but are organized into distinct, loosely-coupled modules with well-defined interfaces.
 
 ```
 ┌─────────────────────────────────────────────┐

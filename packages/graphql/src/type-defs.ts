@@ -1,4 +1,4 @@
-import type { CollectionDefinition, FieldDefinition } from "@altrugenix/types";
+import type { CollectionDefinition, FieldDefinition } from "@arche-cms/types";
 import { pascalCase, fieldToGraphQLType } from "./types.js";
 
 function fieldToSDL(field: FieldDefinition, collections: CollectionDefinition[]): string {

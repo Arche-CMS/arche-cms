@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import type { DatabaseAdapter } from "@altrugenix/database";
+import type { DatabaseAdapter } from "@arche-cms/database";
 import { AuthService } from "../src/service.js";
 import { hashPassword } from "../src/password.js";
 import { randomBytes } from "node:crypto";

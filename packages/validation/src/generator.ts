@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { FieldDefinition, CollectionDefinition, FieldValidation } from "@altrugenix/types";
+import type { FieldDefinition, CollectionDefinition, FieldValidation } from "@arche-cms/types";
 
 function applyValidation<T extends z.ZodType>(
   schema: T,

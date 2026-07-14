@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import type { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
-import type { DatabaseAdapter } from "@altrugenix/database";
-import type { StorageAdapter } from "@altrugenix/storage";
+import type { DatabaseAdapter } from "@arche-cms/database";
+import type { StorageAdapter } from "@arche-cms/storage";
 
 const MEDIA_TABLE = "__cms_media";
 const FOLDERS_TABLE = "__cms_media_folders";

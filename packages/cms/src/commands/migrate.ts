@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 
-import { SchemaLoader } from "@altrugenix/schema";
-import type { CollectionDefinition } from "@altrugenix/types";
+import { SchemaLoader } from "@arche-cms/schema";
+import type { CollectionDefinition } from "@arche-cms/types";
 
 export interface MigrateOptions {
   dir?: string;

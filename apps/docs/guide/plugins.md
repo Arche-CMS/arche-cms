@@ -45,7 +45,7 @@ Plugins are auto-discovered from `node_modules` or registered explicitly:
 
 ```ts
 import { createApp } from "./app.js";
-import { seoPlugin } from "@altrugenix/plugins";
+import { seoPlugin } from "@arche-cms/plugins";
 
 const app = await createApp({
   plugins: [seoPlugin({ siteUrl: "https://example.com" })],
@@ -55,7 +55,7 @@ const app = await createApp({
 ## Writing a Plugin
 
 ```ts
-import { definePlugin } from "@altrugenix/plugins";
+import { definePlugin } from "@arche-cms/plugins";
 
 export const myPlugin = definePlugin({
   name: "my-plugin",

@@ -1,5 +1,5 @@
 import type { FastifyInstance } from "fastify";
-import type { DatabaseAdapter } from "@altrugenix/database";
+import type { DatabaseAdapter } from "@arche-cms/database";
 import { fetchRecentActivity } from "../lib/activity.js";
 
 export function registerActivityRoutes(fastify: FastifyInstance, adapter: DatabaseAdapter): void {

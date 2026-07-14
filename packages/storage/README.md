@@ -1,11 +1,11 @@
-# @altrugenix/storage
+# @arche-cms/storage
 
-File storage adapters for Altrugenix CMS. Supports local filesystem, S3-compatible, and Cloudflare R2 storage backends.
+File storage adapters for ArcheCMS CMS. Supports local filesystem, S3-compatible, and Cloudflare R2 storage backends.
 
 ## Installation
 
 ```bash
-yarn add @altrugenix/storage
+yarn add @arche-cms/storage
 ```
 
 ## Usage
@@ -13,7 +13,7 @@ yarn add @altrugenix/storage
 ### Local Storage
 
 ```ts
-import { LocalStorageAdapter } from "@altrugenix/storage";
+import { LocalStorageAdapter } from "@arche-cms/storage";
 
 const storage = new LocalStorageAdapter("./uploads");
 
@@ -26,7 +26,7 @@ const exists = await storage.exists("images/logo.png");
 ### S3-Compatible Storage
 
 ```ts
-import { S3Adapter } from "@altrugenix/storage";
+import { S3Adapter } from "@arche-cms/storage";
 
 const storage = new S3Adapter({
   bucket: "my-bucket",
@@ -44,7 +44,7 @@ await storage.save("file.pdf", buffer, "application/pdf");
 ### Cloudflare R2
 
 ```ts
-import { R2Adapter } from "@altrugenix/storage";
+import { R2Adapter } from "@arche-cms/storage";
 
 const storage = new R2Adapter({
   bucket: "my-bucket",

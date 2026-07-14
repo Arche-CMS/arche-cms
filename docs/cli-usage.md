@@ -1,6 +1,6 @@
 # CLI Usage Guide
 
-The Altrugenix CMS CLI provides commands for development, building, code generation, and schema management.
+The ArcheCMS CMS CLI provides commands for development, building, code generation, and schema management.
 
 ## Installation
 
@@ -9,7 +9,7 @@ The Altrugenix CMS CLI provides commands for development, building, code generat
 yarn cms <command>
 
 # Or globally
-npm install -g @altrugenix/cms
+npm install -g @arche-cms/cms
 cms <command>
 ```
 

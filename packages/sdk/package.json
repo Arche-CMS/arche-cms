@@ -1,5 +1,5 @@
 {
-  "name": "@altrugenix/sdk",
+  "name": "@arche-cms/sdk",
   "version": "0.1.0",
   "type": "module",
   "main": "dist/index.js",

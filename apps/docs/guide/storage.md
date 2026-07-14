@@ -1,21 +1,21 @@
 # Storage
 
-Altrugenix CMS supports multiple storage backends for file uploads through a common `StorageAdapter` interface.
+ArcheCMS CMS supports multiple storage backends for file uploads through a common `StorageAdapter` interface.
 
 ## Adapters
 
-| Adapter | Package               | Description                  |
-| ------- | --------------------- | ---------------------------- |
-| Local   | `@altrugenix/storage` | Filesystem storage (default) |
-| S3      | `@altrugenix/storage` | AWS S3-compatible storage    |
-| R2      | `@altrugenix/storage` | Cloudflare R2 storage        |
+| Adapter | Package              | Description                  |
+| ------- | -------------------- | ---------------------------- |
+| Local   | `@arche-cms/storage` | Filesystem storage (default) |
+| S3      | `@arche-cms/storage` | AWS S3-compatible storage    |
+| R2      | `@arche-cms/storage` | Cloudflare R2 storage        |
 
 ## Configuration
 
 ### Local Storage (Default)
 
 ```ts
-import { LocalStorageAdapter } from "@altrugenix/storage";
+import { LocalStorageAdapter } from "@arche-cms/storage";
 
 const storage = new LocalStorageAdapter({
   basePath: "./media",
@@ -26,7 +26,7 @@ const storage = new LocalStorageAdapter({
 ### S3 Storage
 
 ```ts
-import { S3Adapter } from "@altrugenix/storage";
+import { S3Adapter } from "@arche-cms/storage";
 
 const storage = new S3Adapter({
   region: "us-east-1",
@@ -42,7 +42,7 @@ const storage = new S3Adapter({
 ### Cloudflare R2 Storage
 
 ```ts
-import { R2Adapter } from "@altrugenix/storage";
+import { R2Adapter } from "@arche-cms/storage";
 
 const storage = new R2Adapter({
   endpoint: process.env.R2_ENDPOINT!,

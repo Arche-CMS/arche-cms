@@ -1,4 +1,4 @@
-import type { CollectionDefinition } from "@altrugenix/types";
+import type { CollectionDefinition } from "@arche-cms/types";
 
 export function defineCollection(config: CollectionDefinition): CollectionDefinition {
   return {

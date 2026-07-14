@@ -1,11 +1,11 @@
-# @altrugenix/schema
+# @arche-cms/schema
 
-Schema definition API for Altrugenix CMS. Define collections, globals, and components using a declarative field system.
+Schema definition API for ArcheCMS CMS. Define collections, globals, and components using a declarative field system.
 
 ## Installation
 
 ```bash
-yarn add @altrugenix/schema
+yarn add @arche-cms/schema
 ```
 
 ## Usage
@@ -13,7 +13,7 @@ yarn add @altrugenix/schema
 ### Define a Collection
 
 ```ts
-import { defineCollection, text, slug, richText, select, relation } from "@altrugenix/schema";
+import { defineCollection, text, slug, richText, select, relation } from "@arche-cms/schema";
 
 export default defineCollection({
   slug: "posts",
@@ -31,7 +31,7 @@ export default defineCollection({
 ### Define a Global
 
 ```ts
-import { defineGlobal, text, media } from "@altrugenix/schema";
+import { defineGlobal, text, media } from "@arche-cms/schema";
 
 export default defineGlobal({
   slug: "site-settings",
@@ -43,7 +43,7 @@ export default defineGlobal({
 ### Define a Component
 
 ```ts
-import { defineComponent, text, url } from "@altrugenix/schema";
+import { defineComponent, text, url } from "@arche-cms/schema";
 
 export default defineComponent({
   slug: "cta-block",
@@ -57,7 +57,7 @@ export default defineComponent({
 Load schema files from the filesystem:
 
 ```ts
-import { SchemaLoader } from "@altrugenix/schema";
+import { SchemaLoader } from "@arche-cms/schema";
 
 const loader = new SchemaLoader({ baseDir: "./cms" });
 const schemas = await loader.load();
@@ -69,7 +69,7 @@ const schemas = await loader.load();
 Validate collection definitions at runtime:
 
 ```ts
-import { validateCollection } from "@altrugenix/schema";
+import { validateCollection } from "@arche-cms/schema";
 
 const result = validateCollection(collectionDef);
 if (!result.valid) {

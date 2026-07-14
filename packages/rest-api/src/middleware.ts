@@ -1,4 +1,4 @@
-import type { CollectionDefinition } from "@altrugenix/types";
+import type { CollectionDefinition } from "@arche-cms/types";
 import type {
   RouteHandler,
   RouteHandlerContext,

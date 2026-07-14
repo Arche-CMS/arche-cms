@@ -63,7 +63,7 @@ coverage/
 
 function generatePackageJson(outDir: string): void {
   const pkg = {
-    name: "altrugenix-cms-production",
+    name: "arche-cms-production",
     version: "0.0.1",
     private: true,
     type: "module",
@@ -106,7 +106,7 @@ export async function build(options: BuildOptions): Promise<void> {
   // Build the admin panel UI (Vite SPA)
   log("Building admin panel...");
   try {
-    execSync("yarn workspace @altrugenix/admin build", {
+    execSync("yarn workspace @arche-cms/admin build", {
       stdio: "inherit",
       env: { ...process.env, NODE_ENV: "production" },
     });
@@ -117,7 +117,7 @@ export async function build(options: BuildOptions): Promise<void> {
 
   // Build the TypeScript server code
   log("Building server code...");
-  execSync("yarn workspace @altrugenix/cms build", { stdio: "inherit" });
+  execSync("yarn workspace @arche-cms/cms build", { stdio: "inherit" });
 
   log("Build complete");
   log(`  Admin panel: ${ADMIN_DIST}/`);

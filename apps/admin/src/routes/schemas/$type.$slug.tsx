@@ -362,7 +362,7 @@ function SchemaEditor() {
         : type === "global"
           ? "defineGlobal"
           : "defineComponent";
-    const header = `import { ${defineFn}${sortedHelpers.length > 0 ? ", " + sortedHelpers.join(", ") : ""} } from "@altrugenix/schema";\n`;
+    const header = `import { ${defineFn}${sortedHelpers.length > 0 ? ", " + sortedHelpers.join(", ") : ""} } from "@arche-cms/schema";\n`;
     const fieldsCode = fields.map((f) => `    ${genField(f)},`).join("\n");
 
     const metaStr =

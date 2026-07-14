@@ -8,12 +8,12 @@
     "**/.vitepress/cache/**"
   ],
   "ignoreDependencies": [
-    "@altrugenix/types",
-    "@altrugenix/core",
-    "@altrugenix/database",
-    "@altrugenix/rest-api",
-    "@altrugenix/schema",
-    "@altrugenix/validation"
+    "@arche-cms/types",
+    "@arche-cms/core",
+    "@arche-cms/database",
+    "@arche-cms/rest-api",
+    "@arche-cms/schema",
+    "@arche-cms/validation"
   ],
   "audit": {
     "gate": "new-only"

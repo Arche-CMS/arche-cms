@@ -1,11 +1,11 @@
-# @altrugenix/types
+# @arche-cms/types
 
-Shared TypeScript type definitions for Altrugenix CMS. Used by all packages to ensure type consistency across the framework.
+Shared TypeScript type definitions for ArcheCMS CMS. Used by all packages to ensure type consistency across the framework.
 
 ## Installation
 
 ```bash
-yarn add @altrugenix/types
+yarn add @arche-cms/types
 ```
 
 ## Key Types
@@ -13,23 +13,23 @@ yarn add @altrugenix/types
 ### Collections & Fields
 
 ```ts
-import type { CollectionDefinition, FieldDefinition, FieldType } from "@altrugenix/types";
+import type { CollectionDefinition, FieldDefinition, FieldType } from "@arche-cms/types";
 ```
 
 ### Plugins
 
 ```ts
-import type { PluginDefinition, PluginHooks, PluginRegistration } from "@altrugenix/types";
+import type { PluginDefinition, PluginHooks, PluginRegistration } from "@arche-cms/types";
 ```
 
 ### Core
 
 ```ts
-import type { CMSContext, Logger, Lifecycle } from "@altrugenix/types";
+import type { CMSContext, Logger, Lifecycle } from "@arche-cms/types";
 ```
 
 ### Database
 
 ```ts
-import type { QueryOptions, SortOrder, PaginationMeta } from "@altrugenix/types";
+import type { QueryOptions, SortOrder, PaginationMeta } from "@arche-cms/types";
 ```

@@ -1,4 +1,4 @@
-import type { DatabaseAdapter } from "@altrugenix/database";
+import type { DatabaseAdapter } from "@arche-cms/database";
 import type { Permission, RoleRecord } from "./types.js";
 
 const ROLES_TABLE = "__cms_roles";

@@ -1,7 +1,7 @@
 import type { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
-import type { DatabaseAdapter } from "@altrugenix/database";
-import { AccessControl } from "@altrugenix/permissions";
-import type { Permission } from "@altrugenix/permissions";
+import type { DatabaseAdapter } from "@arche-cms/database";
+import { AccessControl } from "@arche-cms/permissions";
+import type { Permission } from "@arche-cms/permissions";
 
 export function registerRoleRoutes(fastify: FastifyInstance, adapter: DatabaseAdapter): void {
   const ac = new AccessControl(adapter);

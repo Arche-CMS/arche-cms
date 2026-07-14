@@ -1,4 +1,4 @@
-import type { CollectionDefinition, FieldDefinition } from "@altrugenix/types";
+import type { CollectionDefinition, FieldDefinition } from "@arche-cms/types";
 import type { RouteDefinition } from "./types.js";
 
 function pascalCase(slug: string): string {
@@ -158,7 +158,7 @@ export function generateOpenApiSpec(
   return {
     openapi: "3.1.0",
     info: {
-      title: options?.title ?? "Altrugenix CMS API",
+      title: options?.title ?? "ArcheCMS CMS API",
       version: options?.version ?? "0.1.0",
       description: options?.description ?? "Auto-generated REST API for CMS collections",
     },

@@ -1,8 +1,8 @@
 /* eslint-disable no-console */
 
-import { SQLiteAdapter, PostgresAdapter } from "@altrugenix/database";
-import { PluginManager, seoPlugin, discoverPlugins } from "@altrugenix/plugins";
-import { EventBus, Lifecycle, createLogger } from "@altrugenix/core";
+import { SQLiteAdapter, PostgresAdapter } from "@arche-cms/database";
+import { PluginManager, seoPlugin, discoverPlugins } from "@arche-cms/plugins";
+import { EventBus, Lifecycle, createLogger } from "@arche-cms/core";
 import { loadConfig } from "../server/config.js";
 import {
   applyCliOverrides,

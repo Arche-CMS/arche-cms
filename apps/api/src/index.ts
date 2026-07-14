@@ -2,12 +2,12 @@
 
 import { loadConfig } from "./config.js";
 import { createApp } from "./app.js";
-import { SchemaLoader } from "@altrugenix/schema";
-import { SQLiteAdapter } from "@altrugenix/database";
-import { LocalStorageAdapter } from "@altrugenix/storage";
-import { PluginManager, seoPlugin } from "@altrugenix/plugins";
-import { discoverPlugins } from "@altrugenix/plugins";
-import { EventBus, Lifecycle, createLogger } from "@altrugenix/core";
+import { SchemaLoader } from "@arche-cms/schema";
+import { SQLiteAdapter } from "@arche-cms/database";
+import { LocalStorageAdapter } from "@arche-cms/storage";
+import { PluginManager, seoPlugin } from "@arche-cms/plugins";
+import { discoverPlugins } from "@arche-cms/plugins";
+import { EventBus, Lifecycle, createLogger } from "@arche-cms/core";
 import { createScheduledPublisher } from "./services/scheduled-publisher.js";
 
 async function main(): Promise<void> {

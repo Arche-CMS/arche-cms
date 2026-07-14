@@ -1,7 +1,7 @@
 import type { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
-import type { DatabaseAdapter } from "@altrugenix/database";
-import { AuthService, JwtService } from "@altrugenix/auth";
-import type { AuthConfig } from "@altrugenix/auth";
+import type { DatabaseAdapter } from "@arche-cms/database";
+import { AuthService, JwtService } from "@arche-cms/auth";
+import type { AuthConfig } from "@arche-cms/auth";
 
 export interface AuthPluginOptions {
   adapter: DatabaseAdapter;

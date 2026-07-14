@@ -1,18 +1,18 @@
-# @altrugenix/validation
+# @arche-cms/validation
 
-Zod validation schema generator. Auto-generates validation schemas from Altrugenix field definitions.
+Zod validation schema generator. Auto-generates validation schemas from ArcheCMS field definitions.
 
 ## Installation
 
 ```bash
-yarn add @altrugenix/validation
+yarn add @arche-cms/validation
 ```
 
 ## Usage
 
 ```ts
-import { collectionToCreateSchema, collectionToUpdateSchema } from "@altrugenix/validation";
-import type { CollectionDefinition } from "@altrugenix/types";
+import { collectionToCreateSchema, collectionToUpdateSchema } from "@arche-cms/validation";
+import type { CollectionDefinition } from "@arche-cms/types";
 
 const collection: CollectionDefinition = {
   slug: "posts",

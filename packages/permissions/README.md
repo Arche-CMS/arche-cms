@@ -1,11 +1,11 @@
-# @altrugenix/permissions
+# @arche-cms/permissions
 
-Role-based access control (RBAC) engine for Altrugenix CMS. Supports role management and field-level permissions.
+Role-based access control (RBAC) engine for ArcheCMS CMS. Supports role management and field-level permissions.
 
 ## Installation
 
 ```bash
-yarn add @altrugenix/permissions
+yarn add @arche-cms/permissions
 ```
 
 ## Usage
@@ -13,7 +13,7 @@ yarn add @altrugenix/permissions
 ### Access Control
 
 ```ts
-import { AccessControl } from "@altrugenix/permissions";
+import { AccessControl } from "@arche-cms/permissions";
 
 const ac = new AccessControl(adapter);
 await ac.init();
@@ -43,7 +43,7 @@ await ac.assignRole(userId, roleId);
 ### Field-Level Permissions
 
 ```ts
-import { filterFields, resolveFieldPermissions } from "@altrugenix/permissions";
+import { filterFields, resolveFieldPermissions } from "@arche-cms/permissions";
 
 // Filter sensitive fields based on user permissions
 const allowedFields = filterFields(fields, userPermissions, "read");

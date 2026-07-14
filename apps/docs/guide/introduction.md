@@ -1,6 +1,6 @@
 # Introduction
 
-Altrugenix CMS is a **file-based, developer-first, open-source headless CMS**. Schema is stored in source files, not in the database — inspired by Strapi and Payload, but designed for type safety, extensibility, and excellent developer experience.
+ArcheCMS CMS is a **file-based, developer-first, open-source headless CMS**. Schema is stored in source files, not in the database — inspired by Strapi and Payload, but designed for type safety, extensibility, and excellent developer experience.
 
 ## Philosophy
 

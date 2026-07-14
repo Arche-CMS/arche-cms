@@ -3,8 +3,8 @@ import { resolve } from "node:path";
 import { existsSync } from "node:fs";
 import type { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import type { ServerConfig } from "../config.js";
-import { SchemaLoader } from "@altrugenix/schema";
-import type { FieldDefinition } from "@altrugenix/types";
+import { SchemaLoader } from "@arche-cms/schema";
+import type { FieldDefinition } from "@arche-cms/types";
 
 interface SchemaInfo {
   slug: string;
@@ -318,7 +318,7 @@ export function registerSchemaRoutes(fastify: FastifyInstance, config: ServerCon
   ): string {
     const helpers = getUsedHelpers(fields);
     const helperList = Array.from(helpers).sort();
-    const importStmt = `import { define${type === "global" ? "Global" : type === "component" ? "Component" : "Collection"}${helperList.length > 0 ? ", " + helperList.join(", ") : ""} } from "@altrugenix/schema";`;
+    const importStmt = `import { define${type === "global" ? "Global" : type === "component" ? "Component" : "Collection"}${helperList.length > 0 ? ", " + helperList.join(", ") : ""} } from "@arche-cms/schema";`;
 
     const defineFn =
       type === "global"

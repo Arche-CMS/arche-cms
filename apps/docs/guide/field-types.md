@@ -1,76 +1,76 @@
 # Field Types
 
-Altrugenix CMS provides 30 field types covering a wide range of content modeling needs.
+ArcheCMS CMS provides 30 field types covering a wide range of content modeling needs.
 
 ## Text & Rich Content
 
-| Field      | Import               | Description                                           |
-| ---------- | -------------------- | ----------------------------------------------------- |
-| `text`     | `@altrugenix/schema` | Single-line text input                                |
-| `textarea` | `@altrugenix/schema` | Multi-line text area                                  |
-| `richText` | `@altrugenix/schema` | Rich text editor (Tiptap-based)                       |
-| `markdown` | `@altrugenix/schema` | Markdown editor                                       |
-| `code`     | `@altrugenix/schema` | Code editor with syntax highlighting                  |
-| `slug`     | `@altrugenix/schema` | URL-friendly slug, auto-generated from a source field |
+| Field      | Import              | Description                                           |
+| ---------- | ------------------- | ----------------------------------------------------- |
+| `text`     | `@arche-cms/schema` | Single-line text input                                |
+| `textarea` | `@arche-cms/schema` | Multi-line text area                                  |
+| `richText` | `@arche-cms/schema` | Rich text editor (Tiptap-based)                       |
+| `markdown` | `@arche-cms/schema` | Markdown editor                                       |
+| `code`     | `@arche-cms/schema` | Code editor with syntax highlighting                  |
+| `slug`     | `@arche-cms/schema` | URL-friendly slug, auto-generated from a source field |
 
 ## Numeric & Boolean
 
-| Field      | Import               | Description                      |
-| ---------- | -------------------- | -------------------------------- |
-| `number`   | `@altrugenix/schema` | Numeric input (integer or float) |
-| `boolean`  | `@altrugenix/schema` | True/false toggle                |
-| `checkbox` | `@altrugenix/schema` | Single checkbox                  |
+| Field      | Import              | Description                      |
+| ---------- | ------------------- | -------------------------------- |
+| `number`   | `@arche-cms/schema` | Numeric input (integer or float) |
+| `boolean`  | `@arche-cms/schema` | True/false toggle                |
+| `checkbox` | `@arche-cms/schema` | Single checkbox                  |
 
 ## Date & Time
 
-| Field      | Import               | Description              |
-| ---------- | -------------------- | ------------------------ |
-| `date`     | `@altrugenix/schema` | Date picker (YYYY-MM-DD) |
-| `datetime` | `@altrugenix/schema` | Date and time picker     |
+| Field      | Import              | Description              |
+| ---------- | ------------------- | ------------------------ |
+| `date`     | `@arche-cms/schema` | Date picker (YYYY-MM-DD) |
+| `datetime` | `@arche-cms/schema` | Date and time picker     |
 
 ## Media & Files
 
-| Field    | Import               | Description               |
-| -------- | -------------------- | ------------------------- |
-| `media`  | `@altrugenix/schema` | Single media/file upload  |
-| `upload` | `@altrugenix/schema` | Multiple file upload      |
-| `image`  | `@altrugenix/schema` | Image picker with preview |
+| Field    | Import              | Description               |
+| -------- | ------------------- | ------------------------- |
+| `media`  | `@arche-cms/schema` | Single media/file upload  |
+| `upload` | `@arche-cms/schema` | Multiple file upload      |
+| `image`  | `@arche-cms/schema` | Image picker with preview |
 
 ## Choice Fields
 
-| Field         | Import               | Description            |
-| ------------- | -------------------- | ---------------------- |
-| `select`      | `@altrugenix/schema` | Single-select dropdown |
-| `multiSelect` | `@altrugenix/schema` | Multi-select dropdown  |
-| `radio`       | `@altrugenix/schema` | Radio button group     |
+| Field         | Import              | Description            |
+| ------------- | ------------------- | ---------------------- |
+| `select`      | `@arche-cms/schema` | Single-select dropdown |
+| `multiSelect` | `@arche-cms/schema` | Multi-select dropdown  |
+| `radio`       | `@arche-cms/schema` | Radio button group     |
 
 ## Relational
 
-| Field      | Import               | Description                     |
-| ---------- | -------------------- | ------------------------------- |
-| `relation` | `@altrugenix/schema` | Reference to another collection |
+| Field      | Import              | Description                     |
+| ---------- | ------------------- | ------------------------------- |
+| `relation` | `@arche-cms/schema` | Reference to another collection |
 
 ## Structured
 
-| Field         | Import               | Description                                      |
-| ------------- | -------------------- | ------------------------------------------------ |
-| `component`   | `@altrugenix/schema` | Reusable component instance                      |
-| `dynamicZone` | `@altrugenix/schema` | Dynamic zone (choose one of multiple components) |
-| `array`       | `@altrugenix/schema` | Array of sub-fields                              |
-| `object`      | `@altrugenix/schema` | Grouped sub-fields                               |
-| `group`       | `@altrugenix/schema` | Named field group                                |
-| `tabs`        | `@altrugenix/schema` | Tabbed interface for organizing fields           |
-| `repeater`    | `@altrugenix/schema` | Repeatable set of fields                         |
+| Field         | Import              | Description                                      |
+| ------------- | ------------------- | ------------------------------------------------ |
+| `component`   | `@arche-cms/schema` | Reusable component instance                      |
+| `dynamicZone` | `@arche-cms/schema` | Dynamic zone (choose one of multiple components) |
+| `array`       | `@arche-cms/schema` | Array of sub-fields                              |
+| `object`      | `@arche-cms/schema` | Grouped sub-fields                               |
+| `group`       | `@arche-cms/schema` | Named field group                                |
+| `tabs`        | `@arche-cms/schema` | Tabbed interface for organizing fields           |
+| `repeater`    | `@arche-cms/schema` | Repeatable set of fields                         |
 
 ## Utility
 
-| Field      | Import               | Description                 |
-| ---------- | -------------------- | --------------------------- |
-| `email`    | `@altrugenix/schema` | Email input with validation |
-| `password` | `@altrugenix/schema` | Password input              |
-| `url`      | `@altrugenix/schema` | URL input with validation   |
-| `json`     | `@altrugenix/schema` | JSON editor                 |
-| `color`    | `@altrugenix/schema` | Color picker                |
+| Field      | Import              | Description                 |
+| ---------- | ------------------- | --------------------------- |
+| `email`    | `@arche-cms/schema` | Email input with validation |
+| `password` | `@arche-cms/schema` | Password input              |
+| `url`      | `@arche-cms/schema` | URL input with validation   |
+| `json`     | `@arche-cms/schema` | JSON editor                 |
+| `color`    | `@arche-cms/schema` | Color picker                |
 
 ## Validation
 
@@ -126,7 +126,7 @@ import {
   slug,
   password,
   tabs,
-} from "@altrugenix/schema";
+} from "@arche-cms/schema";
 
 export default defineCollection({
   slug: "examples",

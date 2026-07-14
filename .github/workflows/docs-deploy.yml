@@ -27,7 +27,7 @@ jobs:
           node-version: 22
       - run: corepack enable && corepack prepare yarn@4.17.0 --activate
       - run: yarn install --immutable
-      - run: yarn workspace @altrugenix/docs build
+      - run: yarn workspace @arche-cms/docs build
         env:
           DOCS_BASE: /cms/
       - name: Upload Pages Artifact

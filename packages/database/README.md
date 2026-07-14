@@ -1,11 +1,11 @@
-# @altrugenix/database
+# @arche-cms/database
 
-Database adapter layer for Altrugenix CMS. Provides a unified interface over multiple database engines with migration support.
+Database adapter layer for ArcheCMS CMS. Provides a unified interface over multiple database engines with migration support.
 
 ## Installation
 
 ```bash
-yarn add @altrugenix/database
+yarn add @arche-cms/database
 ```
 
 ## Usage
@@ -13,7 +13,7 @@ yarn add @altrugenix/database
 ### Connect
 
 ```ts
-import { SQLiteAdapter } from "@altrugenix/database";
+import { SQLiteAdapter } from "@arche-cms/database";
 
 const adapter = new SQLiteAdapter("file:./cms.db");
 await adapter.connect();
@@ -46,7 +46,7 @@ await adapter.delete("posts", "1");
 Generate and run migrations from schema definitions:
 
 ```ts
-import { generateMigration, runMigrations } from "@altrugenix/database";
+import { generateMigration, runMigrations } from "@arche-cms/database";
 
 const migration = generateMigration(schemas, existingTables);
 await runMigrations(adapter, [migration]);
@@ -57,7 +57,7 @@ await runMigrations(adapter, [migration]);
 Generic typed repository for CRUD operations:
 
 ```ts
-import { Repository } from "@altrugenix/database";
+import { Repository } from "@arche-cms/database";
 
 const repo = new Repository(adapter, "posts");
 const post = await repo.findById("1");

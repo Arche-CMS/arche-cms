@@ -1,6 +1,6 @@
 import type { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
-import type { DatabaseAdapter } from "@altrugenix/database";
-import { AccessControl } from "@altrugenix/permissions";
+import type { DatabaseAdapter } from "@arche-cms/database";
+import { AccessControl } from "@arche-cms/permissions";
 
 export interface PermissionPluginOptions {
   adapter: DatabaseAdapter;

@@ -1,5 +1,5 @@
 import { randomBytes } from "node:crypto";
-import type { DatabaseAdapter } from "@altrugenix/database";
+import type { DatabaseAdapter } from "@arche-cms/database";
 import { JwtService } from "./jwt.js";
 import { hashPassword, verifyPassword } from "./password.js";
 import type {

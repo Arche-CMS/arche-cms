@@ -11,7 +11,7 @@
 ### Clone and Install
 
 ```bash
-git clone https://github.com/Altrugenix/cms.git
+git clone https://github.com/ArcheCMS/cms.git
 cd cms
 corepack enable
 yarn install
@@ -110,20 +110,20 @@ Types: `feat`, `fix`, `docs`, `refactor`, `test`, `chore`, `perf`
 
 ## Packages
 
-| Package                   | Description                                        |
-| ------------------------- | -------------------------------------------------- |
-| `@altrugenix/core`        | DI container, event bus, lifecycle, logger, config |
-| `@altrugenix/schema`      | Schema definition API                              |
-| `@altrugenix/types`       | Shared TypeScript types                            |
-| `@altrugenix/database`    | Database adapters (SQLite, PostgreSQL)             |
-| `@altrugenix/auth`        | JWT authentication                                 |
-| `@altrugenix/permissions` | RBAC engine                                        |
-| `@altrugenix/storage`     | File storage (local, S3, R2)                       |
-| `@altrugenix/rest-api`    | REST API route generator                           |
-| `@altrugenix/graphql`     | GraphQL schema generator                           |
-| `@altrugenix/validation`  | Zod validation generator                           |
-| `@altrugenix/plugins`     | Plugin system + official plugins                   |
-| `@altrugenix/generators`  | Code generation pipeline                           |
-| `@altrugenix/cms`         | CLI tools + server                                 |
-| `@altrugenix/admin-ui`    | Shared admin UI components                         |
-| `@altrugenix/sdk`         | TypeScript client SDK                              |
+| Package                  | Description                                        |
+| ------------------------ | -------------------------------------------------- |
+| `@arche-cms/core`        | DI container, event bus, lifecycle, logger, config |
+| `@arche-cms/schema`      | Schema definition API                              |
+| `@arche-cms/types`       | Shared TypeScript types                            |
+| `@arche-cms/database`    | Database adapters (SQLite, PostgreSQL)             |
+| `@arche-cms/auth`        | JWT authentication                                 |
+| `@arche-cms/permissions` | RBAC engine                                        |
+| `@arche-cms/storage`     | File storage (local, S3, R2)                       |
+| `@arche-cms/rest-api`    | REST API route generator                           |
+| `@arche-cms/graphql`     | GraphQL schema generator                           |
+| `@arche-cms/validation`  | Zod validation generator                           |
+| `@arche-cms/plugins`     | Plugin system + official plugins                   |
+| `@arche-cms/generators`  | Code generation pipeline                           |
+| `@arche-cms/cms`         | CLI tools + server                                 |
+| `@arche-cms/admin-ui`    | Shared admin UI components                         |
+| `@arche-cms/sdk`         | TypeScript client SDK                              |

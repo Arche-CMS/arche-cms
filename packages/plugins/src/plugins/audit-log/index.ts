@@ -1,4 +1,4 @@
-import type { PluginDefinition } from "@altrugenix/types";
+import type { PluginDefinition } from "@arche-cms/types";
 
 const auditLogPlugin: PluginDefinition = {
   slug: "audit-log",

@@ -1,19 +1,19 @@
-# @altrugenix/rest-api
+# @arche-cms/rest-api
 
-REST API route generator. Auto-generates CRUD routes from Altrugenix schema definitions.
+REST API route generator. Auto-generates CRUD routes from ArcheCMS schema definitions.
 
 ## Installation
 
 ```bash
-yarn add @altrugenix/rest-api
+yarn add @arche-cms/rest-api
 ```
 
 ## Usage
 
 ```ts
-import { generateRoutes } from "@altrugenix/rest-api";
-import type { CollectionDefinition } from "@altrugenix/types";
-import type { DatabaseAdapter } from "@altrugenix/database";
+import { generateRoutes } from "@arche-cms/rest-api";
+import type { CollectionDefinition } from "@arche-cms/types";
+import type { DatabaseAdapter } from "@arche-cms/database";
 import type { FastifyInstance } from "fastify";
 
 const routes = generateRoutes(collections, adapter);
@@ -41,7 +41,7 @@ For each collection, the following routes are generated:
 Auto-generates OpenAPI 3.1.0 spec:
 
 ```ts
-import { generateOpenApiSpec } from "@altrugenix/rest-api";
+import { generateOpenApiSpec } from "@arche-cms/rest-api";
 
 const spec = generateOpenApiSpec(collections, { title: "CMS API", version: "1.0.0" });
 ```

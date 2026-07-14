@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { PluginManager } from "../src/plugin-manager.js";
-import type { PluginDefinition } from "@altrugenix/types";
+import type { PluginDefinition } from "@arche-cms/types";
 
 describe("PluginManager", () => {
   const mockEventBus = { emit: vi.fn() };

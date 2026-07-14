@@ -30,7 +30,7 @@ import type {
   SlugField,
   FieldDefinition,
   FieldBase,
-} from "@altrugenix/types";
+} from "@arche-cms/types";
 
 type FieldOptions = Partial<Omit<FieldBase, "name" | "type">>;
 

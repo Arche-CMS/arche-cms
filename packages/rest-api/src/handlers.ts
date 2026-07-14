@@ -1,11 +1,11 @@
-import type { DatabaseAdapter, QueryOptions } from "@altrugenix/database";
+import type { DatabaseAdapter, QueryOptions } from "@arche-cms/database";
 import type {
   CollectionDefinition,
   FieldDefinition,
   RelationField,
   GlobalDefinition,
-} from "@altrugenix/types";
-import { collectionToCreateSchema, collectionToUpdateSchema } from "@altrugenix/validation";
+} from "@arche-cms/types";
+import { collectionToCreateSchema, collectionToUpdateSchema } from "@arche-cms/validation";
 import type { RouteHandler, RouteHandlerContext, RouteHandlerResult } from "./types.js";
 
 function collectionTableName(slug: string): string {

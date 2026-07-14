@@ -1,4 +1,4 @@
-# Backlog — Altrugenix CMS
+# Backlog — ArcheCMS CMS
 
 Future milestones and feature ideas.
 

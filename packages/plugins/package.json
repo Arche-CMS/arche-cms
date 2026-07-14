@@ -1,5 +1,5 @@
 {
-  "name": "@altrugenix/plugins",
+  "name": "@arche-cms/plugins",
   "version": "0.1.0",
   "type": "module",
   "main": "dist/index.js",
@@ -17,8 +17,8 @@
     "access": "public"
   },
   "dependencies": {
-    "@altrugenix/core": "workspace:*",
-    "@altrugenix/types": "workspace:*"
+    "@arche-cms/core": "workspace:*",
+    "@arche-cms/types": "workspace:*"
   },
   "scripts": {
     "build": "tsc",

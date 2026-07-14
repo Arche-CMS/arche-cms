@@ -1,4 +1,4 @@
-# Altrugenix CMS
+# ArcheCMS CMS
 
 **File-based, open-source, developer-first headless CMS.**
 
@@ -39,7 +39,7 @@ export default defineCollection({
 ### Use via npx (no install)
 
 ```bash
-npx @altrugenix/cms dev
+npx @arche-cms/cms dev
 ```
 
 This starts a full CMS server with an admin panel, REST API, and GraphQL playground — no configuration needed.
@@ -47,14 +47,14 @@ This starts a full CMS server with an admin panel, REST API, and GraphQL playgro
 ### Or install globally
 
 ```bash
-npm install -g @altrugenix/cms
+npm install -g @arche-cms/cms
 cms dev
 ```
 
 ### Or clone the monorepo
 
 ```bash
-git clone https://github.com/Altrugenix/cms.git
+git clone https://github.com/ArcheCMS/cms.git
 cd cms
 yarn install
 yarn dev
@@ -65,7 +65,7 @@ Open `http://localhost:5173` for the admin panel and `http://localhost:3000/docs
 ## Architecture
 
 ```
-altrugenix_cms/
+arche-cms/
 ├── apps/
 │   ├── admin/          # Admin panel (React + TanStack Router + Tailwind v4)
 │   ├── api/            # Fastify API server

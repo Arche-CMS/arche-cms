@@ -1,6 +1,6 @@
 # Plugin Development Guide
 
-This guide explains how to create plugins for Altrugenix CMS.
+This guide explains how to create plugins for ArcheCMS CMS.
 
 ## Overview
 
@@ -17,7 +17,7 @@ A plugin is a module that exports a `PluginDefinition` as its default export:
 
 ```ts
 // packages/my-plugin/src/index.ts
-import type { PluginDefinition } from "@altrugenix/types";
+import type { PluginDefinition } from "@arche-cms/types";
 
 const myPlugin: PluginDefinition = {
   slug: "my-plugin",
@@ -125,10 +125,10 @@ Official plugins live in `packages/plugins/src/plugins/`. Each is a self-contain
 
 Plugins are distributed as npm packages. Name them following the convention:
 
-- `@altrugenix/plugin-<name>` (scoped)
-- `altrugenix-plugin-<name>` (unscoped)
+- `@arche-cms/plugin-<name>` (scoped)
+- `arche-cms-plugin-<name>` (unscoped)
 
-The auto-discovery system in `@altrugenix/plugins` scans `node_modules` for both naming conventions and automatically registers discovered plugins.
+The auto-discovery system in `@arche-cms/plugins` scans `node_modules` for both naming conventions and automatically registers discovered plugins.
 
 ## Scaffolding
 

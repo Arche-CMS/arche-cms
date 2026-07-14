@@ -1,5 +1,5 @@
 {
-  "name": "@altrugenix/auth",
+  "name": "@arche-cms/auth",
   "version": "0.1.0",
   "type": "module",
   "main": "dist/index.js",
@@ -26,8 +26,8 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@altrugenix/database": "workspace:*",
-    "@altrugenix/types": "workspace:*",
+    "@arche-cms/database": "workspace:*",
+    "@arche-cms/types": "workspace:*",
     "bcryptjs": "^3.0.3",
     "jose": "^6.2.3"
   },

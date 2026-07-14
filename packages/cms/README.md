@@ -1,11 +1,11 @@
-# @altrugenix/cms
+# @arche-cms/cms
 
-The main Altrugenix CMS package. Provides a `cms` binary for development, building, code generation, and schema management.
+The main ArcheCMS CMS package. Provides a `cms` binary for development, building, code generation, and schema management.
 
 ## Installation
 
 ```bash
-yarn add @altrugenix/cms
+yarn add @arche-cms/cms
 ```
 
 ## Commands

@@ -1,4 +1,4 @@
-import type { CollectionDefinition, FieldDefinition } from "@altrugenix/types";
+import type { CollectionDefinition, FieldDefinition } from "@arche-cms/types";
 
 export interface GraphQLGeneratorConfig {
   maxPageSize?: number;

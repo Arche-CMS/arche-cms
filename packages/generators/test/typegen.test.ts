@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { generateTypes } from "../src/typegen.js";
-import type { CollectionDefinition, ComponentDefinition } from "@altrugenix/types";
+import type { CollectionDefinition, ComponentDefinition } from "@arche-cms/types";
 
 describe("generateTypes", () => {
   it("generates interface for a basic collection", () => {

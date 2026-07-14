@@ -1,8 +1,8 @@
 import type { FastifyInstance } from "fastify";
 import mercurius from "mercurius";
-import type { DatabaseAdapter } from "@altrugenix/database";
-import type { CollectionDefinition } from "@altrugenix/types";
-import { generateTypeDefs, generateResolvers } from "@altrugenix/graphql";
+import type { DatabaseAdapter } from "@arche-cms/database";
+import type { CollectionDefinition } from "@arche-cms/types";
+import { generateTypeDefs, generateResolvers } from "@arche-cms/graphql";
 
 export async function registerGraphQL(
   fastify: FastifyInstance,
