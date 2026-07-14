@@ -15,6 +15,9 @@ export async function registerAuth(
   const authService = new AuthService(options.adapter, options.config);
   const jwtService = new JwtService(options.config);
 
+  await authService.init();
+  await authService.seedDefaultAdmin("admin123");
+
   fastify.decorate("auth", authService);
 
   fastify.decorateRequest("user", null);

@@ -182,6 +182,12 @@ importers:
 
   apps/playground: {}
 
+  apps/test-cms:
+    dependencies:
+      '@arche-cms/cms':
+        specifier: workspace:*
+        version: link:../../packages/cms
+
   packages/admin-ui: {}
 
   packages/auth:

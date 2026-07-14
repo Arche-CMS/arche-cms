@@ -22,8 +22,9 @@ function toPublicUser(user: AuthUser): PublicUser {
 }
 
 function isAuthUser(row: Record<string, unknown>): boolean {
+  const id = row.id;
   return (
-    typeof row.id === "string" &&
+    (typeof id === "string" || typeof id === "number") &&
     typeof row.email === "string" &&
     typeof row.password === "string" &&
     typeof row.role === "string"
@@ -37,10 +38,47 @@ function castAuthUser(row: Record<string, unknown>): AuthUser {
 export class AuthService {
   private readonly jwt: JwtService;
   private readonly db: DatabaseAdapter;
+  private initialized = false;
 
   constructor(db: DatabaseAdapter, config: AuthConfig) {
     this.db = db;
     this.jwt = new JwtService(config);
+  }
+
+  async init(): Promise<void> {
+    if (this.initialized) return;
+    await this.db.createTable(USERS_TABLE, {
+      email: "TEXT NOT NULL UNIQUE",
+      password: "TEXT NOT NULL",
+      role: "TEXT NOT NULL DEFAULT 'editor'",
+      createdAt: "TEXT NOT NULL",
+      updatedAt: "TEXT NOT NULL",
+    });
+    await this.db.createTable(RESET_TOKENS_TABLE, {
+      email: "TEXT NOT NULL",
+      token: "TEXT NOT NULL",
+      expiresAt: "TEXT NOT NULL",
+      createdAt: "TEXT NOT NULL",
+    });
+    this.initialized = true;
+  }
+
+  async seedDefaultAdmin(password: string): Promise<PublicUser | null> {
+    const existing = await this.db.findMany(USERS_TABLE, { limit: 1 });
+    if (existing.total > 0) return null;
+
+    const passwordHash = await hashPassword(password);
+    const now = new Date().toISOString();
+    const created = await this.db.create(USERS_TABLE, {
+      email: "admin@arche-cms.com",
+      password: passwordHash,
+      role: "admin",
+      createdAt: now,
+      updatedAt: now,
+    });
+
+    const { password: _, ...pub } = created;
+    return pub as unknown as PublicUser;
   }
 
   async register(input: RegisterInput): Promise<{ user: PublicUser; tokens: TokenPair }> {
