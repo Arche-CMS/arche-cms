@@ -1,6 +1,6 @@
 # TODO — ArcheCMS CMS
 
-> Project status: Milestone 9 complete (standalone CMS app). `cms dev` starts a Fastify server with REST + GraphQL + admin UI + auto-migration. Renamed scope from `@altrugenix/*` → `@arche-cms/*`. Publish workflow configured — pending `NPM_TOKEN` secret and `@arche-cms` npm org setup.
+> Project status: Milestone 9 complete. All 20 test packages pass (zero failures). Fixed pre-existing test failures: API mock adapter conflated internal tables (version history entries leaked into posts map); schema watcher tests made robust via polling instead of fixed delays. Publish workflow configured — pending `NPM_TOKEN` secret + `@arche-cms` npm org setup.
 
 ---
 

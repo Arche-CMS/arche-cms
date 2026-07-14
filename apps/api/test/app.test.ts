@@ -12,30 +12,42 @@ function createMockAdapter(): DatabaseAdapter {
   const users = new Map<string, Record<string, unknown>>();
   let nextUserId = 1;
 
+  const internal = new Map<string, Record<string, unknown>>();
+  let nextInternalId = 1;
+
+  function tableStore(_table: string): Map<string, Record<string, unknown>> | null {
+    if (_table === "__cms_posts") return posts;
+    if (_table === "__cms_users") return users;
+    if (_table.startsWith("__cms_")) return internal;
+    return posts;
+  }
+
+  function nextId(_table: string): () => string {
+    if (_table === "__cms_users") return () => String(nextUserId++);
+    if (_table.startsWith("__cms_")) return () => String(nextInternalId++);
+    return () => String(nextPostId++);
+  }
+
   return {
     findOne: async (_table: string, id: string) => {
-      if (_table === "__cms_users") return users.get(id) ?? null;
-      return posts.get(id) ?? null;
+      const store = tableStore(_table);
+      return store?.get(id) ?? null;
     },
     findMany: async (_table: string, options) => {
-      if (_table === "__cms_users") {
-        const all = [...users.values()];
-        const email = options?.where?.email;
-        const filtered = email ? all.filter((r) => r.email === email) : all;
+      const store = tableStore(_table);
+      if (!store) return { data: [], total: 0 };
+      const all = [...store.values()];
+      if (options?.where?.email) {
+        const filtered = all.filter((r) => r.email === options.where.email);
         return { data: filtered.slice(0, options?.limit ?? 100), total: filtered.length };
       }
-      return { data: [...posts.values()], total: posts.size };
+      return { data: all.slice(0, options?.limit ?? 100), total: all.length };
     },
     create: async (_table: string, data: Record<string, unknown>) => {
-      if (_table === "__cms_users") {
-        const id = String(nextUserId++);
-        const record = { id, ...data };
-        users.set(id, record);
-        return record;
-      }
-      const id = String(nextPostId++);
+      const store = tableStore(_table);
+      const id = nextId(_table)();
       const record = { id, ...data };
-      posts.set(id, record);
+      store?.set(id, record);
       return record;
     },
     update: async () => null,

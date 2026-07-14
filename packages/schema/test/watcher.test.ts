@@ -24,6 +24,13 @@ async function createSchema(dir: string, slug: string) {
   );
 }
 
+async function waitForEvent(events: unknown[], timeout = 3000): Promise<void> {
+  const deadline = Date.now() + timeout;
+  while (events.length === 0 && Date.now() < deadline) {
+    await new Promise((r) => setTimeout(r, 25));
+  }
+}
+
 function assertEvent(events: SchemaChangeEvent[], slug: string): SchemaChangeEvent {
   const event = events.find((e) => e.slug === slug);
   expect(event).toBeDefined();
@@ -41,7 +48,7 @@ describe("SchemaWatcher", () => {
 
     await watcher.start();
     await createSchema(resolve(testDir, "collections"), "posts");
-    await new Promise((r) => setTimeout(r, 500));
+    await waitForEvent(events);
 
     expect(events.length).toBeGreaterThan(0);
     const event = assertEvent(events, "posts");
@@ -60,7 +67,7 @@ describe("SchemaWatcher", () => {
 
     await watcher.start();
     await createSchema(resolve(testDir, "globals"), "site-settings");
-    await new Promise((r) => setTimeout(r, 500));
+    await waitForEvent(events);
 
     const event = assertEvent(events, "site-settings");
     expect(event.category).toBe("globals");
@@ -80,7 +87,7 @@ describe("SchemaWatcher", () => {
 
     await watcher.start();
     await createSchema(resolve(testDir, "components"), "hero");
-    await new Promise((r) => setTimeout(r, 500));
+    await waitForEvent(events);
 
     const event = assertEvent(events, "hero");
     expect(event.category).toBe("components");
@@ -99,7 +106,8 @@ describe("SchemaWatcher", () => {
     await watcher.start();
     await mkdir(resolve(testDir, "collections"), { recursive: true });
     await writeFile(resolve(testDir, "collections", "notes.txt"), "hello", "utf-8");
-    await new Promise((r) => setTimeout(r, 500));
+    // Wait briefly — no event expected, but we need to be sure the watcher had time to not fire
+    await new Promise((r) => setTimeout(r, 600));
 
     const notesEvents = events.filter((e) => e.slug === "notes");
     expect(notesEvents).toHaveLength(0);
