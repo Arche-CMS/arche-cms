@@ -1,5 +1,11 @@
 # @arche-cms/schema
 
+## 0.1.1
+
+### Patch Changes
+
+- 3be2207: fix: replace workspace:* with version ranges for npm compatibility
+
 ## 0.1.0
 
 ### Minor Changes
