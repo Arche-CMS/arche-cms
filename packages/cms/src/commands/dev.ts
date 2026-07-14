@@ -1,5 +1,9 @@
 /* eslint-disable no-console */
 
+import { existsSync, mkdirSync, cpSync } from "node:fs";
+import { execSync } from "node:child_process";
+import { resolve, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
 import { SchemaWatcher } from "@arche-cms/schema";
 import type { SchemaChangeEvent } from "@arche-cms/schema";
 import { SQLiteAdapter, PostgresAdapter } from "@arche-cms/database";
@@ -42,11 +46,41 @@ Options:
   process.exit(0);
 }
 
+function ensureAdminBuild(logger: ReturnType<typeof createLogger>): void {
+  const currentDir = dirname(fileURLToPath(import.meta.url));
+  const bundledAdmin = resolve(currentDir, "../../../admin");
+
+  if (existsSync(bundledAdmin) && existsSync(resolve(bundledAdmin, "index.html"))) return;
+
+  const monorepoAdmin = resolve(process.cwd(), "apps/admin");
+  if (existsSync(monorepoAdmin)) {
+    logger.info("Admin panel build not found — building from source...");
+    try {
+      execSync("pnpm --filter @arche-cms/admin build", {
+        stdio: "inherit",
+        env: { ...process.env, NODE_ENV: "production" },
+      });
+      const adminDist = resolve(monorepoAdmin, "dist");
+      if (existsSync(adminDist)) {
+        const adminOut = resolve(currentDir, "../../../admin");
+        if (!existsSync(adminOut)) mkdirSync(adminOut, { recursive: true });
+        cpSync(adminDist, adminOut, { recursive: true });
+        logger.info("Admin panel built and copied");
+      }
+    } catch {
+      logger.warn("Admin panel build failed — admin UI will not be available");
+    }
+  } else {
+    logger.warn("Admin panel not found at " + bundledAdmin);
+  }
+}
+
 export async function dev(options: DevOptions): Promise<void> {
   const logger = createLogger({ level: "info", prefix: "cms" });
 
   ensureDevAuthSecret(logger);
   applyCliOverrides(options);
+  ensureAdminBuild(logger);
 
   const config = loadConfig();
   const schemaDir = config.schema.baseDir;

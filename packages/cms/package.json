@@ -12,8 +12,9 @@
     }
   },
   "files": [
-    "dist",
-    "bin"
+    "admin",
+    "bin",
+    "dist"
   ],
   "publishConfig": {
     "access": "public"

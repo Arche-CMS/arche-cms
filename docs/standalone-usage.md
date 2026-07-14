@@ -4,15 +4,55 @@ You can use Arche CMS without cloning the monorepo. The `@arche-cms/cms` package
 
 ## Quick start
 
+### Scaffold a new project
+
 ```bash
-npx @arche-cms/cms dev
+npx @arche-cms/create-app my-cms
+cd my-cms
+pnpm install
+pnpm dev
 ```
 
-This will:
+### Or use an existing project
 
-1. Create a `cms/` directory with example schema files
-2. Start the CMS server on `http://localhost:3000`
-3. Watch schema files for changes and hot-reload
+```bash
+npm install @arche-cms/cms
+npx cms dev
+```
+
+## What you get
+
+When you run `cms dev`, Arche starts a full CMS server at `http://localhost:3000`:
+
+| Endpoint                                 | Description                         |
+| ---------------------------------------- | ----------------------------------- |
+| `http://localhost:3000`                  | Admin panel (login, content editor) |
+| `http://localhost:3000/docs`             | Swagger UI (REST API docs)          |
+| `http://localhost:3000/graphql`          | GraphQL playground                  |
+| `http://localhost:3000/api/<collection>` | REST CRUD endpoints                 |
+| `http://localhost:3000/graphiql`         | GraphiQL IDE                        |
+| `http://localhost:3000/health`           | Health check                        |
+
+### Example REST endpoints
+
+If you have a `posts` collection in `cms/collections/posts.ts`:
+
+```bash
+# List all posts
+curl http://localhost:3000/api/posts
+
+# Get a post by ID
+curl http://localhost:3000/api/posts/1
+
+# Create a post
+curl -X POST http://localhost:3000/api/posts \
+  -H "Content-Type: application/json" \
+  -d '{"title": "Hello World", "status": "draft"}'
+```
+
+### Auto-migrations
+
+On first start, Arche auto-creates the SQLite database and runs any pending migrations based on your schema files. No manual setup needed.
 
 ## Production deployment
 

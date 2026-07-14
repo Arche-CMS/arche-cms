@@ -351,6 +351,8 @@ Currently the API server lives in `apps/api` and the CLI is a schema watcher tha
 - [x] Wire schema watcher into server hot-reload (debounced close + re-create Fastify)
 - [x] Add `cms start` command for production (no file watching, no hot-reload)
 - [x] Auto-migrate on startup: `getExistingSchema` added to DatabaseAdapter interface and implemented in SQLite + Postgres adapters; `connectAndLoad` now generates and runs pending migrations
+- [ ] **Verify `cms dev` starts REST + GraphQL APIs in standalone app** — scaffold a project with `npx @arche-cms/create-app`, run `cd <project> && pnpm install && pnpm dev`, then test `GET /api/posts`, `POST /api/posts`, GraphQL at `/graphql`, Swagger at `/docs`
+- [ ] **Verify `cms dev` serves admin panel** — check that `http://localhost:3000` renders the admin login page (requires v0.1.1+ package published with bundled admin)
 
 ### Admin Panel Bundling (`apps/admin`)
 
@@ -359,6 +361,8 @@ Currently the API server lives in `apps/api` and the CLI is a schema watcher tha
 - [x] Serve static admin panel from Fastify with SPA `index.html` fallback via `@fastify/static`
 - [x] Add environment-aware admin URL: dev uses Vite dev server (port 5173), production uses bundled static
 - [x] Auto-build admin panel as part of `cms build` pipeline before server build
+- [x] **Bundle admin panel build with published `@arche-cms/cms` package** — copied `apps/admin/dist/` into `packages/cms/admin/`; updated `registerAdminStatic` to resolve from `import.meta.url` (package install path); added `"admin"` to `"files"` array in `packages/cms/package.json`
+- [x] **Serve admin panel in `cms dev`** — added `ensureAdminBuild()` check: if bundled admin is missing and monorepo `apps/admin/` exists, auto-builds it with `pnpm --filter @arche-cms/admin build` and copies to `packages/cms/admin/`; otherwise logs a warning
 
 ### Package Restructuring
 
@@ -389,11 +393,14 @@ Currently the API server lives in `apps/api` and the CLI is a schema watcher tha
 ### Production Build (`cms build`)
 
 - [x] Build admin panel + server code in one command
-- [x] Support `--out-dir` flag with full production bundle assembly
+- [x] Support `--out-dir` flag with full production bundle assembly (copies admin build + server dist + generates package.json/Dockerfile)
 - [x] Generate `package.json`, `Dockerfile`, and `.dockerignore` in output
+- [x] **Include admin build in production bundle** — `cms build` now copies admin build to `packages/cms/admin/` as part of the build pipeline; `cms build --out-dir` includes admin files in the output bundle; Dockerfile updated to Node 24 + pnpm
 
 ### Documentation
 
 - [x] Update root README with `npx @arche-cms/cms dev` quick start
 - [x] Write "Usage as a Standalone App" guide in `docs/standalone-usage.md`
+- [x] Update scaffold template to use pnpm
+- [ ] **Update standalone-usage.md** — document that `cms dev` starts a full server with REST + GraphQL APIs at `localhost:3000`, admin panel at `localhost:3000`, and Swagger at `/docs`; include a "What you get" section showing the default posts collection API endpoints
 - [ ] Create v0.2.0 release (after npm publish via GitHub Actions — tag + GitHub Release)

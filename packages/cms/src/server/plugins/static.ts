@@ -1,7 +1,11 @@
 import { existsSync } from "node:fs";
-import { resolve } from "node:path";
+import { resolve, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
 import type { FastifyInstance } from "fastify";
 import fastifyStatic from "@fastify/static";
+
+const currentDir = dirname(fileURLToPath(import.meta.url));
+const bundledAdminDir = resolve(currentDir, "../../../admin");
 
 export interface AdminStaticOptions {
   adminDir?: string;
@@ -11,8 +15,7 @@ export async function registerAdminStatic(
   fastify: FastifyInstance,
   options: AdminStaticOptions,
 ): Promise<void> {
-  const adminDir =
-    options.adminDir ?? process.env.CMS_ADMIN_DIR ?? resolve(process.cwd(), "apps/admin/dist");
+  const adminDir = options.adminDir ?? process.env.CMS_ADMIN_DIR ?? bundledAdminDir;
 
   if (!existsSync(adminDir)) {
     fastify.log.warn(

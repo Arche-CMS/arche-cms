@@ -24,14 +24,14 @@ Options:
 }
 
 function generateDockerfile(outDir: string): void {
-  const dockerfile = `FROM node:22-alpine AS runner
+  const dockerfile = `FROM node:24-alpine AS runner
 WORKDIR /app
 
 RUN addgroup --system --gid 1001 nodejs && \\
     adduser --system --uid 1001 cms
 
-COPY package.json ./
-RUN corepack enable && yarn install --production --frozen-lockfile
+COPY package.json pnpm-lock.yaml ./
+RUN corepack enable && pnpm install --prod --frozen-lockfile
 
 COPY . .
 
@@ -67,7 +67,7 @@ function generatePackageJson(outDir: string): void {
     version: "0.0.1",
     private: true,
     type: "module",
-    packageManager: "yarn@4.17.0",
+    packageManager: "pnpm@10.10.0",
     scripts: {
       start: "node dist/index.js start",
     },
@@ -92,6 +92,7 @@ function generatePackageJson(outDir: string): void {
 
 const ADMIN_DIST = "apps/admin/dist";
 const CMS_DIST = "packages/cms/dist";
+const CMS_ADMIN_DIR = "packages/cms/admin";
 
 export async function build(options: BuildOptions): Promise<void> {
   const log = (msg: string) => console.log(`[cms] ${msg}`);
@@ -100,13 +101,13 @@ export async function build(options: BuildOptions): Promise<void> {
 
   if (options.clean) {
     log("Cleaning build artifacts...");
-    execSync("yarn clean", { stdio: "inherit" });
+    execSync("pnpm clean", { stdio: "inherit" });
   }
 
   // Build the admin panel UI (Vite SPA)
   log("Building admin panel...");
   try {
-    execSync("yarn workspace @arche-cms/admin build", {
+    execSync("pnpm --filter @arche-cms/admin build", {
       stdio: "inherit",
       env: { ...process.env, NODE_ENV: "production" },
     });
@@ -115,9 +116,17 @@ export async function build(options: BuildOptions): Promise<void> {
     log("Warning: admin panel build failed (admin-ui will not be available)");
   }
 
+  // Copy admin build into packages/cms/admin/ for bundled distribution
+  if (existsSync(ADMIN_DIST)) {
+    const adminOut = CMS_ADMIN_DIR;
+    if (!existsSync(adminOut)) mkdirSync(adminOut, { recursive: true });
+    cpSync(ADMIN_DIST, adminOut, { recursive: true });
+    log(`Admin panel copied to ${adminOut}/`);
+  }
+
   // Build the TypeScript server code
   log("Building server code...");
-  execSync("yarn workspace @arche-cms/cms build", { stdio: "inherit" });
+  execSync("pnpm --filter @arche-cms/cms build", { stdio: "inherit" });
 
   log("Build complete");
   log(`  Admin panel: ${ADMIN_DIST}/`);

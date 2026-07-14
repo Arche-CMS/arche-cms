@@ -5,7 +5,8 @@
     "**/dist/**",
     "**/.turbo/**",
     "**/coverage/**",
-    "**/.vitepress/cache/**"
+    "**/.vitepress/cache/**",
+    "packages/cms/admin/**"
   ],
   "ignoreDependencies": [
     "@arche-cms/types",
