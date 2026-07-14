@@ -1,5 +1,5 @@
 import pg from "pg";
-import type { DatabaseAdapter, Migration, QueryOptions } from "./types.js";
+import type { DatabaseAdapter, ExistingSchema, Migration, QueryOptions } from "./types.js";
 
 export interface PostgresAdapterOptions {
   connectionString: string;
@@ -180,6 +180,21 @@ export class PostgresAdapter implements DatabaseAdapter {
   async getExecutedMigrations(): Promise<string[]> {
     const result = await this.query("SELECT id FROM __cms_migrations ORDER BY executed_at ASC");
     return result.rows.map((r) => r.id as string);
+  }
+
+  async getExistingSchema(): Promise<ExistingSchema> {
+    const tables = new Map<string, string[]>();
+    const result = await this.query(
+      "SELECT table_name, column_name FROM information_schema.columns WHERE table_schema = 'public' AND table_name LIKE '__cms_%' ORDER BY table_name, ordinal_position",
+    );
+    for (const row of result.rows) {
+      const tableName = row.table_name as string;
+      const columnName = row.column_name as string;
+      if (!tables.has(tableName)) tables.set(tableName, []);
+      const cols = tables.get(tableName);
+      if (cols) cols.push(columnName);
+    }
+    return { tables };
   }
 
   private async ensureMigrationsTable(): Promise<void> {

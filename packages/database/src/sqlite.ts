@@ -1,6 +1,6 @@
 import { createClient } from "@libsql/client";
 import type { InValue } from "@libsql/client";
-import type { DatabaseAdapter, Migration, QueryOptions } from "./types.js";
+import type { DatabaseAdapter, ExistingSchema, Migration, QueryOptions } from "./types.js";
 
 type LibSqlClient = ReturnType<typeof createClient>;
 
@@ -187,6 +187,20 @@ export class SQLiteAdapter implements DatabaseAdapter {
       "SELECT id FROM __cms_migrations ORDER BY executed_at ASC",
     );
     return result.rows.map((r) => (r as Record<string, unknown>).id as string);
+  }
+
+  async getExistingSchema(): Promise<ExistingSchema> {
+    const tables = new Map<string, string[]>();
+    const tableResult = await this.db.execute(
+      "SELECT name FROM sqlite_master WHERE type='table' AND name LIKE '__cms_%'",
+    );
+    for (const row of tableResult.rows) {
+      const tableName = (row as Record<string, unknown>).name as string;
+      const colResult = await this.db.execute(`PRAGMA table_info("${tableName}")`);
+      const columns = colResult.rows.map((r) => (r as Record<string, unknown>).name as string);
+      tables.set(tableName, columns);
+    }
+    return { tables };
   }
 
   private async ensureMigrationsTable(): Promise<void> {

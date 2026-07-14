@@ -36,13 +36,27 @@ export default defineCollection({
 
 ## Quick Start
 
+### Use via npx (no install)
+
 ```bash
-# Clone and install
+npx @altrugenix/cms dev
+```
+
+This starts a full CMS server with an admin panel, REST API, and GraphQL playground — no configuration needed.
+
+### Or install globally
+
+```bash
+npm install -g @altrugenix/cms
+cms dev
+```
+
+### Or clone the monorepo
+
+```bash
 git clone https://github.com/Altrugenix/cms.git
 cd cms
 yarn install
-
-# Start development
 yarn dev
 ```
 
@@ -57,6 +71,7 @@ altrugenix_cms/
 │   ├── api/            # Fastify API server
 │   └── docs/           # Documentation site (VitePress)
 ├── packages/
+│   ├── cms/            # Main CMS package (CLI + server)
 │   ├── core/           # DI container, event bus, lifecycle
 │   ├── schema/         # defineCollection API, field helpers, validation
 │   ├── database/       # Drizzle ORM adapter (SQLite, PostgreSQL)
@@ -68,7 +83,6 @@ altrugenix_cms/
 │   ├── generators/     # Code generation pipeline
 │   ├── storage/        # Local, S3, R2 adapters
 │   ├── plugins/        # Plugin system + official plugins
-│   ├── cli/            # CLI tools
 │   ├── admin-ui/       # Shared admin components
 │   ├── sdk/            # TypeScript client SDK
 │   └── types/          # Shared TypeScript types

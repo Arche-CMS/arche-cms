@@ -72,7 +72,7 @@ export async function start(options: StartOptions): Promise<void> {
   };
 
   try {
-    const { collections, globals } = await connectAndLoad(config, adapter);
+    const { collections, globals } = await connectAndLoad(config, adapter, logger);
     logger.info(`Loaded ${collections.length} collection(s), ${globals.length} global(s)`);
 
     const server = await createAndStartApp(config, adapter, collections, globals, pluginHooks);

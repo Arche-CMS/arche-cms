@@ -50,4 +50,5 @@ export interface DatabaseAdapter {
 
   runMigration(migration: Migration): Promise<void>;
   getExecutedMigrations(): Promise<string[]>;
+  getExistingSchema(): Promise<ExistingSchema>;
 }

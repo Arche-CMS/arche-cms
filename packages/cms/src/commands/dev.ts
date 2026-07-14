@@ -83,7 +83,7 @@ export async function dev(options: DevOptions): Promise<void> {
 
   async function start(): Promise<void> {
     try {
-      const { collections, globals } = await connectAndLoad(config, adapter);
+      const { collections, globals } = await connectAndLoad(config, adapter, logger);
 
       logger.info(`Loaded ${collections.length} collection(s), ${globals.length} global(s)`);
 
@@ -114,7 +114,7 @@ export async function dev(options: DevOptions): Promise<void> {
           await currentServer.stop();
         }
 
-        const { collections, globals } = await connectAndLoad(config, adapter);
+        const { collections, globals } = await connectAndLoad(config, adapter, logger);
 
         logger.info(`Reloaded ${collections.length} collection(s), ${globals.length} global(s)`);
 

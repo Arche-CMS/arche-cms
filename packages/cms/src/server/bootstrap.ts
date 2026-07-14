@@ -1,6 +1,7 @@
 import { existsSync, writeFileSync } from "node:fs";
 import type { FastifyInstance } from "fastify";
 import { SchemaLoader } from "@altrugenix/schema";
+import { MigrationGenerator, MigrationRunner } from "@altrugenix/database";
 import type { DatabaseAdapter } from "@altrugenix/database";
 import type { CollectionDefinition, GlobalDefinition } from "@altrugenix/types";
 import { LocalStorageAdapter } from "@altrugenix/storage";
@@ -72,16 +73,26 @@ export function applyCliOverrides(options: {
 export async function connectAndLoad(
   config: ServerConfig,
   adapter: DatabaseAdapter,
+  logger?: Logger,
 ): Promise<{ collections: CollectionDefinition[]; globals: GlobalDefinition[] }> {
   await adapter.connect();
   await adapter.raw("SELECT 1");
 
   const schemaLoader = new SchemaLoader({ baseDir: config.schema.baseDir });
   const schemas = await schemaLoader.load();
-  return {
-    collections: Array.from(schemas.collections.values()),
-    globals: Array.from(schemas.globals.values()),
-  };
+  const collections = Array.from(schemas.collections.values());
+  const globals = Array.from(schemas.globals.values());
+
+  const existingSchema = await adapter.getExistingSchema();
+  const generator = new MigrationGenerator();
+  const migrations = generator.generate(collections, existingSchema);
+  if (migrations.length > 0) {
+    const runner = new MigrationRunner(adapter);
+    await runner.run(migrations);
+    (logger ?? console).info(`Applied ${migrations.length} auto-migration(s)`);
+  }
+
+  return { collections, globals };
 }
 
 export async function createAndStartApp(

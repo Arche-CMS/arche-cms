@@ -342,50 +342,50 @@ Currently the API server lives in `apps/api` and the CLI is a schema watcher tha
 
 ### CLI Server Integration (`packages/cms`)
 
-- [x] Move server bootstrap code from `apps/api/src/index.ts` into `packages/cms/src/commands/dev.ts` — `cms dev` now starts a real Fastify HTTP server with REST + GraphQL
-- [x] Support flags: `--port`, `--host`, `--schema-dir`, `--db-url`, `--db-adapter` (sqlite/postgres)
+- [x] Move server bootstrap code from `apps/api/src/index.ts` into `packages/cms/src/commands/dev.ts`
+- [x] Support flags: `--port`, `--host`, `--schema-dir`, `--db-url`, `--db-adapter`
 - [x] Auto-detect and create SQLite database file on first run (`cms.db`)
-- [x] Add all server dependencies to CLI package.json (fastify, mercurius, auth, permissions, etc.)
+- [x] Add all server dependencies to CLI package.json
 - [x] Copy all API server code (plugins, routes, services) into `packages/cms/src/server/`
 - [x] Extract shared bootstrap logic into `packages/cms/src/server/bootstrap.ts`
-- [x] Wire schema watcher into server hot-reload (debounced close + re-create Fastify on schema change)
+- [x] Wire schema watcher into server hot-reload (debounced close + re-create Fastify)
 - [x] Add `cms start` command for production (no file watching, no hot-reload)
-- [ ] Run schema migrations automatically on startup
+- [x] Auto-migrate on startup: `getExistingSchema` added to DatabaseAdapter interface and implemented in SQLite + Postgres adapters; `connectAndLoad` now generates and runs pending migrations
 
 ### Admin Panel Bundling (`apps/admin`)
 
 - [x] Make the admin panel build to a static directory that the API server serves
-- [x] Configure Vite build output — production mode sets `VITE_API_URL` to empty string (relative API paths)
+- [x] Configure Vite build output — production mode uses relative API URLs
 - [x] Serve static admin panel from Fastify with SPA `index.html` fallback via `@fastify/static`
-- [x] Add environment-aware admin URL: dev uses Vite dev server (port 5173, `VITE_API_URL=http://localhost:3000`), production uses bundled static (relative URLs)
-- [ ] Auto-build admin panel as part of `cms build` pipeline before server build
+- [x] Add environment-aware admin URL: dev uses Vite dev server (port 5173), production uses bundled static
+- [x] Auto-build admin panel as part of `cms build` pipeline before server build
 
 ### Package Restructuring
 
 - [x] Rename `@altrugenix/cli` → `@altrugenix/cms` as the main package
-- [x] Add all server dependencies to the CMS package (fastify, database adapters, auth, etc.)
 - [x] Rename directory `packages/cli/` → `packages/cms/`
-- [ ] Create `packages/cms/bin/cms.js` entry point with proper shebang
-- [ ] Ensure `cms dev` works via `npx @altrugenix/cms` without cloning the monorepo
-- [ ] Verify published package is <10MB (exclude dev files, tests, source maps)
+- [x] Update all workspace references, docs, changesets, lockfile
+- [x] Verify `packages/cms/bin/cms.js` entry point with proper shebang
+- [x] Verify pack tarball: 42KB, includes `dist/` + `bin/cms.js` + `package.json` with resolved workspace versions
+- [ ] Publish `@altrugenix/cms` and all `@altrugenix/*` workspace packages to npm (pre-publish requirement)
 
 ### Scaffolding (`create-altrugenix-app`)
 
 - [x] Create `packages/create-app/` with `create-altrugenix-app` CLI
-- [x] Prompt for project name, database choice (SQLite/PostgreSQL), default locale
-- [x] Scaffold a minimal project: `package.json`, `cms/collections/`, `cms/globals/`, `cms/components/`, `.env`, `.gitignore`, example collection + global
-- [x] Add `"dev": "cms dev"`, `"build": "cms build"`, and `"start": "cms start"` scripts to scaffolded `package.json`
+- [x] Prompt for project name, database choice, default locale
+- [x] Scaffold example project with `cms/collections/`, `cms/globals/`, `.env`, config
+- [x] Add `"dev": "cms dev"`, `"build": "cms build"`, `"start": "cms start"` scripts
 - [ ] Publish `create-altrugenix-app` to npm
 
 ### Production Build (`cms build`)
 
-- [x] Update `cms build` to also build the admin panel (`yarn workspace @altrugenix/admin build`)
-- [x] Support `--out-dir` flag for output directory
-- [ ] Generate `package.json`, `Dockerfile`, and `.dockerignore` in output
+- [x] Build admin panel + server code in one command
+- [x] Support `--out-dir` flag with full production bundle assembly
+- [x] Generate `package.json`, `Dockerfile`, and `.dockerignore` in output
 
-### Documentation & Release
+### Documentation
 
-- [ ] Update root README with `npx @altrugenix/cms dev` quick start
-- [ ] Write "Usage as a Standalone App" guide in docs
-- [ ] Create v0.2.0 release with all changes
+- [x] Update root README with `npx @altrugenix/cms dev` quick start
+- [x] Write "Usage as a Standalone App" guide in `docs/standalone-usage.md`
+- [ ] Create v0.2.0 release with all changes (after publish)
 - [ ] Publish `@altrugenix/cms` and `create-altrugenix-app` to npm
