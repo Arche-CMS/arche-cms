@@ -1,6 +1,6 @@
 # TODO — Altrugenix CMS
 
-> Project status: Milestone 8 complete. **~430 tests** across all packages. Documentation site live at apps/docs. Audits complete (performance, security, accessibility). All content workflow features done (draft/publish, soft delete, scheduled publishing, version history, localization).
+> Project status: Milestone 8 complete. **~430 tests** across all packages. Documentation site live at apps/docs. Audits complete (performance, security, accessibility). All content workflow features done (draft/publish, soft delete, scheduled publishing, version history, localization). Standalone app tasks planned.
 
 ---
 
@@ -323,3 +323,56 @@
 - [x] Configure npm package publishing for all packages
 - [x] Set up CHANGELOG generation
 - [x] Create v0.1.0 release (changeset)
+
+---
+
+## Milestone 9: Standalone CMS App (Next)
+
+### Objective
+
+Make `npx @altrugenix/cms dev` work like Strapi — a single command that starts a full CMS server (REST + GraphQL + admin panel) with zero configuration. Currently the API server lives in `apps/api` and the CLI is a schema watcher that doesn't start an HTTP server.
+
+### CLI Server Integration (`packages/cli`)
+
+- [ ] Move `apps/api/src/index.ts` server bootstrap into `packages/cli/src/commands/dev.ts` so `cms dev` starts a real HTTP server
+- [ ] Support flags: `--port`, `--host`, `--schema-dir`, `--db-url`, `--db-adapter` (sqlite/postgres)
+- [ ] Auto-detect and create SQLite database on first run
+- [ ] Run migrations automatically on startup
+- [ ] Wire schema watcher into server hot-reload (reload schemas without restart)
+- [ ] Add `cms start` command for production (no file watching, optimized)
+
+### Admin Panel Bundling (`apps/admin`)
+
+- [ ] Make the admin panel build to a static directory that the API server serves
+- [ ] Configure Vite build to output to `apps/api/public/`
+- [ ] Serve static admin panel from Fastify with fallback to `index.html` for SPA routing
+- [ ] Add environment-aware admin URL: dev uses Vite dev server (port 5173), production uses bundled static
+
+### Package Restructuring
+
+- [ ] Rename `@altrugenix/cli` → `@altrugenix/cms` as the main package
+- [ ] Add all server dependencies to the CLI package (fastify, database adapters, auth, etc.)
+- [ ] Create `packages/cms/bin/cms.js` entry point with proper shebang
+- [ ] Ensure `cms dev` works via `npx @altrugenix/cms` without cloning the monorepo
+- [ ] Verify published package is <10MB (exclude dev files, tests, source maps)
+
+### Scaffolding (`create-altrugenix-app`)
+
+- [ ] Create `packages/create-app/` with `create-altrugenix-app` CLI
+- [ ] Prompt for project name, database choice (SQLite/PostgreSQL), default locale
+- [ ] Scaffold a minimal project: `package.json`, `cms/collections/`, `cms/globals/`, `cms/components/`, `.env`, `altrugenix.config.ts`
+- [ ] Add `"dev": "cms dev"` and `"build": "cms build"` scripts to scaffolded `package.json`
+- [ ] Publish `create-altrugenix-app` to npm
+
+### Production Build (`cms build`)
+
+- [ ] Update `cms build` to compile the API server + admin panel into a production bundle
+- [ ] Support `--out-dir` flag for output directory
+- [ ] Generate `package.json`, `Dockerfile`, and `.dockerignore` in output
+
+### Documentation & Release
+
+- [ ] Update root README with `npx @altrugenix/cms dev` quick start
+- [ ] Write "Usage as a Standalone App" guide in docs
+- [ ] Create v0.2.0 release with all changes
+- [ ] Publish `@altrugenix/cms` and `create-altrugenix-app` to npm
