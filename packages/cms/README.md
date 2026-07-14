@@ -1,11 +1,11 @@
-# @altrugenix/cli
+# @altrugenix/cms
 
-Command-line tools for Altrugenix CMS. Provides commands for development, building, code generation, and schema management.
+The main Altrugenix CMS package. Provides a `cms` binary for development, building, code generation, and schema management.
 
 ## Installation
 
 ```bash
-yarn add @altrugenix/cli
+yarn add @altrugenix/cms
 ```
 
 ## Commands

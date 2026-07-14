@@ -43,11 +43,11 @@ export async function build(options: BuildOptions): Promise<void> {
 
   // Build the TypeScript server code
   console.log("[cms] Building server code...");
-  execSync("yarn workspace @altrugenix/cli build", { stdio: "inherit" });
+  execSync("yarn workspace @altrugenix/cms build", { stdio: "inherit" });
 
   console.log("[cms] Build complete");
   console.log("[cms]   Admin panel: apps/admin/dist/");
-  console.log("[cms]   Server code: packages/cli/dist/");
+  console.log("[cms]   Server code: packages/cms/dist/");
 
   if (options.outDir) {
     console.log(`[cms] Copying build to ${options.outDir}...`);

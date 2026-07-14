@@ -9,7 +9,7 @@ The Altrugenix CMS CLI provides commands for development, building, code generat
 yarn cms <command>
 
 # Or globally
-npm install -g @altrugenix/cli
+npm install -g @altrugenix/cms
 cms <command>
 ```
 

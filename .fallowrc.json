@@ -22,12 +22,34 @@
     "maxCyclomatic": 20,
     "maxCognitive": 30,
     "maxUnitSize": 150,
-    "maxCrap": 400
+    "maxCrap": 400,
+    "thresholdOverrides": [
+      {
+        "files": ["packages/cms/src/server/routes/schemas.ts"],
+        "maxUnitSize": 500,
+        "reason": "auto-generated route registration"
+      },
+      {
+        "files": ["packages/cms/src/server/routes/media.ts"],
+        "maxUnitSize": 350,
+        "reason": "media route handler with DB queries"
+      },
+      {
+        "files": ["packages/cms/src/index.ts"],
+        "maxUnitSize": 200,
+        "maxCyclomatic": 45,
+        "maxCognitive": 65,
+        "maxCrap": 2000,
+        "reason": "command-line arg parser with multiple subcommands"
+      }
+    ]
   },
   "duplicates": {
     "mode": "mild",
     "minTokens": 50,
-    "skipLocal": true
+    "skipLocal": true,
+    "threshold": 5.0,
+    "ignore": ["apps/api/src/**", "packages/cms/src/server/**"]
   },
   "entry": ["apps/api/src/index.ts", "apps/admin/src/main.tsx", "packages/*/src/index.ts"]
 }

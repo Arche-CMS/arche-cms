@@ -272,9 +272,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@altrugenix/cli@workspace:packages/cli":
+"@altrugenix/cms@workspace:packages/cms":
   version: 0.0.0-use.local
-  resolution: "@altrugenix/cli@workspace:packages/cli"
+  resolution: "@altrugenix/cms@workspace:packages/cms"
   dependencies:
     "@altrugenix/auth": "workspace:*"
     "@altrugenix/core": "workspace:*"

@@ -124,6 +124,6 @@ Types: `feat`, `fix`, `docs`, `refactor`, `test`, `chore`, `perf`
 | `@altrugenix/validation`  | Zod validation generator                           |
 | `@altrugenix/plugins`     | Plugin system + official plugins                   |
 | `@altrugenix/generators`  | Code generation pipeline                           |
-| `@altrugenix/cli`         | CLI tools                                          |
+| `@altrugenix/cms`         | CLI tools + server                                 |
 | `@altrugenix/admin-ui`    | Shared admin UI components                         |
 | `@altrugenix/sdk`         | TypeScript client SDK                              |

@@ -210,7 +210,7 @@
 
 ## Milestone 6: CLI & Code Generation (Weeks 17–18)
 
-### CLI Package (`packages/cli`)
+### CLI Package (`packages/cms`)
 
 - [x] Scaffold CLI with `cms` binary
 - [x] Implement `cms dev` (start dev server with file watching)
@@ -330,7 +330,7 @@
 
 ### Objective
 
-Make `cms dev` work like Strapi — a single command that starts a full CMS server (REST + GraphQL + admin panel) with zero configuration. The package `@altrugenix/cms` (currently `@altrugenix/cli`) exposes a `cms` binary so it works via:
+Make `cms dev` work like Strapi — a single command that starts a full CMS server (REST + GraphQL + admin panel) with zero configuration. The package `@altrugenix/cms` exposes a `cms` binary so it works via:
 
 ```bash
 npm install -g @altrugenix/cms     # global install → `cms dev`
@@ -340,14 +340,14 @@ npx @altrugenix/cms dev             # one-off, no install
 
 Currently the API server lives in `apps/api` and the CLI is a schema watcher that doesn't start an HTTP server.
 
-### CLI Server Integration (`packages/cli`)
+### CLI Server Integration (`packages/cms`)
 
-- [x] Move server bootstrap code from `apps/api/src/index.ts` into `packages/cli/src/commands/dev.ts` — `cms dev` now starts a real Fastify HTTP server with REST + GraphQL
+- [x] Move server bootstrap code from `apps/api/src/index.ts` into `packages/cms/src/commands/dev.ts` — `cms dev` now starts a real Fastify HTTP server with REST + GraphQL
 - [x] Support flags: `--port`, `--host`, `--schema-dir`, `--db-url`, `--db-adapter` (sqlite/postgres)
 - [x] Auto-detect and create SQLite database file on first run (`cms.db`)
 - [x] Add all server dependencies to CLI package.json (fastify, mercurius, auth, permissions, etc.)
-- [x] Copy all API server code (plugins, routes, services) into `packages/cli/src/server/`
-- [x] Extract shared bootstrap logic into `packages/cli/src/server/bootstrap.ts`
+- [x] Copy all API server code (plugins, routes, services) into `packages/cms/src/server/`
+- [x] Extract shared bootstrap logic into `packages/cms/src/server/bootstrap.ts`
 - [x] Wire schema watcher into server hot-reload (debounced close + re-create Fastify on schema change)
 - [x] Add `cms start` command for production (no file watching, no hot-reload)
 - [ ] Run schema migrations automatically on startup
@@ -362,8 +362,9 @@ Currently the API server lives in `apps/api` and the CLI is a schema watcher tha
 
 ### Package Restructuring
 
-- [ ] Rename `@altrugenix/cli` → `@altrugenix/cms` as the main package
-- [x] Add all server dependencies to the CLI package (fastify, database adapters, auth, etc.)
+- [x] Rename `@altrugenix/cli` → `@altrugenix/cms` as the main package
+- [x] Add all server dependencies to the CMS package (fastify, database adapters, auth, etc.)
+- [x] Rename directory `packages/cli/` → `packages/cms/`
 - [ ] Create `packages/cms/bin/cms.js` entry point with proper shebang
 - [ ] Ensure `cms dev` works via `npx @altrugenix/cms` without cloning the monorepo
 - [ ] Verify published package is <10MB (exclude dev files, tests, source maps)

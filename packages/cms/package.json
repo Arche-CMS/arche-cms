@@ -1,10 +1,8 @@
 {
-  "name": "@altrugenix/cli",
+  "name": "@altrugenix/cms",
   "version": "0.0.1",
   "type": "module",
-  "bin": {
-    "cms": "./bin/cms.js"
-  },
+  "bin": "./bin/cms.js",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {

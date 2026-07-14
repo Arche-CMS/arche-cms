@@ -2,7 +2,7 @@
 "@altrugenix/admin-ui": minor
 "@altrugenix/auth": minor
 "@altrugenix/builder": minor
-"@altrugenix/cli": minor
+"@altrugenix/cms": minor
 "@altrugenix/core": minor
 "@altrugenix/database": minor
 "@altrugenix/generators": minor
