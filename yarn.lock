@@ -296,7 +296,7 @@ __metadata:
     graphql: "npm:^16.0.0"
     mercurius: "npm:^16.9.0"
   bin:
-    cms: ./bin/cms.js
+    cms: bin/cms.js
   languageName: unknown
   linkType: soft
 
@@ -3977,7 +3977,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "create-arche-cms-app@workspace:packages/create-app"
   bin:
-    create-arche-cms-app: ./bin/create-arche-cms-app.js
+    create-arche-cms-app: bin/create-arche-cms-app.js
   languageName: unknown
   linkType: soft
 
