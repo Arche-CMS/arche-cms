@@ -1,6 +1,6 @@
 # TODO — Altrugenix CMS
 
-> Project status: Milestone 8 complete. **~430 tests** across all packages. Documentation site live at apps/docs. Audits complete (performance, security, accessibility). All content workflow features done (draft/publish, soft delete, scheduled publishing, version history, localization). Standalone app tasks planned.
+> Project status: Milestone 8 complete. **~430 tests** across all packages. Documentation site live at apps/docs. Audits complete (performance, security, accessibility). All content workflow features done (draft/publish, soft delete, scheduled publishing, version history, localization). Standalone app started — `cms dev` now starts a full Fastify server with REST + GraphQL + schema watching.
 
 ---
 
@@ -330,14 +330,24 @@
 
 ### Objective
 
-Make `npx @altrugenix/cms dev` work like Strapi — a single command that starts a full CMS server (REST + GraphQL + admin panel) with zero configuration. Currently the API server lives in `apps/api` and the CLI is a schema watcher that doesn't start an HTTP server.
+Make `cms dev` work like Strapi — a single command that starts a full CMS server (REST + GraphQL + admin panel) with zero configuration. The package `@altrugenix/cms` (currently `@altrugenix/cli`) exposes a `cms` binary so it works via:
+
+```bash
+npm install -g @altrugenix/cms     # global install → `cms dev`
+npm install @altrugenix/cms         # local dep → `yarn cms dev` / `npx cms dev`
+npx @altrugenix/cms dev             # one-off, no install
+```
+
+Currently the API server lives in `apps/api` and the CLI is a schema watcher that doesn't start an HTTP server.
 
 ### CLI Server Integration (`packages/cli`)
 
-- [ ] Move `apps/api/src/index.ts` server bootstrap into `packages/cli/src/commands/dev.ts` so `cms dev` starts a real HTTP server
-- [ ] Support flags: `--port`, `--host`, `--schema-dir`, `--db-url`, `--db-adapter` (sqlite/postgres)
-- [ ] Auto-detect and create SQLite database on first run
-- [ ] Run migrations automatically on startup
+- [x] Move server bootstrap code from `apps/api/src/index.ts` into `packages/cli/src/commands/dev.ts` — `cms dev` now starts a real Fastify HTTP server with REST + GraphQL
+- [x] Support flags: `--port`, `--host`, `--schema-dir`, `--db-url`, `--db-adapter` (sqlite/postgres)
+- [x] Auto-detect and create SQLite database file on first run (`cms.db`)
+- [x] Add all server dependencies to CLI package.json (fastify, mercurius, auth, permissions, etc.)
+- [x] Copy all API server code (plugins, routes, services) into `packages/cli/src/server/`
+- [ ] Run schema migrations automatically on startup
 - [ ] Wire schema watcher into server hot-reload (reload schemas without restart)
 - [ ] Add `cms start` command for production (no file watching, optimized)
 

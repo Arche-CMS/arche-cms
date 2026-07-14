@@ -7,9 +7,16 @@
   },
   "include": ["src"],
   "references": [
-    { "path": "../schema" },
+    { "path": "../auth" },
+    { "path": "../core" },
     { "path": "../database" },
     { "path": "../generators" },
+    { "path": "../graphql" },
+    { "path": "../permissions" },
+    { "path": "../plugins" },
+    { "path": "../rest-api" },
+    { "path": "../schema" },
+    { "path": "../storage" },
     { "path": "../types" }
   ]
 }
