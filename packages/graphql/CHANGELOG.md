@@ -1,5 +1,14 @@
 # @arche-cms/graphql
 
+## 0.1.1
+
+### Patch Changes
+
+- 3be2207: fix: replace workspace:* with version ranges for npm compatibility
+- Updated dependencies [3be2207]
+  - @arche-cms/database@0.1.1
+  - @arche-cms/validation@0.1.1
+
 ## 0.1.0
 
 ### Minor Changes
