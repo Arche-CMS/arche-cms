@@ -1,5 +1,19 @@
 # @arche-cms/cms
 
+## 0.1.3
+
+### Patch Changes
+
+- fix(database): lazy-load PostgresAdapter so pg is only imported when using postgres
+  feat(cms): bundle admin panel build inside published package, add optional pg peer dep
+- Updated dependencies
+  - @arche-cms/database@0.1.3
+  - @arche-cms/auth@0.1.3
+  - @arche-cms/generators@0.1.3
+  - @arche-cms/graphql@0.1.3
+  - @arche-cms/permissions@0.1.3
+  - @arche-cms/rest-api@0.1.3
+
 ## 0.1.2
 
 ### Patch Changes
