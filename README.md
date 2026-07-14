@@ -1,8 +1,8 @@
 # Arche CMS
 
-**File-based, open-source, developer-first headless CMS.**
+**Define schemas in TypeScript. Get a full CMS instantly.**
 
-Schema definitions live in source code files, not the database. The CMS automatically generates types, database schemas, migrations, REST + GraphQL APIs, Zod validation, and an admin panel — all from plain TypeScript schema files.
+Schema files are your source of truth — Arche generates types, database tables, migrations, REST + GraphQL APIs, validation, and an admin panel automatically. No database UI needed.
 
 ```ts
 // cms/collections/posts.ts
