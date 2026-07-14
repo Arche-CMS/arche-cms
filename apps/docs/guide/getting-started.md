@@ -87,3 +87,24 @@ The CMS automatically:
 - Generates the Admin UI form
 - Creates Zod validation schemas
 - Sets up permissions
+
+## Default Admin Account
+
+On first start, Arche auto-creates a default admin account:
+
+| Email                 | Password   |
+| --------------------- | ---------- |
+| `admin@arche-cms.com` | `admin123` |
+
+Change this password after your first login.
+
+### AUTH_SECRET
+
+In production (`cms start`), you **must** set the `AUTH_SECRET` environment variable:
+
+```bash
+export AUTH_SECRET=$(openssl rand -hex 32)
+cms start
+```
+
+In development (`cms dev`), a temporary secret is auto-generated if not set.
