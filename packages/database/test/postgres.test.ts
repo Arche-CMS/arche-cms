@@ -5,10 +5,10 @@ const PG_TEST_URL = process.env.PG_TEST_URL ?? "";
 const run = PG_TEST_URL ? describe : describe.skip;
 
 run("PostgresAdapter", () => {
-  let adapter: import("../src/index.js").PostgresAdapter;
+  let adapter: import("../src/postgres.js").PostgresAdapter;
 
   beforeAll(async () => {
-    const { PostgresAdapter } = await import("../src/index.js");
+    const { PostgresAdapter } = await import("../src/postgres.js");
     adapter = new PostgresAdapter({
       connectionString: PG_TEST_URL,
       poolSize: 2,
@@ -95,7 +95,7 @@ run("PostgresAdapter", () => {
   });
 
   it("handles pool configuration", async () => {
-    const { PostgresAdapter } = await import("../src/index.js");
+    const { PostgresAdapter } = await import("../src/postgres.js");
     const custom = new PostgresAdapter({
       connectionString: PG_TEST_URL,
       poolSize: 5,

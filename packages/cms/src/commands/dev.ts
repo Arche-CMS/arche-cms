@@ -6,7 +6,7 @@ import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { SchemaWatcher } from "@arche-cms/schema";
 import type { SchemaChangeEvent } from "@arche-cms/schema";
-import { SQLiteAdapter, PostgresAdapter } from "@arche-cms/database";
+import { SQLiteAdapter, createPostgresAdapter } from "@arche-cms/database";
 import { PluginManager, seoPlugin, discoverPlugins } from "@arche-cms/plugins";
 import { EventBus, Lifecycle, createLogger } from "@arche-cms/core";
 import { loadConfig } from "../server/config.js";
@@ -89,7 +89,7 @@ export async function dev(options: DevOptions): Promise<void> {
 
   const adapter =
     config.database.adapter === "postgres"
-      ? new PostgresAdapter({ connectionString: config.database.url })
+      ? await createPostgresAdapter({ connectionString: config.database.url })
       : new SQLiteAdapter(config.database.url);
 
   const eventBus = new EventBus();

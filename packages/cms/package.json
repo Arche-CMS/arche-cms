@@ -49,6 +49,18 @@
     "graphql": "^16.0.0",
     "mercurius": "^16.9.0"
   },
+  "peerDependencies": {
+    "@libsql/client": "^0.17.0",
+    "pg": "^8.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@libsql/client": {
+      "optional": true
+    },
+    "pg": {
+      "optional": true
+    }
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Arche-CMS/arche-cms.git",
