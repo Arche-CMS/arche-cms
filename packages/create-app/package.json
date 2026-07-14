@@ -2,7 +2,9 @@
   "name": "create-arche-cms-app",
   "version": "0.0.1",
   "type": "module",
-  "bin": "./bin/create-arche-cms-app.js",
+  "bin": {
+    "create-arche-cms-app": "./bin/create-arche-cms-app.js"
+  },
   "main": "dist/index.js",
   "files": [
     "dist",
