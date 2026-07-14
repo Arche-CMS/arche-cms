@@ -1,6 +1,6 @@
 # TODO — ArcheCMS CMS
 
-> Project status: Milestone 9 complete. All 20 test packages pass (zero failures). Fixed pre-existing test failures: API mock adapter conflated internal tables (version history entries leaked into posts map); schema watcher tests made robust via polling instead of fixed delays. Publish workflow configured — pending `NPM_TOKEN` secret + `@arche-cms` npm org setup.
+> Project status: Milestone 9 complete. All 20 test packages pass (zero failures). Fixed pre-existing test failures: API mock adapter conflated internal tables (version history entries leaked into posts map); schema watcher tests made robust via polling instead of fixed delays. Publish workflow configured (with `workflow_dispatch`, provenance, GitHub Releases). Pending `NPM_TOKEN` secret + `@arche-cms` npm org setup.
 
 ---
 
@@ -371,9 +371,11 @@ Currently the API server lives in `apps/api` and the CLI is a schema watcher tha
 - [x] Bump all packages to v0.1.0 via changeset
 - [x] Fix bin field format in cms (object form required for scoped packages)
 - [x] Create publish workflow (`.github/workflows/publish.yml` with changesets/action)
+- [x] Add `workflow_dispatch` trigger for manual publishing
+- [x] Enable npm provenance (`NPM_CONFIG_PROVENANCE`) and GitHub Release creation
 - [ ] **Manual:** Set `NPM_TOKEN` as a GitHub Actions secret in repo settings
 - [ ] **Manual:** Ensure `@arche-cms` org exists on npm with publish-capable token
-- [ ] **Manual:** Merge a changeset PR or push to `main` with pending changesets to trigger publish
+- [ ] **Manual:** Create a changeset (`yarn changeset`), push to `main`, merge the auto-generated version PR, and publishing happens automatically
 
 ### Scaffolding (`create-arche-cms-app`)
 
@@ -382,8 +384,7 @@ Currently the API server lives in `apps/api` and the CLI is a schema watcher tha
 - [x] Scaffold example project with `cms/collections/`, `cms/globals/`, `.env`, config
 - [x] Add `"dev": "cms dev"`, `"build": "cms build"`, `"start": "cms start"` scripts
 - [x] Fix bin field format (unscoped package — string form is fine)
-- [x] Create publish workflow (same publish.yml handles all packages)
-- [ ] **Manual:** Published automatically by the same publish workflow above
+- [x] Create publish workflow (same publish.yml handles all packages including this one)
 
 ### Production Build (`cms build`)
 
