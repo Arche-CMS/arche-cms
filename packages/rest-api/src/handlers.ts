@@ -126,6 +126,7 @@ function collectRelationIds(records: Record<string, unknown>[], field: string): 
   const isArrayMap = new Map<number, boolean>();
   for (let i = 0; i < records.length; i++) {
     const record = records[i];
+    if (record == null) continue;
     const value = record[field];
     if (value == null) continue;
     if (Array.isArray(value)) {
@@ -147,6 +148,7 @@ function attachRelatedRecords(
 ): void {
   for (let i = 0; i < records.length; i++) {
     const record = records[i];
+    if (record == null) continue;
     const value = record[field];
     if (value == null) continue;
     record[field] =
