@@ -47,6 +47,13 @@
         "maxCognitive": 65,
         "maxCrap": 2000,
         "reason": "command-line arg parser with multiple subcommands"
+      },
+      {
+        "files": ["packages/database/src/migration-generator.ts"],
+        "maxCyclomatic": 20,
+        "maxCognitive": 35,
+        "maxUnitSize": 250,
+        "reason": "table migration generator handles both collections and globals"
       }
     ]
   },
