@@ -173,10 +173,6 @@ export function registerGlobalRoutes(
           type: "object",
           properties: { slug: { type: "string", description: "Global slug" } },
         },
-        response: {
-          200: { type: "object" },
-          404: { type: "object", properties: { error: { type: "string" } } },
-        },
       },
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
@@ -205,11 +201,6 @@ export function registerGlobalRoutes(
         params: {
           type: "object",
           properties: { slug: { type: "string", description: "Global slug" } },
-        },
-        response: {
-          200: { type: "object" },
-          201: { type: "object" },
-          404: { type: "object", properties: { error: { type: "string" } } },
         },
       },
     },

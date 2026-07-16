@@ -28,19 +28,11 @@ async function ensureTables(adapter: DatabaseAdapter): Promise<void> {
     createdAt: "TEXT NOT NULL",
     updatedAt: "TEXT NOT NULL",
   });
-
   await adapter.createTable(FOLDERS_TABLE, {
     name: "TEXT NOT NULL",
     parentId: "INTEGER DEFAULT NULL",
     createdAt: "TEXT NOT NULL",
   });
-
-  // Add folderId column if it doesn't exist (for already-created tables)
-  try {
-    await adapter.raw(`ALTER TABLE ${MEDIA_TABLE} ADD COLUMN folderId INTEGER DEFAULT NULL`);
-  } catch {
-    // column already exists
-  }
 }
 
 export function registerMediaRoutes(
@@ -57,19 +49,6 @@ export function registerMediaRoutes(
     }
   }
 
-  const errResp = {
-    type: "object" as const,
-    properties: { error: { type: "string" as const } },
-  };
-
-  const listResp = {
-    type: "object" as const,
-    properties: {
-      data: { type: "array" as const, items: { type: "object" as const } },
-      total: { type: "integer" as const },
-    },
-  };
-
   // ─── Media CRUD ───────────────────────────────────────────
 
   fastify.get(
@@ -78,7 +57,7 @@ export function registerMediaRoutes(
       preHandler: [fastify.authenticate],
       schema: {
         summary: "List media",
-        description: "Returns media files, optionally filtered by folderId",
+        description: "Returns a paginated list of media files, optionally filtered by folder",
         tags: ["Media"],
         querystring: {
           type: "object",
@@ -86,7 +65,6 @@ export function registerMediaRoutes(
             folderId: { type: "string", description: "Filter by folder ID (or 'null' for root)" },
           },
         },
-        response: { 200: listResp },
       },
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
@@ -124,7 +102,6 @@ export function registerMediaRoutes(
           type: "object",
           properties: { id: { type: "string", description: "Media ID" } },
         },
-        response: { 200: { type: "object" }, 404: errResp },
       },
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
@@ -155,7 +132,6 @@ export function registerMediaRoutes(
             folderId: { type: "string", nullable: true },
           },
         },
-        response: { 201: { type: "object" }, 400: errResp },
       },
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
@@ -219,7 +195,6 @@ export function registerMediaRoutes(
             folderId: { type: "string", nullable: true },
           },
         },
-        response: { 200: { type: "object" }, 400: errResp, 404: errResp },
       },
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
@@ -258,13 +233,6 @@ export function registerMediaRoutes(
           type: "object",
           properties: { id: { type: "string", description: "Media ID" } },
         },
-        response: {
-          200: {
-            type: "object",
-            properties: { message: { type: "string" } },
-          },
-          404: errResp,
-        },
       },
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
@@ -293,7 +261,6 @@ export function registerMediaRoutes(
           type: "object",
           properties: { id: { type: "string", description: "Media ID" } },
         },
-        response: { 404: errResp },
       },
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
@@ -330,7 +297,6 @@ export function registerMediaRoutes(
             parentId: { type: "string", description: "Filter by parent folder ID" },
           },
         },
-        response: { 200: listResp },
       },
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
@@ -368,7 +334,6 @@ export function registerMediaRoutes(
           type: "object",
           properties: { id: { type: "string", description: "Folder ID" } },
         },
-        response: { 200: { type: "object" }, 404: errResp },
       },
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
@@ -405,7 +370,6 @@ export function registerMediaRoutes(
             parentId: { type: "number", nullable: true },
           },
         },
-        response: { 201: { type: "object" }, 400: errResp },
       },
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
@@ -448,13 +412,13 @@ export function registerMediaRoutes(
             parentId: { type: "number", nullable: true },
           },
         },
-        response: { 200: { type: "object" }, 400: errResp, 404: errResp },
       },
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
       await init();
       const { id } = request.params as { id: string };
       const body = request.body as { name?: string; parentId?: number | null };
+
       const sets: string[] = [];
       const params: unknown[] = [];
       if (body.name !== undefined) {
@@ -493,12 +457,6 @@ export function registerMediaRoutes(
         params: {
           type: "object",
           properties: { id: { type: "string", description: "Folder ID" } },
-        },
-        response: {
-          200: {
-            type: "object",
-            properties: { message: { type: "string" } },
-          },
         },
       },
     },
