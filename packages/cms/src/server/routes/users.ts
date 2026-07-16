@@ -19,6 +19,24 @@ export function registerUserRoutes(
     },
   );
 
+  fastify.post(
+    "/api/users",
+    { preHandler: [fastify.authenticate, fastify.requirePermission("create", "users")] },
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      const body = request.body as { email: string; password: string; role?: string };
+      if (!body.email || !body.password) {
+        return reply.status(400).send({ error: "Email and password are required" });
+      }
+      try {
+        const user = await authService.register(body);
+        return reply.status(201).send({ user: user.user });
+      } catch (error) {
+        const msg = error instanceof Error ? error.message : "User creation failed";
+        return reply.status(400).send({ error: msg });
+      }
+    },
+  );
+
   fastify.get(
     "/api/users/:id",
     { preHandler: [fastify.authenticate] },

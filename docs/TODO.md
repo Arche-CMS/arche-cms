@@ -462,3 +462,29 @@ Current baseline: ~379 real test cases across 16 packages. Key gaps in validatio
 - [x] **Create schema extras** — 3 tests for `_status` with drafts, `_publishAt` with scheduledPublishing, both together
 - [x] **Update schema extras** — 2 tests for `_status` and `_publishAt` in update variant
 - [x] **Custom validation message** — 5 tests covering custom messages for minLength, maxLength, min, max, pattern
+
+---
+
+## Milestone 12: Server Route Completeness & Tech Debt
+
+### Overview
+
+Reviewed all 22 server-side files for route completeness, comparing `packages/cms/src/server/routes/` (6 files), `plugins/` (10 files), `lib/` (2 files), services/ (1 file), bootstrap/config/app (3 files) with the admin API client (`admin/lib/api.ts`). All routes are registered and functional.
+
+### Completed (Milestone 12)
+
+- [x] **POST /api/users route** — Added to `routes/users.ts:22` with `requirePermission("create", "users")` guard. Uses `authService.register(body)` — same logic as `/api/auth/register` but without the setup-guard check.
+- [x] **createUser calls POST /api/users** — `admin/lib/api.ts:263` now calls `POST /api/users` via `apiFetch()` instead of `POST /api/auth/register`.
+- [x] **bulkDelete in admin api.ts** — Added `bulkDelete(path, ids)` function at `admin/lib/api.ts:70`. Uses `POST /api/:path/bulk-delete`.
+- [x] **Configurable activity table name** — `activity.ts:12` now reads `process.env.CMS_ACTIVITY_TABLE` with fallback to `__cms_activity`. Exported as `ACTIVITY_TABLE`.
+
+### Verified — No Action Needed
+
+- **GET /api/media/file/:id** — Already wired at `media.ts:188`. The route was always registered.
+- **Content-Type ordering in serveFile** — Already correct: `reply.type(typed.mimeType)` at line 202, `reply.send(stream)` at line 205. Type is set before send.
+- **No unused route functions** — All exported functions in route files are registered on Fastify or used within the file.
+- **Role ID handling** — `roles.ts` uses consistent string-based IDs throughout. The `toString()` reference was from an older version.
+
+### Deferred
+
+- **Version history / localization in admin API client** — Server routes exist (`/api/:path/:id/versions`, `/api/:path/:id/versions/:versionId/restore`, and localized variants) but the admin UI lacks UI for versions and localized content. Will be addressed in a future milestone.

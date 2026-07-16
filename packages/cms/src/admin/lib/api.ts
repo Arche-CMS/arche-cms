@@ -67,6 +67,13 @@ export async function saveSchema(
   });
 }
 
+export async function bulkDelete(path: string, ids: string[]): Promise<void> {
+  await apiFetch(`/api/${path}/bulk-delete`, {
+    method: "POST",
+    body: JSON.stringify({ ids }),
+  });
+}
+
 export async function deleteSchema(type: string, slug: string): Promise<void> {
   await apiFetch(`/api/schemas/${type}/${slug}`, { method: "DELETE" });
 }
@@ -250,18 +257,10 @@ export async function deleteRole(id: string): Promise<void> {
 }
 
 export async function createUser(email: string, password: string): Promise<void> {
-  const token = localStorage.getItem("cms_token");
-  const headers: Record<string, string> = { "Content-Type": "application/json" };
-  if (token) headers["Authorization"] = `Bearer ${token}`;
-  const res = await fetch(`${API_URL}/api/auth/register`, {
+  await apiFetch("/api/users", {
     method: "POST",
-    headers,
     body: JSON.stringify({ email, password }),
   });
-  if (!res.ok) {
-    const err = (await res.json().catch(() => ({}))) as { error?: string };
-    throw new Error(err.error ?? "Failed to create user");
-  }
 }
 
 export async function updateUser(

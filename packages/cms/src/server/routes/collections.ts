@@ -1,9 +1,18 @@
 import type { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import type { DatabaseAdapter } from "@arche-cms/database";
 import type { CollectionDefinition, GlobalDefinition } from "@arche-cms/types";
-import { createCollectionRouters, createGlobalRouters } from "@arche-cms/rest-api";
+import { createCollectionRouters } from "@arche-cms/rest-api";
 import type { RouteHandlerContext } from "@arche-cms/rest-api";
+import { createGlobalGetHandler, createGlobalUpsertHandler } from "@arche-cms/rest-api";
 import { recordActivity } from "../lib/activity.js";
+
+class BadSlugError extends Error {
+  statusCode: number;
+  constructor(msg: string) {
+    super(msg);
+    this.statusCode = 404;
+  }
+}
 
 function asHandler(
   handler: (ctx: RouteHandlerContext) => Promise<{ statusCode: number; body: unknown }>,
@@ -17,6 +26,12 @@ function asHandler(
     });
     return reply.status(result.statusCode).send(result.body);
   };
+}
+
+function resolveGlobal(slug: string, globals: GlobalDefinition[]): GlobalDefinition {
+  const g = globals.find((g) => g.slug === slug);
+  if (!g) throw new BadSlugError(`Unknown global: ${slug}`);
+  return g;
 }
 
 function slugFromPath(path: string): string {
@@ -93,16 +108,56 @@ export function registerGlobalRoutes(
   globals: GlobalDefinition[],
   adapter: DatabaseAdapter,
 ): void {
-  const routers = createGlobalRouters(globals, adapter);
-  const allRoutes = routers.flatMap((r) => r.routes);
+  const makeCtx = (request: FastifyRequest): RouteHandlerContext => ({
+    params: request.params as Record<string, string>,
+    query: request.query as Record<string, string | string[] | undefined>,
+    body: request.body,
+    headers: request.headers as Record<string, string>,
+  });
 
-  for (const routeDef of allRoutes) {
-    const handler = wrapWithActivity(routeDef.handler, routeDef.method, routeDef.path, adapter);
-    void fastify.route({
-      method: routeDef.method,
-      url: routeDef.path,
-      preHandler: [fastify.authenticate],
-      handler: asHandler(handler),
-    });
-  }
+  fastify.get(
+    "/api/globals/:slug",
+    { preHandler: [fastify.authenticate] },
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      try {
+        const { slug } = request.params as { slug: string };
+        const g = resolveGlobal(slug, globals);
+        const result = await createGlobalGetHandler(g, adapter)(makeCtx(request));
+        return reply.status(result.statusCode).send(result.body);
+      } catch (error) {
+        if (error instanceof BadSlugError) {
+          return reply.status(error.statusCode).send({ error: error.message });
+        }
+        return reply.status(500).send({ error: "Internal server error" });
+      }
+    },
+  );
+
+  fastify.put(
+    "/api/globals/:slug",
+    { preHandler: [fastify.authenticate] },
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      try {
+        const { slug } = request.params as { slug: string };
+        const g = resolveGlobal(slug, globals);
+        const handler = createGlobalUpsertHandler(g, adapter);
+        const result = await handler(makeCtx(request));
+        if (result.statusCode >= 200 && result.statusCode < 300) {
+          const body = result.body as Record<string, unknown> | undefined;
+          recordActivity(adapter, {
+            action: "upsert",
+            collection: slug,
+            documentId: body?.id != null ? String(body.id) : undefined,
+            label: body?.name != null ? String(body.name) : g.label,
+          }).catch(() => {});
+        }
+        return reply.status(result.statusCode).send(result.body);
+      } catch (error) {
+        if (error instanceof BadSlugError) {
+          return reply.status(error.statusCode).send({ error: error.message });
+        }
+        return reply.status(500).send({ error: "Internal server error" });
+      }
+    },
+  );
 }
