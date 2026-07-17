@@ -10,6 +10,7 @@
   },
   "scripts": {
     "dev": "turbo dev",
+    "dev:test": "turbo dev --filter=test-cms",
     "build": "turbo build",
     "lint": "turbo lint",
     "typecheck": "turbo typecheck",

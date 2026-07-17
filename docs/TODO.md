@@ -777,3 +777,79 @@ Replace the hand-rolled `DataProvider` React Context (`lib/data.tsx`) with `@tan
 ### P5 — Nice-to-have
 
 - [x] **Preview getHelper map completeness** — added `array`, `object`, `group`, `tabs`, `repeater` to the `getHelper` import map in the schema builder preview generator, so all 29 field types produce correct imports (`import { array, object, group, tabs, repeater } from "@arche-cms/schema"`)
+
+---
+
+## Milestone 17: Fastify Schema Compilation & OpenAPI Request/Response Schemas
+
+### Objective
+
+Add Fastify-compatible JSON Schema for request bodies, query params, params, and response schemas on all routes so Swagger UI shows detailed request/response schemas and examples. Fastify's schema compiler enforces these at runtime — they alter serialization and parsing, so handlers must be compatible.
+
+### Deferred from Milestone 14
+
+- [ ] Add detailed request/response schemas when all routes are confirmed compatible with Fastify schema compilation
+- [ ] Add example responses and request bodies when schema compilation is addressed
+
+### Scope
+
+Collection CRUD routes, global routes, auth routes, media routes, user/role routes, settings routes (api-tokens, webhooks). Exclude schema builder routes (dynamic and file-system based).
+
+### Route Schemas
+
+- [ ] `collection:list` — response body schema (paginated), query params (limit, offset, sort, filter, select, populate)
+- [ ] `collection:get` — response body schema, params (id)
+- [ ] `collection:create` — request body schema, response schema (201)
+- [ ] `collection:update` — request body schema (partial), params (id), response schema
+- [ ] `collection:delete` — params (id), response schema
+- [ ] `collection:bulkDelete` — request body schema (ids array), response schema
+- [ ] `collection:publish` — params (id), response schema
+- [ ] `collection:unpublish` — params (id), response schema
+- [ ] `collection:restore` — params (id), response schema
+- [ ] `collection:listVersions` — params (id), response schema
+- [ ] `collection:restoreVersion` — params (id, versionId), response schema
+- [ ] `global:get` — response body schema
+- [ ] `global:upsert` — request body schema, response schema
+- [ ] `auth:login` — request body (email, password), response (token, user)
+- [ ] `auth:register` — request body (email, password, name), response (token, user)
+- [ ] `auth:refresh` — request body (refreshToken), response (token)
+- [ ] `auth:forgotPassword` — request body (email), response
+- [ ] `auth:resetPassword` — request body (token, password), response
+- [ ] `media:upload` — response schema
+- [ ] `media:list` — query params, response schema
+- [ ] `media:get` — params (id), response schema
+- [ ] `media:delete` — params (id), response schema
+- [ ] `users:list` — response schema
+- [ ] `users:get` — params (id), response schema
+- [ ] `users:create` — request body, response schema
+- [ ] `users:update` — params (id), request body, response schema
+- [ ] `users:delete` — params (id), response schema
+- [ ] `roles:list` — response schema
+- [ ] `roles:get` — params (id), response schema
+- [ ] `roles:create` — request body, response schema
+- [ ] `roles:update` — params (id), request body, response schema
+- [ ] `roles:delete` — params (id), response schema
+- [ ] `api-tokens:list` — response schema
+- [ ] `api-tokens:create` — request body, response schema (includes raw token)
+- [ ] `api-tokens:delete` — params (id), response schema
+- [ ] `webhooks:list` — response schema
+- [ ] `webhooks:get` — params (id), response schema
+- [ ] `webhooks:create` — request body, response schema
+- [ ] `webhooks:update` — params (id), request body, response schema
+- [ ] `webhooks:delete` — params (id), response schema
+
+### Error Response Schemas
+
+- [ ] `400` — Bad request (validation error) schema
+- [ ] `401` — Unauthorized schema
+- [ ] `403` — Forbidden schema
+- [ ] `404` — Not found schema
+- [ ] `409` — Conflict schema
+- [ ] `500` — Internal server error schema
+
+### Verification
+
+- [ ] Run `pnpm lint` — no new errors
+- [ ] Run `pnpm typecheck` — no type errors
+- [ ] Run `pnpm test` — all 243 tests pass without serialization regressions
+- [ ] Admin panel builds successfully

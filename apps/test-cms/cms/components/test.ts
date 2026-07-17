@@ -1,7 +1,7 @@
-import { defineComponent } from "@arche-cms/schema";
+import { defineComponent, text } from "@arche-cms/schema";
 
 export default defineComponent({
   slug: "test",
   label: "Test",
-  fields: [],
+  fields: [text("title", { label: "Title", validation: { required: true } })],
 });

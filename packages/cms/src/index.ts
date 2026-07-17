@@ -1,5 +1,7 @@
 /* eslint-disable no-console */
 
+import { config } from "dotenv";
+config();
 import { collectionCreate, printCollectionCreateHelp } from "./commands/collection.js";
 import { pluginCreate, printPluginCreateHelp } from "./commands/plugin.js";
 import { dev, printDevHelp } from "./commands/dev.js";
