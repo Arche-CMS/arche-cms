@@ -132,7 +132,7 @@ function SchemaEditor() {
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
   const [showPreview, setShowPreview] = useState(false);
   const [dragIdx, setDragIdx] = useState<number | null>(null);
-  const [newFieldType, setNewFieldType] = useState("text");
+  const [newFieldType] = useState("text");
   const saveSchemaMutation = useSaveSchema();
   const [showNewFieldPicker, setShowNewFieldPicker] = useState(false);
   const previewRef = useRef<HTMLPreElement>(null);
