@@ -1,6 +1,6 @@
 # TODO — Arche CMS
 
-> Project status: Milestone 15 complete. All 32 typecheck tasks pass, 19 lint tasks pass, 243 tests pass across 20 files, admin build succeeds (496KB JS). `DataProvider` React Context replaced with `@tanstack/react-query`. All `cancelled`-flag `useEffect` patterns removed. Admin UI uses TanStack Query hooks for all data fetching and mutations.
+> Project status: Milestone 15 complete. Milestone 16 created — field type implementation audit. All 32 typecheck tasks pass, 19 lint tasks pass, 243 tests pass across 20 files, admin build succeeds (496KB JS). `DataProvider` React Context replaced with `@tanstack/react-query`. All `cancelled`-flag `useEffect` patterns removed. Admin UI uses TanStack Query hooks for all data fetching and mutations.
 
 ---
 
@@ -719,3 +719,61 @@ Replace the hand-rolled `DataProvider` React Context (`lib/data.tsx`) with `@tan
 - [x] Run `pnpm test` — no regressions (243 tests pass, all 20 files)
 - [x] Admin panel builds successfully (Vite build, 1871 modules, ~496KB JS, ~35KB CSS)
 - [x] Admin UI loads all data with correct loading/error states — all routes use TanStack Query's built-in `isPending`, `isError`, `error` states
+
+---
+
+## Milestone 16: Field Type Implementation Completeness
+
+> Field type audit across 7 layers (schema, validation, DB, REST, GraphQL, admin form, schema builder). All 29 types have consistent maps in every layer. Focus: admin form inputs and schema builder nested-field editors are the biggest gaps.
+
+### P0 — Critical (admin form non-functional for these types)
+
+- [ ] **multiSelect form input** — plain text input; must render multi-checkbox or tag-style multi-select using `field.options`
+- [ ] **checkbox form input** — falls through to text input (only `boolean` gets checkbox); must render as checkbox
+- [ ] **component form input** — no widget; must render nested sub-form by resolving component slug to its field definitions
+- [ ] **dynamicZone form input** — no widget; must render component picker (dropdown of allowed components) + nested sub-form
+- [ ] **array form input** — no widget; must render repeatable item list with "Add Item" button
+- [ ] **object form input** — no widget; must render nested sub-fields inline (non-repeatable group)
+- [ ] **group form input** — no widget; must render nested sub-fields inline, grouped visually
+- [ ] **tabs form input** — no widget; must render tab navigation UI with sub-fields per tab
+- [ ] **repeater form input** — no widget; must render repeatable row/column list with add/remove per row
+
+### P1 — High (poor UX for commonly used fields)
+
+- [ ] **color form input** — text input; should render `<input type="color">` or color picker respecting `format` setting
+- [ ] **richText form input** — plain `<textarea>`; should integrate TipTap rich text editor
+- [ ] **markdown form input** — plain `<textarea>`; should integrate markdown editor with preview
+- [ ] **code form input** — plain `<textarea>`; should integrate code editor (CodeMirror) with `language` setting
+- [ ] **json form input** — plain `<textarea>`; should render structured JSON editor with syntax validation
+
+### P2 — Medium (schema builder settings gaps)
+
+- [ ] **relation kind selector** — settings panel only has `to` input; add dropdown for `kind`: `oneToOne`, `oneToMany`, `manyToOne`, `manyToMany`
+- [ ] **relation admin UI** — `RelationPicker` only handles `oneToOne`; support multi-select for `manyToOne`/`manyToMany`
+- [ ] **component repeatable toggle** — settings panel only has component slug input; add `repeatable` checkbox
+- [ ] **slug unique toggle** — settings panel only has `source` input; add `unique` checkbox
+- [ ] **media/upload allowedTypes setting** — no settings panels; add `allowedTypes` multi-checkbox and `multiple` toggle
+- [ ] **dynamicZone allowed components** — no settings panel; add UI to manage allowed component list
+- [ ] **array/object/group/repeater nested field editor** — no settings panels; add inline recursive field editor
+- [ ] **tabs nested field editor** — no settings panel; add UI to create/remove tabs and add sub-fields per tab
+
+### P3 — Low (validation hardening)
+
+- [ ] **date validation** — `z.string()` only; add ISO date format refinement
+- [ ] **datetime validation** — `z.string()` only; add `z.string().datetime()` refinement
+- [ ] **color validation** — `z.string()` only; validate hex/rgb format based on `format` setting
+- [ ] **slug validation** — `z.string()` only; validate URL-safe format and optionally enforce uniqueness
+- [ ] **password validation** — `z.string()` only; add minimum length requirement (8 chars)
+- [ ] **radio form input** — renders as dropdown (same as select); should render as radio buttons
+
+### P4 — Low (OpenAPI/GraphQL polish)
+
+- [ ] **OpenAPI: structure types** — `component`, `dynamicZone`, `array`, `object`, `group`, `tabs`, `repeater` fall to `string`; should emit proper `object`/`array` schemas
+- [ ] **OpenAPI: radio enum** — falls to `string`; should emit `enum` like `select`
+- [ ] **OpenAPI: color/media/url formats** — `color` should emit `format: "color"`; `url`: `format: "uri"`; `media`/`upload`: note file ID reference
+- [ ] **GraphQL: component sub-types** — `component` field resolves to `PascalCase(component)` but that type is never generated as a proper GraphQL type definition
+- [ ] **Database: non-SQLite column types** — future adapters should map complex types to `JSONB`/`JSON` instead of `TEXT`
+
+### P5 — Nice-to-have
+
+- [ ] **Preview getHelper map completeness** — verify `getHelper` in schema builder preview generator includes all types used via recursion in imports
