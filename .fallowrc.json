@@ -25,7 +25,12 @@
     "lucide-react",
     "react",
     "tailwind-merge",
-    "@tailwindcss/vite"
+    "@tailwindcss/vite",
+    "@tanstack/react-query",
+    "dompurify",
+    "@types/dompurify",
+    "marked",
+    "@types/marked"
   ],
   "audit": {
     "gate": "new-only"
@@ -66,6 +71,12 @@
         "files": ["packages/generators/src/migrations.ts"],
         "maxCyclomatic": 25,
         "reason": "field-to-column mapping has many type branches"
+      },
+      {
+        "files": ["packages/validation/src/generator.ts"],
+        "maxCyclomatic": 45,
+        "maxCognitive": 30,
+        "reason": "field-to-Zod mapping with regex validation for each field type"
       }
     ]
   },
@@ -77,7 +88,8 @@
     "ignore": [
       "packages/cms/src/server/**",
       "packages/graphql/src/resolvers.ts",
-      "packages/rest-api/src/handlers.ts"
+      "packages/rest-api/src/handlers.ts",
+      "packages/graphql/src/types.ts"
     ]
   },
   "entry": ["packages/cms/src/admin/main.tsx", "packages/*/src/index.ts"]

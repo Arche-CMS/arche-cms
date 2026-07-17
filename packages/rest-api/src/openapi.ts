@@ -1,61 +1,65 @@
 import type { CollectionDefinition, FieldDefinition } from "@arche-cms/types";
 import type { RouteDefinition } from "./types.js";
+import { pascalCase } from "./route-generator.js";
 
-function pascalCase(slug: string): string {
-  return slug
-    .split(/[-_]/)
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join("");
-}
+const SIMPLE_OPENAPI_TYPES: Record<string, Record<string, unknown> | undefined> = {
+  number: { type: "number" },
+  boolean: { type: "boolean" },
+  checkbox: { type: "boolean" },
+  json: { type: "object" },
+  multiSelect: { type: "array", items: { type: "string" } },
+  relation: { type: "string" },
+  date: { type: "string", format: "date-time" },
+  datetime: { type: "string", format: "date-time" },
+  color: { type: "string", format: "color" },
+  url: { type: "string", format: "uri" },
+  media: { type: "string", description: "Media file ID reference" },
+  upload: { type: "string", description: "Media file ID reference" },
+  component: { type: "object", properties: {} },
+  dynamicZone: { type: "array", items: { type: "object" } },
+  array: { type: "array", items: { type: "object", properties: {} } },
+  repeater: { type: "array", items: { type: "object", properties: {} } },
+  object: { type: "object", properties: {} },
+  group: { type: "object", properties: {} },
+};
 
 function fieldToOpenApiType(field: FieldDefinition): Record<string, unknown> {
-  const base: Record<string, unknown> = {};
   const nullable = !field.validation?.required;
 
-  switch (field.type) {
-    case "number":
-      base.type = "number";
-      break;
-    case "boolean":
-      base.type = "boolean";
-      break;
-    case "json":
-      base.type = "object";
-      break;
-    case "select":
-      base.type = "string";
-      if ("options" in field) {
-        base.enum = (field.options as Array<{ value: string }>).map((o) => o.value);
-      }
-      break;
-    case "multiSelect":
-      base.type = "array";
-      base.items = { type: "string" };
-      break;
-    case "relation":
-      base.type = "string";
-      break;
-    case "checkbox":
-      base.type = "boolean";
-      break;
-    case "date":
-    case "datetime":
-      base.type = "string";
-      base.format = "date-time";
-      break;
-    default:
-      base.type = "string";
+  if (field.type === "tabs") {
+    const tabFields: FieldDefinition[] = (
+      (field as { tabs?: Array<{ fields: FieldDefinition[] }> }).tabs ?? []
+    ).flatMap((t) => t.fields);
+    return { type: "object", properties: generateFlatProperties(tabFields), nullable };
   }
 
-  if (base.type !== "array") {
-    base.type ??= "string";
+  if (field.type === "select" || field.type === "radio") {
+    const base: Record<string, unknown> = { type: "string" };
+    if ("options" in field) {
+      base.enum = (field.options as Array<{ value: string }>).map((o) =>
+        typeof o === "string" ? o : o.value,
+      );
+    }
+    return addNullable(base, nullable);
   }
 
-  if (nullable && base.type !== "array") {
-    base.nullable = true;
-  }
+  const schema = SIMPLE_OPENAPI_TYPES[field.type] ?? { type: "string" };
+  return addNullable({ ...schema }, nullable);
+}
 
-  return base;
+function addNullable(schema: Record<string, unknown>, nullable: boolean): Record<string, unknown> {
+  if (nullable) {
+    schema.nullable = true;
+  }
+  return schema;
+}
+
+function generateFlatProperties(fields: FieldDefinition[]): Record<string, unknown> {
+  const props: Record<string, unknown> = {};
+  for (const f of fields) {
+    props[f.name] = { ...fieldToOpenApiType(f), description: f.label ?? f.name };
+  }
+  return props;
 }
 
 function generateCollectionSchema(collection: CollectionDefinition): Record<string, unknown> {

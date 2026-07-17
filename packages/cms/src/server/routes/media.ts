@@ -6,6 +6,11 @@ import type { StorageAdapter } from "@arche-cms/storage";
 const MEDIA_TABLE = "__cms_media";
 const FOLDERS_TABLE = "__cms_media_folders";
 
+function safeInteger(value: string | number): number | null {
+  const n = typeof value === "number" ? value : Number(value);
+  return Number.isFinite(n) ? Math.floor(n) : null;
+}
+
 interface MediaRecord {
   id: string;
   filename: string;
@@ -71,7 +76,10 @@ export function registerMediaRoutes(
       await init();
       const query = request.query as Record<string, string>;
       if (query.folderId) {
-        const id = Number(query.folderId);
+        const id = safeInteger(query.folderId);
+        if (id === null) {
+          return reply.status(400).send({ error: "Invalid folderId" });
+        }
         const results = await adapter.findMany(MEDIA_TABLE, {
           where: { folderId: id },
           sort: { createdAt: "desc" as const },
@@ -166,7 +174,7 @@ export function registerMediaRoutes(
         mimeType: body.mimeType,
         size: buffer.length,
         alt: body.alt ?? "",
-        folderId: body.folderId != null ? Number(body.folderId) : null,
+        folderId: body.folderId != null ? safeInteger(body.folderId) : null,
         createdAt: now,
         updatedAt: now,
       });
@@ -212,7 +220,7 @@ export function registerMediaRoutes(
       if (body.originalName !== undefined) updates.originalName = body.originalName;
       if (body.alt !== undefined) updates.alt = body.alt;
       if (body.folderId !== undefined) {
-        updates.folderId = body.folderId !== null ? Number(body.folderId) : null;
+        updates.folderId = body.folderId !== null ? safeInteger(body.folderId) : null;
       }
       updates.updatedAt = new Date().toISOString();
 
@@ -302,10 +310,14 @@ export function registerMediaRoutes(
     async (request: FastifyRequest, reply: FastifyReply) => {
       await init();
       const query = request.query as Record<string, string>;
-      if (query.parentId) {
+      if (query.parentId && query.parentId !== "null" && query.parentId !== "undefined") {
+        const id = safeInteger(query.parentId);
+        if (id === null) {
+          return reply.status(400).send({ error: "Invalid parentId" });
+        }
         const rows = await adapter.raw(
           `SELECT id, name, parentId, createdAt FROM ${FOLDERS_TABLE} WHERE parentId = ? ORDER BY name ASC`,
-          [Number(query.parentId)],
+          [id],
         );
         return reply.send({ data: rows, total: (rows as unknown[]).length });
       }
@@ -381,7 +393,7 @@ export function registerMediaRoutes(
       const now = new Date().toISOString();
       await adapter.raw(
         `INSERT INTO ${FOLDERS_TABLE} (name, parentId, createdAt) VALUES (?, ?, ?)`,
-        [body.name.trim(), body.parentId != null ? Number(body.parentId) : null, now],
+        [body.name.trim(), body.parentId != null ? safeInteger(body.parentId) : null, now],
       );
       const rows = await adapter.raw(
         `SELECT id, name, parentId, createdAt FROM ${FOLDERS_TABLE} ORDER BY id DESC LIMIT 1`,
@@ -429,7 +441,7 @@ export function registerMediaRoutes(
       }
       if (body.parentId !== undefined) {
         sets.push("parentId = ?");
-        params.push(body.parentId != null ? Number(body.parentId) : null);
+        params.push(body.parentId != null ? safeInteger(body.parentId) : null);
       }
       if (sets.length === 0) return reply.status(400).send({ error: "No fields to update" });
       params.push(Number(id));

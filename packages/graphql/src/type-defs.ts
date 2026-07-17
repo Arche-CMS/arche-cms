@@ -86,10 +86,37 @@ ${fields || "  _: String"}
 }`;
 }
 
+function collectComponentRefs(collections: CollectionDefinition[]): string[] {
+  const slugs = new Set<string>();
+  function scan(fields: FieldDefinition[]) {
+    for (const f of fields) {
+      if (f.type === "component" && (f as { component?: string }).component) {
+        slugs.add((f as { component: string }).component);
+      }
+      if (
+        ["array", "object", "group", "repeater"].includes(f.type) &&
+        (f as { fields?: FieldDefinition[] }).fields
+      ) {
+        scan((f as { fields: FieldDefinition[] }).fields);
+      }
+      if (f.type === "tabs" && (f as { tabs?: Array<{ fields: FieldDefinition[] }> }).tabs) {
+        (f as { tabs: Array<{ fields: FieldDefinition[] }> }).tabs.forEach((t) => scan(t.fields));
+      }
+    }
+  }
+  for (const c of collections) scan(c.fields);
+  return Array.from(slugs);
+}
+
 export function generateTypeDefs(collections: CollectionDefinition[]): string {
   const parts: string[] = [];
 
   parts.push(`scalar JSON`);
+
+  const componentSlugs = collectComponentRefs(collections);
+  for (const slug of componentSlugs) {
+    parts.push(`type ${pascalCase(slug)} {\n  _: Boolean\n}`);
+  }
 
   for (const collection of collections) {
     parts.push(generateObjectType(collection, collections));

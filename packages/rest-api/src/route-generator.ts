@@ -18,7 +18,7 @@ import {
   createGlobalUpsertHandler,
 } from "./handlers.js";
 
-function pascalCase(slug: string): string {
+export function pascalCase(slug: string): string {
   return slug
     .split(/[-_]/)
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))

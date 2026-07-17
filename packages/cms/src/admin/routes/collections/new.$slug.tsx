@@ -4,7 +4,7 @@ import { Route as rootRoute } from "@/routes/__root";
 import { Skeleton } from "@/components/skeleton";
 import { useToast } from "@/components/toast-provider";
 import { apiFetch, ApiError } from "@/lib/api";
-import { useCollection } from "@/lib/data";
+import { useCollection } from "@/lib/hooks";
 import { Button } from "@/components/ui/button";
 import { FieldInput } from "@/components/field-input";
 import { ArrowLeft } from "lucide-react";
@@ -20,7 +20,7 @@ function CreateEntry() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { collection, isLoading: loading, error: loadError } = useCollection(slug);
-  const [values, setValues] = useState<Record<string, string>>({});
+  const [values, setValues] = useState<Record<string, unknown>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(loadError ?? null);
@@ -29,7 +29,7 @@ function CreateEntry() {
 
   useEffect(() => {
     if (initialized || !collection) return;
-    const initial: Record<string, string> = {};
+    const initial: Record<string, unknown> = {};
     for (const f of collection.fields) {
       initial[f.name] = "";
     }
@@ -47,8 +47,11 @@ function CreateEntry() {
 
     const newErrors: Record<string, string> = {};
     for (const f of collection.fields) {
-      if (f.required && !values[f.name]) {
-        newErrors[f.name] = `${f.label} is required`;
+      if (f.required) {
+        const v = values[f.name];
+        if (v === "" || v === undefined || v === null) {
+          newErrors[f.name] = `${f.label} is required`;
+        }
       }
     }
     setErrors(newErrors);

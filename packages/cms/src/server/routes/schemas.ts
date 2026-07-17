@@ -4,7 +4,9 @@ import { existsSync } from "node:fs";
 import type { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import type { ServerConfig } from "../config.js";
 import { SchemaLoader } from "@arche-cms/schema";
-import type { FieldDefinition } from "@arche-cms/types";
+import { MigrationGenerator, MigrationRunner } from "@arche-cms/database";
+import type { DatabaseAdapter } from "@arche-cms/database";
+import type { FieldDefinition, CollectionDefinition, GlobalDefinition } from "@arche-cms/types";
 
 interface SchemaInfo {
   slug: string;
@@ -14,7 +16,123 @@ interface SchemaInfo {
   meta: Record<string, unknown>;
 }
 
-export function registerSchemaRoutes(fastify: FastifyInstance, config: ServerConfig): void {
+interface CollectionMeta {
+  slug: string;
+  label: string;
+  labels?: { singular: string; plural: string };
+  versions?: {
+    drafts: boolean;
+    maxPerDoc?: number;
+    softDelete?: boolean;
+    scheduledPublishing?: boolean;
+  };
+  fields: Array<Record<string, unknown>>;
+}
+
+interface GlobalMeta {
+  slug: string;
+  label: string;
+  fields: Array<Record<string, unknown>>;
+}
+
+function normalizeOptions(opts: unknown[]): string[] {
+  return opts.map((o) => {
+    if (typeof o === "string") return o;
+    if (o && typeof o === "object" && "value" in o) return String((o as { value: string }).value);
+    return String(o);
+  });
+}
+
+function buildFieldMeta(f: FieldDefinition): Record<string, unknown> {
+  const base: Record<string, unknown> = {
+    name: f.name,
+    type: f.type,
+    label: f.label ?? f.name,
+    required: f.validation?.required ?? false,
+    localized: f.localized,
+    validation: f.validation,
+    admin: f.admin,
+    defaultValue: f.defaultValue,
+  };
+  const rf = f as unknown as Record<string, unknown>;
+  if ("to" in rf) base.to = rf.to;
+  if ("kind" in rf) base.kind = rf.kind;
+  if ("options" in rf) base.options = normalizeOptions(rf.options as unknown[]);
+  if ("component" in rf) base.component = rf.component;
+  if ("repeatable" in rf) base.repeatable = rf.repeatable;
+  if ("components" in rf) base.components = rf.components;
+  if ("source" in rf) base.source = rf.source;
+  if ("unique" in rf) base.unique = rf.unique;
+  if ("language" in rf) base.language = rf.language;
+  if ("format" in rf) base.format = rf.format;
+  if ("multiple" in rf) base.multiple = rf.multiple;
+  if ("allowedTypes" in rf) base.allowedTypes = rf.allowedTypes;
+  if ("fields" in rf && Array.isArray(rf.fields)) {
+    base.fields = (rf.fields as FieldDefinition[]).map(buildFieldMeta);
+  }
+  if ("tabs" in rf && Array.isArray(rf.tabs)) {
+    base.tabs = (rf.tabs as Array<{ label: string; fields: FieldDefinition[] }>).map((t) => ({
+      label: t.label,
+      fields: t.fields.map(buildFieldMeta),
+    }));
+  }
+  return base;
+}
+
+function buildCollectionMeta(collections: CollectionDefinition[]): CollectionMeta[] {
+  return collections.map((c) => ({
+    slug: c.slug,
+    label: c.labels?.plural ?? c.slug,
+    labels: c.labels,
+    versions: c.versions,
+    fields: (c.fields ?? []).map(buildFieldMeta) as CollectionMeta["fields"],
+  }));
+}
+
+function buildGlobalMeta(globals: GlobalDefinition[]): GlobalMeta[] {
+  return globals.map((g) => ({
+    slug: g.slug,
+    label: g.label,
+    fields: (g.fields ?? []).map(buildFieldMeta) as GlobalMeta["fields"],
+  }));
+}
+
+async function syncSchemaAndMetadata(
+  adapter: DatabaseAdapter,
+  config: ServerConfig,
+  onSchemasUpdated: (
+    collections: Record<string, unknown>[],
+    globals: Record<string, unknown>[],
+  ) => void,
+): Promise<void> {
+  const loader = new SchemaLoader({ baseDir: resolve(config.schema.baseDir) });
+  const loaded = await loader.load();
+  const collections = Array.from(loaded.collections.values());
+  const globals = Array.from(loaded.globals.values());
+
+  const existingSchema = await adapter.getExistingSchema();
+  const generator = new MigrationGenerator();
+  const migrations = generator.generate(collections, existingSchema, globals);
+  if (migrations.length > 0) {
+    const runner = new MigrationRunner(adapter);
+    await runner.run(migrations);
+  }
+
+  onSchemasUpdated(
+    buildCollectionMeta(collections) as unknown as Record<string, unknown>[],
+    buildGlobalMeta(globals) as unknown as Record<string, unknown>[],
+  );
+}
+
+export function registerSchemaRoutes(
+  fastify: FastifyInstance,
+  config: ServerConfig,
+  adapter?: DatabaseAdapter,
+  onSchemasUpdated?: (
+    collections: Record<string, unknown>[],
+    globals: Record<string, unknown>[],
+  ) => void,
+): void {
   const baseDir = resolve(config.schema.baseDir);
 
   async function loadSchemas(): Promise<SchemaInfo[]> {
@@ -477,6 +595,10 @@ export function registerSchemaRoutes(fastify: FastifyInstance, config: ServerCon
         const code = generateSchemaCode(type, body.slug, fields, meta);
         await writeFile(filePath, code, "utf-8");
 
+        if (adapter && onSchemasUpdated) {
+          await syncSchemaAndMetadata(adapter, config, onSchemasUpdated);
+        }
+
         return reply.status(201).send({ message: "Schema created", slug: body.slug, type });
       } catch (err) {
         const msg = err instanceof Error ? err.message : "Failed to create schema";
@@ -548,6 +670,10 @@ export function registerSchemaRoutes(fastify: FastifyInstance, config: ServerCon
 
         const code = generateSchemaCode(type, slug, fields, meta);
         await writeFile(filePath, code, "utf-8");
+
+        if (adapter && onSchemasUpdated) {
+          await syncSchemaAndMetadata(adapter, config, onSchemasUpdated);
+        }
 
         return reply.send({ message: "Schema saved", slug, type });
       } catch (err) {

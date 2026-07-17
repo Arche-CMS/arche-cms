@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/toast-provider";
-import { fetchSchema, saveSchema, type FieldDefinition } from "@/lib/api";
+import { fetchSchema, type FieldDefinition } from "@/lib/api";
+import { useSaveSchema } from "@/lib/hooks";
 import {
   ArrowLeft,
   Save,
@@ -119,6 +120,497 @@ function defaultField(type: string): FieldDefinition {
   }
 }
 
+function FieldEditorList({
+  fields,
+  onChange,
+}: {
+  fields: FieldDefinition[];
+  onChange: (fields: FieldDefinition[]) => void;
+}) {
+  const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
+  const [showPicker, setShowPicker] = useState(false);
+  const [newFieldType] = useState("text");
+  const [dragIdx, setDragIdx] = useState<number | null>(null);
+
+  const updateField = (idx: number, updates: Partial<FieldDefinition>) => {
+    onChange(fields.map((f, i) => (i === idx ? ({ ...f, ...updates } as FieldDefinition) : f)));
+  };
+
+  const removeField = (idx: number) => {
+    onChange(fields.filter((_, i) => i !== idx));
+    setSelectedIdx((prev) => (prev === idx ? null : prev));
+  };
+
+  const addField = (type?: string) => {
+    const t = type ?? newFieldType;
+    const field = defaultField(t);
+    field.name = `field_${fields.length + 1}`;
+    onChange([...fields, field]);
+    setSelectedIdx(fields.length);
+    setShowPicker(false);
+  };
+
+  const moveField = (from: number, to: number) => {
+    const next = [...fields];
+    const [moved] = next.splice(from, 1);
+    if (moved) {
+      next.splice(to, 0, moved);
+      onChange(next);
+    }
+    setSelectedIdx(to);
+  };
+
+  const handleDragStart = (idx: number) => setDragIdx(idx);
+  const handleDragOver = (e: React.DragEvent, idx: number) => {
+    e.preventDefault();
+    if (dragIdx === null || dragIdx === idx) return;
+    moveField(dragIdx, idx);
+    setDragIdx(idx);
+  };
+  const handleDragEnd = () => setDragIdx(null);
+
+  const selectedField = selectedIdx !== null ? fields[selectedIdx] : null;
+
+  return (
+    <div className="space-y-2">
+      <div className="space-y-1">
+        {fields.map((field, idx) => {
+          const cfg = FIELD_TYPE_CONFIG[field.type] ?? {
+            label: "Text",
+            icon: FileText,
+            group: "basic",
+          };
+          const Icon = cfg.icon;
+          return (
+            <div
+              key={`${field.name}-${idx}`}
+              className={`flex cursor-pointer items-center gap-2 rounded border bg-card px-2 py-1.5 text-xs transition-colors ${
+                selectedIdx === idx ? "border-primary ring-1 ring-primary" : ""
+              } ${dragIdx === idx ? "opacity-50" : ""}`}
+              draggable
+              onDragStart={() => handleDragStart(idx)}
+              onDragOver={(e) => handleDragOver(e, idx)}
+              onDragEnd={handleDragEnd}
+              onClick={() => setSelectedIdx(idx)}
+            >
+              <div
+                className="cursor-grab text-muted-foreground"
+                onMouseDown={(e) => e.stopPropagation()}
+              >
+                <GripVertical className="h-3 w-3" />
+              </div>
+              <Icon className="h-3 w-3 shrink-0 text-muted-foreground" />
+              <span className="flex-1 truncate">{field.name || "unnamed"}</span>
+              <span className="shrink-0 rounded bg-muted px-1 py-0.5 text-[10px]">{cfg.label}</span>
+              <div className="flex shrink-0 items-center" onClick={(e) => e.stopPropagation()}>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-5 w-5"
+                  onClick={() => {
+                    const copy = { ...field, name: `${field.name}_copy` };
+                    delete copy.fields;
+                    delete copy.tabs;
+                    const def = defaultField(field.type);
+                    onChange([
+                      ...fields.slice(0, idx + 1),
+                      { ...def, ...copy },
+                      ...fields.slice(idx + 1),
+                    ]);
+                  }}
+                >
+                  <Copy className="h-2.5 w-2.5" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-5 w-5 text-destructive"
+                  onClick={() => removeField(idx)}
+                >
+                  <Trash2 className="h-2.5 w-2.5" />
+                </Button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {showPicker ? (
+        <div className="space-y-2 rounded border bg-card p-2">
+          <div className="flex items-center justify-between">
+            <p className="text-[10px] font-medium text-muted-foreground">Select type</p>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-5 w-5"
+              onClick={() => setShowPicker(false)}
+            >
+              <X className="h-3 w-3" />
+            </Button>
+          </div>
+          {FIELD_TYPE_GROUPS.map((group) => {
+            const types = Object.entries(FIELD_TYPE_CONFIG).filter(
+              ([, c]) => c.group === group.value,
+            );
+            if (types.length === 0) return null;
+            return (
+              <div key={group.value}>
+                <p className="mb-0.5 text-[9px] font-medium uppercase text-muted-foreground">
+                  {group.label}
+                </p>
+                <div className="flex flex-wrap gap-1">
+                  {types.map(([key, cfg]) => (
+                    <button
+                      key={key}
+                      onClick={() => addField(key)}
+                      className={`flex items-center gap-1 rounded border px-1.5 py-0.5 text-[10px] transition-colors hover:bg-muted ${
+                        newFieldType === key ? "border-primary bg-primary/5" : ""
+                      }`}
+                    >
+                      <cfg.icon className="h-2.5 w-2.5" />
+                      {cfg.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        <Button
+          size="sm"
+          variant="outline"
+          className="h-7 w-full text-xs"
+          onClick={() => setShowPicker(true)}
+        >
+          <Plus className="mr-1 h-3 w-3" /> Add Field
+        </Button>
+      )}
+
+      {selectedField && (
+        <div className="space-y-2 rounded border bg-muted/30 p-2">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-medium">Settings</span>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-5 w-5"
+              onClick={() => setSelectedIdx(null)}
+            >
+              <X className="h-3 w-3" />
+            </Button>
+          </div>
+
+          <div className="space-y-1.5">
+            <div>
+              <Label className="text-[10px]">Name</Label>
+              <Input
+                value={selectedField.name}
+                onChange={(e) => updateField(selectedIdx as number, { name: e.target.value })}
+                className="h-7 text-xs"
+              />
+            </div>
+            <div>
+              <Label className="text-[10px]">Label</Label>
+              <Input
+                value={selectedField.label ?? ""}
+                onChange={(e) =>
+                  updateField(selectedIdx as number, { label: e.target.value || undefined })
+                }
+                placeholder="Label"
+                className="h-7 text-xs"
+              />
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              id={`nested-required-${selectedIdx}`}
+              checked={selectedField.validation?.required === true}
+              onChange={(e) => {
+                const v = {
+                  ...(selectedField.validation || {}),
+                  required: e.target.checked || undefined,
+                };
+                updateField(selectedIdx as number, {
+                  validation: v.required !== undefined ? v : undefined,
+                });
+              }}
+              className="h-3.5 w-3.5 rounded border-gray-300"
+            />
+            <Label htmlFor={`nested-required-${selectedIdx}`} className="text-xs">
+              Required
+            </Label>
+          </div>
+
+          {["select", "multiSelect", "radio"].includes(selectedField.type) && (
+            <div className="space-y-1 pt-1 border-t border-border">
+              <Label className="text-[10px]">Options</Label>
+              <div className="space-y-1">
+                {(selectedField.options ?? []).map((opt, oi) => {
+                  const display = typeof opt === "string" ? opt : opt.label;
+                  return (
+                    <div key={oi} className="flex items-center gap-1">
+                      <Input
+                        value={display}
+                        onChange={(e) => {
+                          const opts = [...(selectedField.options ?? [])];
+                          if (typeof opts[oi] === "string") {
+                            opts[oi] = e.target.value;
+                          } else {
+                            opts[oi] = {
+                              ...(opts[oi] as { label: string; value: string }),
+                              label: e.target.value,
+                              value: e.target.value.toLowerCase().replace(/\s+/g, "-"),
+                            };
+                          }
+                          updateField(selectedIdx as number, { options: opts });
+                        }}
+                        placeholder="Option label"
+                        className="h-7 text-xs"
+                      />
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6 shrink-0 text-destructive"
+                        onClick={() => {
+                          const opts = [...(selectedField.options ?? [])];
+                          opts.splice(oi, 1);
+                          updateField(selectedIdx as number, { options: opts });
+                        }}
+                      >
+                        <Trash2 className="h-2.5 w-2.5" />
+                      </Button>
+                    </div>
+                  );
+                })}
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-7 w-full text-xs"
+                  onClick={() => {
+                    const opts = [...(selectedField.options ?? []), { label: "", value: "" }];
+                    updateField(selectedIdx as number, { options: opts });
+                  }}
+                >
+                  <Plus className="mr-1 h-3 w-3" /> Add Option
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {selectedField.type === "relation" && (
+            <div className="space-y-1 pt-1 border-t border-border">
+              <Label className="text-[10px]">Related Collection</Label>
+              <Input
+                value={(selectedField as { to?: string }).to ?? ""}
+                onChange={(e) => updateField(selectedIdx as number, { to: e.target.value })}
+                placeholder="users"
+                className="h-7 text-xs"
+              />
+              <Label className="text-[10px] mt-1">Kind</Label>
+              <select
+                value={(selectedField as { kind?: string }).kind ?? "oneToOne"}
+                onChange={(e) => updateField(selectedIdx as number, { kind: e.target.value })}
+                className="w-full rounded-md border bg-background px-2 py-1 text-xs"
+              >
+                <option value="oneToOne">One to One</option>
+                <option value="oneToMany">One to Many</option>
+                <option value="manyToOne">Many to One</option>
+                <option value="manyToMany">Many to Many</option>
+              </select>
+            </div>
+          )}
+
+          {selectedField.type === "component" && (
+            <div className="space-y-1 pt-1 border-t border-border">
+              <Label className="text-[10px]">Component Slug</Label>
+              <Input
+                value={(selectedField as { component?: string }).component ?? ""}
+                onChange={(e) => updateField(selectedIdx as number, { component: e.target.value })}
+                placeholder="seo"
+                className="h-7 text-xs"
+              />
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id={`nested-repeatable-${selectedIdx}`}
+                  checked={(selectedField as { repeatable?: boolean }).repeatable === true}
+                  onChange={(e) =>
+                    updateField(selectedIdx as number, {
+                      repeatable: e.target.checked || undefined,
+                    })
+                  }
+                  className="h-3.5 w-3.5 rounded border-gray-300"
+                />
+                <Label htmlFor={`nested-repeatable-${selectedIdx}`} className="text-xs">
+                  Repeatable
+                </Label>
+              </div>
+            </div>
+          )}
+
+          {selectedField.type === "slug" && (
+            <div className="space-y-1 pt-1 border-t border-border">
+              <Label className="text-[10px]">Source Field</Label>
+              <Input
+                value={(selectedField as { source?: string }).source ?? ""}
+                onChange={(e) =>
+                  updateField(selectedIdx as number, { source: e.target.value || undefined })
+                }
+                placeholder="title"
+                className="h-7 text-xs"
+              />
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id={`nested-unique-${selectedIdx}`}
+                  checked={(selectedField as { unique?: boolean }).unique === true}
+                  onChange={(e) =>
+                    updateField(selectedIdx as number, {
+                      unique: e.target.checked || undefined,
+                    })
+                  }
+                  className="h-3.5 w-3.5 rounded border-gray-300"
+                />
+                <Label htmlFor={`nested-unique-${selectedIdx}`} className="text-xs">
+                  Unique
+                </Label>
+              </div>
+            </div>
+          )}
+
+          {selectedField.type === "code" && (
+            <div className="space-y-1 pt-1 border-t border-border">
+              <Label className="text-[10px]">Language</Label>
+              <Input
+                value={(selectedField as { language?: string }).language ?? ""}
+                onChange={(e) =>
+                  updateField(selectedIdx as number, {
+                    language: e.target.value || undefined,
+                  })
+                }
+                placeholder="typescript"
+                className="h-7 text-xs"
+              />
+            </div>
+          )}
+
+          {selectedField.type === "color" && (
+            <div className="space-y-1 pt-1 border-t border-border">
+              <Label className="text-[10px]">Format</Label>
+              <select
+                value={(selectedField as { format?: string }).format ?? "hex"}
+                onChange={(e) =>
+                  updateField(selectedIdx as number, {
+                    format: e.target.value as "hex" | "rgb" | "rgba" | "hsl",
+                  })
+                }
+                className="w-full rounded-md border bg-background px-2 py-1 text-xs"
+              >
+                <option value="hex">Hex</option>
+                <option value="rgb">RGB</option>
+                <option value="rgba">RGBA</option>
+                <option value="hsl">HSL</option>
+              </select>
+            </div>
+          )}
+
+          {["array", "object", "group", "repeater"].includes(selectedField.type) && (
+            <div className="pt-1 border-t border-border">
+              <p className="text-[10px] font-medium text-muted-foreground mb-1">Nested Fields</p>
+              <FieldEditorList
+                fields={(selectedField as { fields: FieldDefinition[] }).fields ?? []}
+                onChange={(newFields) => updateField(selectedIdx as number, { fields: newFields })}
+              />
+            </div>
+          )}
+
+          {selectedField.type === "tabs" && (
+            <div className="pt-1 border-t border-border space-y-1">
+              <p className="text-[10px] font-medium text-muted-foreground">Tabs</p>
+              {(
+                (selectedField as { tabs?: Array<{ label: string; fields: FieldDefinition[] }> })
+                  .tabs ?? []
+              ).map((tab, ti) => (
+                <div key={ti} className="rounded border p-1.5 space-y-1">
+                  <div className="flex items-center gap-1">
+                    <Input
+                      value={tab.label}
+                      onChange={(e) => {
+                        const tabs = [
+                          ...((
+                            selectedField as {
+                              tabs: Array<{ label: string; fields: FieldDefinition[] }>;
+                            }
+                          ).tabs ?? []),
+                        ];
+                        tabs[ti] = { ...tabs[ti], label: e.target.value };
+                        updateField(selectedIdx as number, { tabs });
+                      }}
+                      placeholder="Tab label"
+                      className="h-7 text-xs flex-1"
+                    />
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6 text-destructive"
+                      onClick={() => {
+                        const tabs = [
+                          ...((
+                            selectedField as {
+                              tabs: Array<{ label: string; fields: FieldDefinition[] }>;
+                            }
+                          ).tabs ?? []),
+                        ];
+                        tabs.splice(ti, 1);
+                        updateField(selectedIdx as number, { tabs });
+                      }}
+                    >
+                      <Trash2 className="h-2.5 w-2.5" />
+                    </Button>
+                  </div>
+                  <FieldEditorList
+                    fields={tab.fields}
+                    onChange={(newFields) => {
+                      const tabs = [
+                        ...((
+                          selectedField as {
+                            tabs: Array<{ label: string; fields: FieldDefinition[] }>;
+                          }
+                        ).tabs ?? []),
+                      ];
+                      tabs[ti] = { ...tabs[ti], fields: newFields };
+                      updateField(selectedIdx as number, { tabs });
+                    }}
+                  />
+                </div>
+              ))}
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-7 w-full text-xs"
+                onClick={() => {
+                  const tabs = [
+                    ...((
+                      selectedField as { tabs: Array<{ label: string; fields: FieldDefinition[] }> }
+                    ).tabs ?? []),
+                    { label: "New Tab", fields: [] },
+                  ];
+                  updateField(selectedIdx as number, { tabs });
+                }}
+              >
+                <Plus className="mr-1 h-3 w-3" /> Add Tab
+              </Button>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function SchemaEditor() {
   const { type, slug } = useParams({ from: Route.id });
   const { toast } = useToast();
@@ -131,7 +623,8 @@ function SchemaEditor() {
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
   const [showPreview, setShowPreview] = useState(false);
   const [dragIdx, setDragIdx] = useState<number | null>(null);
-  const [newFieldType, setNewFieldType] = useState("text");
+  const [newFieldType] = useState("text");
+  const saveSchemaMutation = useSaveSchema();
   const [showNewFieldPicker, setShowNewFieldPicker] = useState(false);
   const previewRef = useRef<HTMLPreElement>(null);
 
@@ -168,11 +661,13 @@ function SchemaEditor() {
     setSelectedIdx((prev) => (prev === idx ? null : prev));
   };
 
-  const addField = () => {
-    const field = defaultField(newFieldType);
+  const addField = (type?: string) => {
+    const t = type ?? newFieldType;
+    const field = defaultField(t);
     field.name = `field_${fields.length + 1}`;
     setFields((prev) => [...prev, field]);
     setSelectedIdx(fields.length);
+    setNewFieldType(t);
     setShowNewFieldPicker(false);
   };
 
@@ -239,6 +734,11 @@ function SchemaEditor() {
         component: "component",
         dynamicZone: "dynamicZone",
         slug: "slug",
+        array: "array",
+        object: "object",
+        group: "group",
+        tabs: "tabs",
+        repeater: "repeater",
       };
       const h = m[f.type];
       if (h) helperNames.add(h);
@@ -374,7 +874,7 @@ function SchemaEditor() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      await saveSchema(type, slug, { fields, meta, label });
+      await saveSchemaMutation.mutateAsync({ type, slug, data: { fields, meta, label } });
       toast("Schema saved", "success");
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Failed to save";
@@ -475,10 +975,7 @@ function SchemaEditor() {
                       {types.map(([key, cfg]) => (
                         <button
                           key={key}
-                          onClick={() => {
-                            setNewFieldType(key);
-                            addField();
-                          }}
+                          onClick={() => addField(key)}
                           className={`flex items-center gap-1 rounded-md border px-2 py-1 text-xs transition-colors hover:bg-muted ${newFieldType === key ? "border-primary bg-primary/5" : ""}`}
                         >
                           <cfg.icon className="h-3 w-3" />
@@ -737,40 +1234,95 @@ function SchemaEditor() {
                 )}
 
                 {selectedField.type === "relation" && (
-                  <div className="space-y-2">
-                    <Label>Related Collection</Label>
-                    <Input
-                      value={(selectedField as { to?: string }).to ?? ""}
-                      onChange={(e) => updateField(selectedIdx as number, { to: e.target.value })}
-                      placeholder="users"
-                    />
-                  </div>
+                  <>
+                    <div className="space-y-2">
+                      <Label>Related Collection</Label>
+                      <Input
+                        value={(selectedField as { to?: string }).to ?? ""}
+                        onChange={(e) => updateField(selectedIdx as number, { to: e.target.value })}
+                        placeholder="users"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Relation Kind</Label>
+                      <select
+                        value={(selectedField as { kind?: string }).kind ?? "oneToOne"}
+                        onChange={(e) =>
+                          updateField(selectedIdx as number, { kind: e.target.value })
+                        }
+                        className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+                      >
+                        <option value="oneToOne">One to One</option>
+                        <option value="oneToMany">One to Many</option>
+                        <option value="manyToOne">Many to One</option>
+                        <option value="manyToMany">Many to Many</option>
+                      </select>
+                    </div>
+                  </>
                 )}
 
                 {selectedField.type === "component" && (
-                  <div className="space-y-2">
-                    <Label>Component Slug</Label>
-                    <Input
-                      value={(selectedField as { component?: string }).component ?? ""}
-                      onChange={(e) =>
-                        updateField(selectedIdx as number, { component: e.target.value })
-                      }
-                      placeholder="seo"
-                    />
-                  </div>
+                  <>
+                    <div className="space-y-2">
+                      <Label>Component Slug</Label>
+                      <Input
+                        value={(selectedField as { component?: string }).component ?? ""}
+                        onChange={(e) =>
+                          updateField(selectedIdx as number, { component: e.target.value })
+                        }
+                        placeholder="seo"
+                      />
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        id="field-repeatable"
+                        checked={(selectedField as { repeatable?: boolean }).repeatable === true}
+                        onChange={(e) =>
+                          updateField(selectedIdx as number, {
+                            repeatable: e.target.checked || undefined,
+                          })
+                        }
+                        className="h-4 w-4 rounded border-gray-300"
+                      />
+                      <Label htmlFor="field-repeatable" className="text-sm">
+                        Repeatable
+                      </Label>
+                    </div>
+                  </>
                 )}
 
                 {selectedField.type === "slug" && (
-                  <div className="space-y-2">
-                    <Label>Source Field</Label>
-                    <Input
-                      value={(selectedField as { source?: string }).source ?? ""}
-                      onChange={(e) =>
-                        updateField(selectedIdx as number, { source: e.target.value || undefined })
-                      }
-                      placeholder="title"
-                    />
-                  </div>
+                  <>
+                    <div className="space-y-2">
+                      <Label>Source Field</Label>
+                      <Input
+                        value={(selectedField as { source?: string }).source ?? ""}
+                        onChange={(e) =>
+                          updateField(selectedIdx as number, {
+                            source: e.target.value || undefined,
+                          })
+                        }
+                        placeholder="title"
+                      />
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        id="field-unique"
+                        checked={(selectedField as { unique?: boolean }).unique === true}
+                        onChange={(e) =>
+                          updateField(selectedIdx as number, {
+                            unique: e.target.checked || undefined,
+                          })
+                        }
+                        className="h-4 w-4 rounded border-gray-300"
+                      />
+                      <Label htmlFor="field-unique" className="text-sm">
+                        Unique
+                      </Label>
+                    </div>
+                  </>
                 )}
 
                 {selectedField.type === "code" && (
@@ -805,6 +1357,217 @@ function SchemaEditor() {
                       <option value="rgba">RGBA</option>
                       <option value="hsl">HSL</option>
                     </select>
+                  </div>
+                )}
+
+                {(selectedField.type === "media" || selectedField.type === "upload") && (
+                  <>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        id="field-multiple"
+                        checked={(selectedField as { multiple?: boolean }).multiple === true}
+                        onChange={(e) =>
+                          updateField(selectedIdx as number, {
+                            multiple: e.target.checked || undefined,
+                          })
+                        }
+                        className="h-4 w-4 rounded border-gray-300"
+                      />
+                      <Label htmlFor="field-multiple" className="text-sm">
+                        Allow Multiple
+                      </Label>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Allowed Types</Label>
+                      <div className="flex flex-wrap gap-2">
+                        {["image", "video", "audio", "document", "file"].map((t) => {
+                          const allowed =
+                            (selectedField as { allowedTypes?: string[] }).allowedTypes ?? [];
+                          const isSelected = allowed.length === 0 || allowed.includes(t);
+                          return (
+                            <button
+                              key={t}
+                              type="button"
+                              onClick={() => {
+                                const current =
+                                  (selectedField as { allowedTypes?: string[] }).allowedTypes ?? [];
+                                const next = isSelected
+                                  ? current.filter((x) => x !== t)
+                                  : [...current, t];
+                                updateField(selectedIdx as number, {
+                                  allowedTypes:
+                                    next.length > 0 && next.length < 5 ? next : undefined,
+                                });
+                              }}
+                              className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium transition-colors ${
+                                isSelected
+                                  ? "bg-primary text-primary-foreground"
+                                  : "bg-muted text-muted-foreground hover:bg-muted/80"
+                              }`}
+                            >
+                              {t}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                {selectedField.type === "dynamicZone" && (
+                  <div className="space-y-2">
+                    <Label>Allowed Components</Label>
+                    <div className="space-y-1">
+                      {((selectedField as { components?: string[] }).components ?? []).map(
+                        (comp, ci) => (
+                          <div key={ci} className="flex items-center gap-1">
+                            <Input
+                              value={comp}
+                              onChange={(e) => {
+                                const comps = [
+                                  ...((selectedField as { components: string[] }).components ?? []),
+                                ];
+                                comps[ci] = e.target.value;
+                                updateField(selectedIdx as number, { components: comps });
+                              }}
+                              placeholder="component-slug"
+                              className="h-8 text-xs"
+                            />
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7 shrink-0 text-destructive"
+                              onClick={() => {
+                                const comps = [
+                                  ...((selectedField as { components: string[] }).components ?? []),
+                                ];
+                                comps.splice(ci, 1);
+                                updateField(selectedIdx as number, { components: comps });
+                              }}
+                            >
+                              <Trash2 className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        ),
+                      )}
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="w-full"
+                        onClick={() => {
+                          const comps = [
+                            ...((selectedField as { components: string[] }).components ?? []),
+                            "",
+                          ];
+                          updateField(selectedIdx as number, { components: comps });
+                        }}
+                      >
+                        <Plus className="mr-1 h-3 w-3" /> Add Component
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
+                {["array", "object", "group", "repeater"].includes(selectedField.type) && (
+                  <div className="space-y-2">
+                    <Label>Nested Fields</Label>
+                    <div className="rounded-md border bg-muted/20 p-3">
+                      <FieldEditorList
+                        fields={(selectedField as { fields: FieldDefinition[] }).fields ?? []}
+                        onChange={(newFields) =>
+                          updateField(selectedIdx as number, { fields: newFields })
+                        }
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {selectedField.type === "tabs" && (
+                  <div className="space-y-2">
+                    <Label>Tabs</Label>
+                    <div className="space-y-2">
+                      {(
+                        (
+                          selectedField as {
+                            tabs?: Array<{ label: string; fields: FieldDefinition[] }>;
+                          }
+                        ).tabs ?? []
+                      ).map((tab, ti) => (
+                        <div key={ti} className="space-y-2 rounded-md border p-3">
+                          <div className="flex items-center gap-2">
+                            <Input
+                              value={tab.label}
+                              onChange={(e) => {
+                                const tabs = [
+                                  ...((
+                                    selectedField as {
+                                      tabs: Array<{ label: string; fields: FieldDefinition[] }>;
+                                    }
+                                  ).tabs ?? []),
+                                ];
+                                tabs[ti] = { ...tabs[ti], label: e.target.value };
+                                updateField(selectedIdx as number, { tabs });
+                              }}
+                              placeholder="Tab label"
+                              className="h-8 text-xs flex-1"
+                            />
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7 shrink-0 text-destructive"
+                              onClick={() => {
+                                const tabs = [
+                                  ...((
+                                    selectedField as {
+                                      tabs: Array<{ label: string; fields: FieldDefinition[] }>;
+                                    }
+                                  ).tabs ?? []),
+                                ];
+                                tabs.splice(ti, 1);
+                                updateField(selectedIdx as number, { tabs });
+                              }}
+                            >
+                              <Trash2 className="h-3 w-3" />
+                            </Button>
+                          </div>
+                          <div className="pl-2 border-l-2 border-muted">
+                            <FieldEditorList
+                              fields={tab.fields}
+                              onChange={(newFields) => {
+                                const tabs = [
+                                  ...((
+                                    selectedField as {
+                                      tabs: Array<{ label: string; fields: FieldDefinition[] }>;
+                                    }
+                                  ).tabs ?? []),
+                                ];
+                                tabs[ti] = { ...tabs[ti], fields: newFields };
+                                updateField(selectedIdx as number, { tabs });
+                              }}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="w-full"
+                        onClick={() => {
+                          const tabs = [
+                            ...((
+                              selectedField as {
+                                tabs: Array<{ label: string; fields: FieldDefinition[] }>;
+                              }
+                            ).tabs ?? []),
+                            { label: "New Tab", fields: [] },
+                          ];
+                          updateField(selectedIdx as number, { tabs });
+                        }}
+                      >
+                        <Plus className="mr-1 h-3 w-3" /> Add Tab
+                      </Button>
+                    </div>
                   </div>
                 )}
 

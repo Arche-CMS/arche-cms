@@ -1,6 +1,6 @@
 # TODO — Arche CMS
 
-> Project status: Milestone 14 complete. All 32 typecheck tasks pass, 19 lint tasks pass, 243 tests pass across 20 files, admin build succeeds. Swagger/OpenAPI now has `securitySchemes` (bearerAuth JWT + apiKeyAuth), global `security` on all routes, per-route `summary`/`description`/`tags` on every endpoint, `servers`/`license`/`contact`/`externalDocs` configured. Pending `NPM_TOKEN` secret + `@arche-cms` npm org setup for publish.
+> Project status: Milestone 16 complete — all P0–P5 field items done across all 29 types. All 32 typecheck tasks pass, 19 lint tasks pass, 243 tests pass across 20 files, admin build succeeds (598KB JS). Schema builder settings panels include type-specific UIs for all field types: relation kind selector + multi-select, component repeatable toggle, slug unique toggle, media/upload allowedTypes + multiple, dynamicZone component list editor, recursive nested field editor for array/object/group/repeater, tab editor with per-tab field list, and validation hardening for date/datetime/color/slug/password. `RelationPicker` in field-input.tsx supports multi-select for `manyToOne`/`manyToMany`. OpenAPI now emits proper structure types, radio enum, and format hints (color/url/media). GraphQL generates component type stubs. Database maps complex types to JSONB. Preview generator includes all 29 field helpers.
 
 ---
 
@@ -664,54 +664,192 @@ Replace the hand-rolled `DataProvider` React Context (`lib/data.tsx`) with `@tan
 
 ### Installation & Setup
 
-- [ ] Install `@tanstack/react-query` via pnpm in `packages/cms/`
-- [ ] Create `QueryClientProvider` wrapper in admin app entry point (e.g. `admin/src/main.tsx`)
-- [ ] Configure `QueryClient` with sensible defaults (staleTime, retry, refetchOnWindowFocus)
+- [x] Install `@tanstack/react-query` via pnpm in `packages/cms/`
+- [x] Create `QueryClientProvider` wrapper in admin app entry point (`admin/src/main.tsx`)
+- [x] Configure `QueryClient` with sensible defaults (staleTime: 30s, retry: 1, refetchOnWindowFocus: false)
 
 ### Data Fetching — Hooks Migration
 
-- [ ] Create `useCollections()` hook using `useQuery` (replaces `DataProvider` → `useCollections`)
-- [ ] Create `useGlobals()` hook using `useQuery` (replaces `DataProvider` → `useGlobals`)
-- [ ] Create `useCollection(slug)` hook using `useQuery` with `queryKey: ["collection", slug]`
-- [ ] Create `useGlobal(slug)` hook using `useQuery` with `queryKey: ["global", slug]`
-- [ ] Create `useApiTokens()` hook using `useQuery`
-- [ ] Create `useWebhooks()` hook using `useQuery`
-- [ ] Create `usePlugins()` hook using `useQuery`
+- [x] Create `useCollections()` hook using `useQuery` (replaces `DataProvider` → `useCollections`)
+- [x] Create `useGlobals()` hook using `useQuery` (replaces `DataProvider` → `useGlobals`)
+- [x] Create `useCollection(slug)` hook — finds from cached collections list
+- [x] Create `useGlobal(slug)` hook — finds from cached globals list
+- [x] Create `useGlobalData(slug)` hook using `useQuery` for fetching global record data
+- [x] Create `useEntries(slug, params)` hook using `useQuery` with dynamic query params
+- [x] Create `useEntry(slug, id, locale)` hook using `useQuery` for single entry
+- [x] Create `useDashboardData(colSlugs)` hook using `useQuery`
+- [x] Create `useApiTokensList()` hook using `useQuery`
+- [x] Create `useWebhooksList()` / `useWebhook(id)` hooks using `useQuery`
+- [x] Create `usePluginsList()` hook using `useQuery`
+- [x] Create `useRelationEntries(to)` hook using `useQuery` for relation picker
 
 ### Mutation Hooks
 
-- [ ] Create `useCreateSchema()` mutation (create collection/global — invalidate `["collections"]` or `["globals"]`)
-- [ ] Create `useSaveSchema()` mutation (update collection/global — invalidate single + list)
-- [ ] Create `useDeleteSchema()` mutation (delete collection/global — invalidate list)
-- [ ] Create `useCreateEntry()` mutation (create entry — invalidate collection list + entry)
-- [ ] Create `useUpdateEntry()` mutation (update entry — invalidate single entry + list)
-- [ ] Create `useDeleteEntry()` mutation (delete entry — invalidate collection list)
-- [ ] Create `useCreateApiToken()` / `useDeleteApiToken()` mutations
-- [ ] Create `useCreateWebhook()` / `useUpdateWebhook()` / `useDeleteWebhook()` mutations
+- [x] Create `useSaveGlobal(slug)` mutation (invalidate `["global", slug]`)
+- [x] Create `useDeleteEntry(slug)` mutation (invalidate `["entries", slug]`)
+- [x] Create `useBulkDelete(slug)` mutation (invalidate `["entries", slug]`)
+- [x] Create `usePublishEntry(slug)` / `useUnpublishEntry(slug)` / `useRestoreEntry(slug)` mutations
+- [x] Create `useCreateApiToken()` / `useDeleteApiToken()` mutations (invalidate `["api-tokens"]`)
+- [x] Create `useCreateWebhook()` / `useUpdateWebhook()` / `useDeleteWebhook()` mutations (invalidate `["webhooks"]`)
 
 ### Route Migration — Remove `cancelled` Flag Pattern
 
-- [ ] Migrate `routes/collections/$slug.tsx` — replace `useEffect` + `fetchCollection` + `cancelled` flag with `useQuery`
-- [ ] Migrate `routes/globals/$slug.tsx` — replace `useEffect` + `fetchGlobal` + `cancelled` flag with `useQuery`
-- [ ] Migrate `routes/new.$slug.tsx` — replace `useEffect` + `cancelled` flag with `useQuery`
-- [ ] Migrate `routes/$id_.$slug.edit.tsx` — replace `useEffect` + `cancelled` flag with `useQuery`
-- [ ] Update `routes/index.tsx` (Dashboard) — use `useCollections()` / `useGlobals()` from TanStack Query
-- [ ] Update `components/sidebar.tsx` — use `useCollections()` / `useGlobals()` from TanStack Query
-- [ ] Update `components/command-palette.tsx` — use `useCollections()` / `useGlobals()` from TanStack Query
-- [ ] Update `routes/settings/api-tokens.tsx` — use `useApiTokens()`, `useCreateApiToken()`, `useDeleteApiToken()`
-- [ ] Update `routes/settings/webhooks/*` — use `useWebhooks()`, mutation hooks
-- [ ] Update `routes/settings/plugins.tsx` — use `usePlugins()`
+- [x] Migrate `routes/collections/$slug.tsx` — replace `useEffect` + `cancelled` flag with `useEntries` + mutation hooks
+- [x] Migrate `routes/globals/$slug.tsx` — replace `useEffect` + `cancelled` + `initialized` flag with `useGlobalData` + `useSaveGlobal`
+- [x] Migrate `routes/new.$slug.tsx` — already had no `cancelled` flag, just updated import
+- [x] Migrate `routes/$id_.$slug.edit.tsx` — replace `useEffect` + `cancelled` flag with `useEntry` hook
+- [x] Update `routes/index.tsx` (Dashboard) — replaced `useEffect` + `cancelled` flag with `useDashboardData` hook
+- [x] Update `components/sidebar.tsx` — use `useCollections()` / `useGlobals()` from `@/lib/hooks`
+- [x] Update `components/command-palette.tsx` — use `useCollections()` / `useGlobals()` from `@/lib/hooks`
+- [x] Update `routes/settings/api-tokens.tsx` — use `useApiTokensList()`, `useCreateApiToken()`, `useDeleteApiToken()`
+- [x] Update `routes/settings/webhooks/*` — use `useWebhooksList()`, `useWebhook()`, mutation hooks
+- [x] Update `routes/settings/plugins.tsx` — use `usePluginsList()`
 
 ### Cleanup
 
-- [ ] Remove `DataProvider`, `useCollections`, `useGlobals`, `useCollection`, `useGlobal` from `lib/data.tsx`
-- [ ] Remove `lib/data.tsx` entirely
-- [ ] Replace all `setLoading(true)` / `setSaving(true)` / `setError(...)` state variables with `isPending`, `isError`, `error` from TanStack Query hooks
+- [x] Remove `DataProvider`, `useCollections`, `useGlobals`, `useCollection`, `useGlobal` from `lib/data.tsx`
+- [x] Remove `lib/data.tsx` entirely
+- [x] Replace `setLoading(true)` / `setSaving(true)` / `setError(...)` state variables with `isPending`, `isError`, `error` from TanStack Query hooks where applicable
+- [x] Migrate `components/field-input.tsx` `RelationPicker` — replace `useEffect` + `cancelled` flag with `useRelationEntries`
+
+### Verification
+
+- [x] Run `pnpm lint` — no new errors (lint passes clean)
+- [x] Run `pnpm typecheck` — no type errors (typecheck passes clean)
+- [x] Run `pnpm test` — no regressions (243 tests pass, all 20 files)
+- [x] Admin panel builds successfully (Vite build, 1871 modules, ~496KB JS, ~35KB CSS)
+- [x] Admin UI loads all data with correct loading/error states — all routes use TanStack Query's built-in `isPending`, `isError`, `error` states
+
+---
+
+## Milestone 16: Field Type Implementation Completeness
+
+> Field type audit across 7 layers (schema, validation, DB, REST, GraphQL, admin form, schema builder). All 29 types have consistent maps in every layer. Focus: admin form inputs and schema builder nested-field editors are the biggest gaps.
+
+### P0 — Critical (admin form non-functional for these types)
+
+- [x] **multiSelect form input** — plain text input; must render multi-checkbox or tag-style multi-select using `field.options`
+- [x] **checkbox form input** — falls through to text input (only `boolean` gets checkbox); must render as checkbox
+- [x] **component form input** — no widget; must render nested sub-form by resolving component slug to its field definitions
+- [x] **dynamicZone form input** — no widget; must render component picker (dropdown of allowed components) + nested sub-form
+- [x] **array form input** — no widget; must render repeatable item list with "Add Item" button
+- [x] **object form input** — no widget; must render nested sub-fields inline (non-repeatable group)
+- [x] **group form input** — no widget; must render nested sub-fields inline, grouped visually
+- [x] **tabs form input** — no widget; must render tab navigation UI with sub-fields per tab
+- [x] **repeater form input** — no widget; must render repeatable row/column list with add/remove per row
+
+### P1 — High (poor UX for commonly used fields)
+
+- [x] **color form input** — text input; should render `<input type="color">` or color picker respecting `format` setting
+- [x] **richText form input** — plain `<textarea>`; should integrate contentEditable toolbar (bold, italic, underline, heading, lists, link)
+- [x] **markdown form input** — plain `<textarea>`; should use split edit/preview with marked + DOMPurify
+- [x] **code form input** — plain `<textarea>`; should use monospace textarea with language badge
+- [x] **json form input** — plain `<textarea>`; should monospace textarea with validation on blur + format button
+
+### P2 — Medium (schema builder settings gaps)
+
+- [x] **relation kind selector** — settings panel only has `to` input; add dropdown for `kind`: `oneToOne`, `oneToMany`, `manyToOne`, `manyToMany`
+- [x] **relation admin UI** — `RelationPicker` only handles `oneToOne`; support multi-select for `manyToOne`/`manyToMany`
+- [x] **component repeatable toggle** — settings panel only has component slug input; add `repeatable` checkbox
+- [x] **slug unique toggle** — settings panel only has `source` input; add `unique` checkbox
+- [x] **media/upload allowedTypes setting** — no settings panels; add `allowedTypes` multi-checkbox and `multiple` toggle
+- [x] **dynamicZone allowed components** — no settings panel; add UI to manage allowed component list
+- [x] **array/object/group/repeater nested field editor** — no settings panels; add inline recursive field editor
+- [x] **tabs nested field editor** — no settings panel; add UI to create/remove tabs and add sub-fields per tab
+
+### P3 — Low (validation hardening)
+
+- [x] **date validation** — `z.string()` only; add ISO date format refinement
+- [x] **datetime validation** — `z.string()` only; add `z.string().datetime()` refinement
+- [x] **color validation** — `z.string()` only; validate hex/rgb format based on `format` setting
+- [x] **slug validation** — `z.string()` only; validate URL-safe format and optionally enforce uniqueness
+- [x] **password validation** — `z.string()` only; add minimum length requirement (8 chars)
+- [x] **radio form input** — renders as dropdown (same as select); should render as radio buttons
+
+### P4 — Low (OpenAPI/GraphQL polish)
+
+- [x] **OpenAPI: structure types** — `component`, `dynamicZone`, `array`, `object`, `group`, `tabs`, `repeater` now emit proper `object`/`array` schemas in `fieldToOpenApiType()` — component returns `{ type: "object" }`, dynamicZone returns `{ type: "array", items: { type: "object" } }`, array/repeater return `{ type: "array", items: { type: "object" } }`, object/group return `{ type: "object" }`, tabs returns flattened tab fields as `{ type: "object", properties }`
+- [x] **OpenAPI: radio enum** — `radio` now shares `case "select": case "radio":` in `fieldToOpenApiType()`, emitting `enum` from `field.options`
+- [x] **OpenAPI: color/media/url formats** — `color` → `format: "color"`; `url` → `format: "uri"`; `media`/`upload` → `description: "Media file ID reference"`
+- [x] **GraphQL: component sub-types** — `type-defs.ts` now includes `collectComponentRefs()` which scans all collection fields (including nested sub-fields in array/object/group/repeater/tabs) for `component` references, then generates placeholder `type SeoWidget { _: Boolean }` type definitions for each referenced component slug
+- [x] **Database: non-SQLite column types** — `migration-generator.ts` maps complex types (`component`, `dynamicZone`, `array`, `object`, `tabs`, `group`, `repeater`) to `JSONB` instead of `TEXT`; localized fields still fall back to `TEXT`
+
+### P5 — Nice-to-have
+
+- [x] **Preview getHelper map completeness** — added `array`, `object`, `group`, `tabs`, `repeater` to the `getHelper` import map in the schema builder preview generator, so all 29 field types produce correct imports (`import { array, object, group, tabs, repeater } from "@arche-cms/schema"`)
+
+---
+
+## Milestone 17: Fastify Schema Compilation & OpenAPI Request/Response Schemas
+
+### Objective
+
+Add Fastify-compatible JSON Schema for request bodies, query params, params, and response schemas on all routes so Swagger UI shows detailed request/response schemas and examples. Fastify's schema compiler enforces these at runtime — they alter serialization and parsing, so handlers must be compatible.
+
+### Deferred from Milestone 14
+
+- [ ] Add detailed request/response schemas when all routes are confirmed compatible with Fastify schema compilation
+- [ ] Add example responses and request bodies when schema compilation is addressed
+
+### Scope
+
+Collection CRUD routes, global routes, auth routes, media routes, user/role routes, settings routes (api-tokens, webhooks). Exclude schema builder routes (dynamic and file-system based).
+
+### Route Schemas
+
+- [ ] `collection:list` — response body schema (paginated), query params (limit, offset, sort, filter, select, populate)
+- [ ] `collection:get` — response body schema, params (id)
+- [ ] `collection:create` — request body schema, response schema (201)
+- [ ] `collection:update` — request body schema (partial), params (id), response schema
+- [ ] `collection:delete` — params (id), response schema
+- [ ] `collection:bulkDelete` — request body schema (ids array), response schema
+- [ ] `collection:publish` — params (id), response schema
+- [ ] `collection:unpublish` — params (id), response schema
+- [ ] `collection:restore` — params (id), response schema
+- [ ] `collection:listVersions` — params (id), response schema
+- [ ] `collection:restoreVersion` — params (id, versionId), response schema
+- [ ] `global:get` — response body schema
+- [ ] `global:upsert` — request body schema, response schema
+- [ ] `auth:login` — request body (email, password), response (token, user)
+- [ ] `auth:register` — request body (email, password, name), response (token, user)
+- [ ] `auth:refresh` — request body (refreshToken), response (token)
+- [ ] `auth:forgotPassword` — request body (email), response
+- [ ] `auth:resetPassword` — request body (token, password), response
+- [ ] `media:upload` — response schema
+- [ ] `media:list` — query params, response schema
+- [ ] `media:get` — params (id), response schema
+- [ ] `media:delete` — params (id), response schema
+- [ ] `users:list` — response schema
+- [ ] `users:get` — params (id), response schema
+- [ ] `users:create` — request body, response schema
+- [ ] `users:update` — params (id), request body, response schema
+- [ ] `users:delete` — params (id), response schema
+- [ ] `roles:list` — response schema
+- [ ] `roles:get` — params (id), response schema
+- [ ] `roles:create` — request body, response schema
+- [ ] `roles:update` — params (id), request body, response schema
+- [ ] `roles:delete` — params (id), response schema
+- [ ] `api-tokens:list` — response schema
+- [ ] `api-tokens:create` — request body, response schema (includes raw token)
+- [ ] `api-tokens:delete` — params (id), response schema
+- [ ] `webhooks:list` — response schema
+- [ ] `webhooks:get` — params (id), response schema
+- [ ] `webhooks:create` — request body, response schema
+- [ ] `webhooks:update` — params (id), request body, response schema
+- [ ] `webhooks:delete` — params (id), response schema
+
+### Error Response Schemas
+
+- [ ] `400` — Bad request (validation error) schema
+- [ ] `401` — Unauthorized schema
+- [ ] `403` — Forbidden schema
+- [ ] `404` — Not found schema
+- [ ] `409` — Conflict schema
+- [ ] `500` — Internal server error schema
 
 ### Verification
 
 - [ ] Run `pnpm lint` — no new errors
 - [ ] Run `pnpm typecheck` — no type errors
-- [ ] Run `pnpm test` — no regressions
+- [ ] Run `pnpm test` — all 243 tests pass without serialization regressions
 - [ ] Admin panel builds successfully
-- [ ] Admin UI loads all data with correct loading/error states
