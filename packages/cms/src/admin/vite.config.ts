@@ -19,6 +19,7 @@ export default defineConfig(({ mode: _mode }) => ({
   build: {
     outDir: path.resolve(__dirname, "../../dist/admin"),
     emptyOutDir: true,
+    sourcemap: true,
   },
   server: {
     port: 5173,

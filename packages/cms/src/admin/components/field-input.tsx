@@ -548,7 +548,7 @@ function MarkdownInput({
   const [html, setHtml] = useState("");
 
   useEffect(() => {
-    marked.parse(strVal || "").then((raw) => {
+    Promise.resolve(marked.parse(strVal ?? "")).then((raw) => {
       setHtml(DOMPurify.sanitize(raw));
     });
   }, [strVal]);
