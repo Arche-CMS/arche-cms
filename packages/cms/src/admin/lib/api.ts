@@ -162,28 +162,13 @@ export type CollectionMeta = {
   labels: { singular?: string; plural?: string };
   versions?: { drafts?: boolean; softDelete?: boolean };
   localization?: { locales: string[]; defaultLocale: string };
-  fields: Array<{
-    name: string;
-    type: string;
-    label: string;
-    required: boolean;
-    localized?: boolean;
-    options?: string[];
-    to?: string;
-  }>;
+  fields: FieldDefinition[];
 };
 
 export type GlobalMeta = {
   slug: string;
   label: string;
-  fields: Array<{
-    name: string;
-    type: string;
-    label: string;
-    required: boolean;
-    options?: string[];
-    to?: string;
-  }>;
+  fields: FieldDefinition[];
 };
 
 export async function fetchCollections(): Promise<CollectionMeta[]> {

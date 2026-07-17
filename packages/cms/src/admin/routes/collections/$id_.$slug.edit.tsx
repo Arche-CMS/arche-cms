@@ -21,7 +21,7 @@ function EditEntry() {
   const { toast } = useToast();
   const { collection, isLoading: colLoading } = useCollection(slug);
   const { data: entry, isLoading: entryLoading, error: entryError } = useEntry(slug, id, locale);
-  const [values, setValues] = useState<Record<string, string>>({});
+  const [values, setValues] = useState<Record<string, unknown>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
@@ -31,10 +31,9 @@ function EditEntry() {
   const [initialized, setInitialized] = useState(false);
 
   if (collection && entry && !initialized) {
-    const initial: Record<string, string> = {};
+    const initial: Record<string, unknown> = {};
     for (const f of collection.fields) {
-      const val = entry[f.name];
-      initial[f.name] = typeof val === "string" ? val : val != null ? String(val) : "";
+      initial[f.name] = entry[f.name] ?? "";
     }
     setValues(initial);
     setEntryStatus((entry._status as string) ?? "");
@@ -49,8 +48,11 @@ function EditEntry() {
 
     const newErrors: Record<string, string> = {};
     for (const f of collection.fields) {
-      if (f.required && !values[f.name]) {
-        newErrors[f.name] = `${f.label} is required`;
+      if (f.required) {
+        const v = values[f.name];
+        if (v === "" || v === undefined || v === null) {
+          newErrors[f.name] = `${f.label} is required`;
+        }
       }
     }
     setErrors(newErrors);

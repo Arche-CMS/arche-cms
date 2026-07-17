@@ -137,7 +137,7 @@ describe("MigrationGenerator", () => {
     expect(m.up).toContain("f_json TEXT");
     expect(m.up).toContain("f_relation TEXT");
     expect(m.up).toContain("f_slug TEXT");
-    expect(m.up).toContain("f_component TEXT");
+    expect(m.up).toContain("f_component JSONB");
   });
 
   it("generates integer primary key id column", () => {

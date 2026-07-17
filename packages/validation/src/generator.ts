@@ -46,9 +46,23 @@ export function fieldToZodSchema(field: FieldDefinition, localize = false): z.Zo
     case "richText":
     case "markdown":
     case "code":
-    case "color":
-    case "slug":
       schema = z.string();
+      break;
+
+    case "color":
+      if (field.format === "rgb") {
+        schema = z.string().regex(/^rgb\(\d{1,3},\s*\d{1,3},\s*\d{1,3}\)$/);
+      } else if (field.format === "rgba") {
+        schema = z.string().regex(/^rgba\(\d{1,3},\s*\d{1,3},\s*\d{1,3},\s*(0(\.\d+)?|1(\.0)?)\)$/);
+      } else if (field.format === "hsl") {
+        schema = z.string().regex(/^hsl\(\d{1,3},\s*\d{1,3}%,\s*\d{1,3}%\)$/);
+      } else {
+        schema = z.string().regex(/^#[0-9a-fA-F]{3,6}$/);
+      }
+      break;
+
+    case "slug":
+      schema = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);
       break;
 
     case "email":
@@ -56,7 +70,7 @@ export function fieldToZodSchema(field: FieldDefinition, localize = false): z.Zo
       break;
 
     case "password":
-      schema = z.string();
+      schema = z.string().min(8, "Password must be at least 8 characters");
       break;
 
     case "url":
@@ -73,8 +87,11 @@ export function fieldToZodSchema(field: FieldDefinition, localize = false): z.Zo
       break;
 
     case "date":
+      schema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Date must be ISO 8601 format (YYYY-MM-DD)");
+      break;
+
     case "datetime":
-      schema = z.string();
+      schema = z.string().datetime({ message: "Datetime must be ISO 8601 format" });
       break;
 
     case "json":

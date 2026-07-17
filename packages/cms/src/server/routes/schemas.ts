@@ -26,27 +26,13 @@ interface CollectionMeta {
     softDelete?: boolean;
     scheduledPublishing?: boolean;
   };
-  fields: Array<{
-    name: string;
-    type: string;
-    label: string;
-    required: boolean;
-    to?: string;
-    options?: string[];
-  }>;
+  fields: Array<Record<string, unknown>>;
 }
 
 interface GlobalMeta {
   slug: string;
   label: string;
-  fields: Array<{
-    name: string;
-    type: string;
-    label: string;
-    required: boolean;
-    to?: string;
-    options?: string[];
-  }>;
+  fields: Array<Record<string, unknown>>;
 }
 
 function normalizeOptions(opts: unknown[]): string[] {
@@ -57,28 +43,49 @@ function normalizeOptions(opts: unknown[]): string[] {
   });
 }
 
+function buildFieldMeta(f: FieldDefinition): Record<string, unknown> {
+  const base: Record<string, unknown> = {
+    name: f.name,
+    type: f.type,
+    label: f.label ?? f.name,
+    required: f.validation?.required ?? false,
+    localized: f.localized,
+    validation: f.validation,
+    admin: f.admin,
+    defaultValue: f.defaultValue,
+  };
+  const rf = f as unknown as Record<string, unknown>;
+  if ("to" in rf) base.to = rf.to;
+  if ("kind" in rf) base.kind = rf.kind;
+  if ("options" in rf) base.options = normalizeOptions(rf.options as unknown[]);
+  if ("component" in rf) base.component = rf.component;
+  if ("repeatable" in rf) base.repeatable = rf.repeatable;
+  if ("components" in rf) base.components = rf.components;
+  if ("source" in rf) base.source = rf.source;
+  if ("unique" in rf) base.unique = rf.unique;
+  if ("language" in rf) base.language = rf.language;
+  if ("format" in rf) base.format = rf.format;
+  if ("multiple" in rf) base.multiple = rf.multiple;
+  if ("allowedTypes" in rf) base.allowedTypes = rf.allowedTypes;
+  if ("fields" in rf && Array.isArray(rf.fields)) {
+    base.fields = (rf.fields as FieldDefinition[]).map(buildFieldMeta);
+  }
+  if ("tabs" in rf && Array.isArray(rf.tabs)) {
+    base.tabs = (rf.tabs as Array<{ label: string; fields: FieldDefinition[] }>).map((t) => ({
+      label: t.label,
+      fields: t.fields.map(buildFieldMeta),
+    }));
+  }
+  return base;
+}
+
 function buildCollectionMeta(collections: CollectionDefinition[]): CollectionMeta[] {
   return collections.map((c) => ({
     slug: c.slug,
     label: c.labels?.plural ?? c.slug,
     labels: c.labels,
     versions: c.versions,
-    fields: (c.fields ?? []).map((f) => {
-      const base = {
-        name: f.name,
-        type: f.type,
-        label: f.label ?? f.name,
-        required: f.validation?.required ?? false,
-      };
-      if (f.type === "relation") {
-        return { ...base, to: (f as { to?: string }).to ?? "" };
-      }
-      if (f.type === "select" || f.type === "multiSelect" || f.type === "radio") {
-        const opts = (f as { options?: unknown[] }).options ?? [];
-        return { ...base, options: normalizeOptions(opts) };
-      }
-      return base;
-    }),
+    fields: (c.fields ?? []).map(buildFieldMeta) as CollectionMeta["fields"],
   }));
 }
 
@@ -86,22 +93,7 @@ function buildGlobalMeta(globals: GlobalDefinition[]): GlobalMeta[] {
   return globals.map((g) => ({
     slug: g.slug,
     label: g.label,
-    fields: (g.fields ?? []).map((f) => {
-      const base = {
-        name: f.name,
-        type: f.type,
-        label: f.label ?? f.name,
-        required: f.validation?.required ?? false,
-      };
-      if (f.type === "relation") {
-        return { ...base, to: (f as { to?: string }).to ?? "" };
-      }
-      if (f.type === "select" || f.type === "multiSelect" || f.type === "radio") {
-        const opts = (f as { options?: unknown[] }).options ?? [];
-        return { ...base, options: normalizeOptions(opts) };
-      }
-      return base;
-    }),
+    fields: (g.fields ?? []).map(buildFieldMeta) as GlobalMeta["fields"],
   }));
 }
 

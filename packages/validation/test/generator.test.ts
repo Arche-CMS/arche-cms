@@ -217,11 +217,12 @@ describe("collectionToCreateSchema", () => {
 });
 
 describe("fieldToZodSchema — additional field type coverage", () => {
-  it("maps password to string", () => {
+  it("maps password to string with 8 char minimum", () => {
     const field: FieldDefinition = { name: "pw", type: "password" };
     const schema = fieldToZodSchema(field);
-    expect(schema.parse("s3cret")).toBe("s3cret");
+    expect(schema.parse("s3cret123")).toBe("s3cret123");
     expect(() => schema.parse(123)).toThrow();
+    expect(() => schema.parse("short")).toThrow();
   });
 
   it("maps media to string", () => {
@@ -535,6 +536,75 @@ describe("collectionToUpdateSchema — extras", () => {
     expect(schema.parse({ _publishAt: "2026-01-01T00:00:00Z" })).toEqual({
       _publishAt: "2026-01-01T00:00:00Z",
     });
+  });
+});
+
+describe("fieldToZodSchema — P3 validation hardening", () => {
+  it("validates date field with ISO 8601 format (YYYY-MM-DD)", () => {
+    const field: FieldDefinition = { name: "publishedAt", type: "date" };
+    const schema = fieldToZodSchema(field);
+    expect(schema.parse("2026-01-01")).toBe("2026-01-01");
+    expect(() => schema.parse("01-01-2026")).toThrow();
+    expect(() => schema.parse("Jan 1, 2026")).toThrow();
+    expect(() => schema.parse("2026/01/01")).toThrow();
+  });
+
+  it("validates datetime field with ISO 8601 format", () => {
+    const field: FieldDefinition = { name: "createdAt", type: "datetime" };
+    const schema = fieldToZodSchema(field);
+    expect(schema.parse("2026-01-01T12:00:00Z")).toBe("2026-01-01T12:00:00Z");
+    expect(schema.parse("2026-01-01T12:00:00.000Z")).toBe("2026-01-01T12:00:00.000Z");
+    expect(() => schema.parse("2026-01-01")).toThrow();
+    expect(() => schema.parse("not-a-date")).toThrow();
+  });
+
+  it("validates color field with hex format by default", () => {
+    const field: FieldDefinition = { name: "accent", type: "color" };
+    const schema = fieldToZodSchema(field);
+    expect(schema.parse("#ff0000")).toBe("#ff0000");
+    expect(schema.parse("#fff")).toBe("#fff");
+    expect(() => schema.parse("red")).toThrow();
+    expect(() => schema.parse("rgb(255,0,0)")).toThrow();
+  });
+
+  it("validates color field with rgb format", () => {
+    const field: FieldDefinition = { name: "accent", type: "color", format: "rgb" };
+    const schema = fieldToZodSchema(field);
+    expect(schema.parse("rgb(255, 0, 0)")).toBe("rgb(255, 0, 0)");
+    expect(() => schema.parse("#ff0000")).toThrow();
+  });
+
+  it("validates color field with rgba format", () => {
+    const field: FieldDefinition = { name: "accent", type: "color", format: "rgba" };
+    const schema = fieldToZodSchema(field);
+    expect(schema.parse("rgba(255, 0, 0, 0.5)")).toBe("rgba(255, 0, 0, 0.5)");
+    expect(() => schema.parse("rgb(255,0,0)")).toThrow();
+  });
+
+  it("validates color field with hsl format", () => {
+    const field: FieldDefinition = { name: "accent", type: "color", format: "hsl" };
+    const schema = fieldToZodSchema(field);
+    expect(schema.parse("hsl(0, 100%, 50%)")).toBe("hsl(0, 100%, 50%)");
+    expect(() => schema.parse("#ff0000")).toThrow();
+  });
+
+  it("validates slug field with URL-safe format", () => {
+    const field: FieldDefinition = { name: "slug", type: "slug" };
+    const schema = fieldToZodSchema(field);
+    expect(schema.parse("hello-world")).toBe("hello-world");
+    expect(schema.parse("abc123")).toBe("abc123");
+    expect(() => schema.parse("Hello World")).toThrow();
+    expect(() => schema.parse("hello_world")).toThrow();
+    expect(() => schema.parse("  leading-space")).toThrow();
+  });
+
+  it("validates password field with minimum 8 characters", () => {
+    const field: FieldDefinition = { name: "pw", type: "password" };
+    const schema = fieldToZodSchema(field);
+    expect(schema.parse("longenough")).toBe("longenough");
+    expect(schema.parse("12345678")).toBe("12345678");
+    expect(() => schema.parse("short")).toThrow();
+    expect(() => schema.parse("")).toThrow();
   });
 });
 
