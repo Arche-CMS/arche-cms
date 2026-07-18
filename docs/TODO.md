@@ -1,6 +1,6 @@
 # TODO — Arche CMS
 
-> Project status: Milestone 22 complete — server completeness (activity/webhook coverage, pagination, graceful shutdown, webhook reliability, code cleanup). 32 typecheck tasks pass, 19 lint tasks pass, 19 test tasks pass, 19 build tasks pass. Next: Milestone 23 — admin UI quality & consistency.
+> Project status: Milestone 22 complete — server completeness (activity/webhook coverage, pagination, graceful shutdown, webhook reliability, code cleanup). 32 typecheck tasks pass, 19 lint tasks pass, 19 test tasks pass, 19 build tasks pass. Next: Milestone 23 — admin UI quality & consistency. Milestone 25 — create-app scaffold improvements (Dockerfile, validation, cleanup) in progress.
 
 ---
 
@@ -1241,3 +1241,34 @@ Complete the GraphQL and REST API layers: add global definitions to GraphQL, fix
 - [ ] Run `pnpm typecheck` — no type errors
 - [ ] Run `pnpm test` — all tests pass
 - [ ] Run `pnpm build` — all packages build successfully
+
+---
+
+## Milestone 25: Create-App Scaffold Improvements
+
+### Objective
+
+Improve `@arche-cms/create-app` scaffolding: add Docker support, input validation, fix packaging bugs, and clean up test artifacts.
+
+### Dockerfile Generation
+
+- [x] **Generate Dockerfile in scaffold** — Multi-stage build: builder stage installs deps + runs `pnpm build`, runner stage copies production deps + built CMS + schema files. Uses `node:24-alpine`, non-root `cms` user, exposes port 3000
+- [x] **Generate `.dockerignore` in scaffold** — Excludes `node_modules`, `dist`, `*.db`, `uploads`, `.env`, `.git`
+- [x] **Add Dockerfile tests** — Verify multi-stage build structure, `CMD`, `EXPOSE`, `USER` in scaffold test suite
+- [x] **Add `.dockerignore` tests** — Verify exclusion patterns in scaffold test suite
+
+### Input Validation
+
+- [x] **Validate `dbAdapter` input** — Reject values other than `"sqlite"` or `"postgres"` with clear error message and `process.exit(1)`
+- [x] **Add invalid adapter test** — Verify `process.exit(1)` and error message for non-allowed adapter values
+
+### Packaging Fixes
+
+- [x] **Remove phantom `template` from `package.json` `files`** — `package.json` listed `"template"` in `files` array but no `template/` directory exists. Removed the reference
+
+### Verification
+
+- [x] Run `pnpm lint` — no new errors
+- [x] Run `pnpm typecheck` — no type errors
+- [x] Run `pnpm test` — all 23 tests pass (3 files)
+- [x] Run `pnpm build` — package builds successfully
