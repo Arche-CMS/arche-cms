@@ -2,6 +2,13 @@ import type { DatabaseAdapter } from "@arche-cms/database";
 import type { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 
 import { ensureWebhooksTable } from "../lib/webhooks.js";
+import {
+  errorSchema,
+  idParamSchema,
+  messageResponseSchema,
+  webhookListResponseSchema,
+  webhookObjectSchema,
+} from "../schemas/shared.js";
 
 const WEBHOOKS_TABLE = "__cms_webhooks";
 
@@ -45,6 +52,7 @@ export function registerWebhookRoutes(fastify: FastifyInstance, adapter: Databas
       preHandler: [fastify.authenticate],
       schema: {
         description: "Returns all configured webhooks",
+        response: webhookListResponseSchema,
         summary: "List webhooks",
         tags: ["Settings"],
       },
@@ -75,6 +83,11 @@ export function registerWebhookRoutes(fastify: FastifyInstance, adapter: Databas
       preHandler: [fastify.authenticate],
       schema: {
         description: "Returns a single webhook configuration by ID",
+        params: idParamSchema,
+        response: {
+          "2xx": webhookObjectSchema,
+          "404": errorSchema,
+        },
         summary: "Get webhook",
         tags: ["Settings"],
       },
@@ -115,7 +128,22 @@ export function registerWebhookRoutes(fastify: FastifyInstance, adapter: Databas
     {
       preHandler: [fastify.authenticate, fastify.requirePermission("manage", "settings")],
       schema: {
+        body: {
+          properties: {
+            collection: { type: "string" },
+            events: { items: { type: "string" }, type: "array" },
+            name: { type: "string" },
+            secret: { type: "string" },
+            url: { format: "uri", type: "string" },
+          },
+          required: ["name", "url", "events"],
+          type: "object",
+        },
         description: "Create a new webhook configuration (requires manage:settings permission)",
+        response: {
+          "201": webhookObjectSchema,
+          "400": errorSchema,
+        },
         summary: "Create webhook",
         tags: ["Settings"],
       },
@@ -181,7 +209,24 @@ export function registerWebhookRoutes(fastify: FastifyInstance, adapter: Databas
     {
       preHandler: [fastify.authenticate, fastify.requirePermission("manage", "settings")],
       schema: {
+        body: {
+          properties: {
+            collection: { type: "string" },
+            enabled: { type: "boolean" },
+            events: { items: { type: "string" }, type: "array" },
+            name: { type: "string" },
+            secret: { type: "string" },
+            url: { format: "uri", type: "string" },
+          },
+          type: "object",
+        },
         description: "Update a webhook configuration (requires manage:settings permission)",
+        params: idParamSchema,
+        response: {
+          "2xx": webhookObjectSchema,
+          "400": errorSchema,
+          "404": errorSchema,
+        },
         summary: "Update webhook",
         tags: ["Settings"],
       },
@@ -278,6 +323,11 @@ export function registerWebhookRoutes(fastify: FastifyInstance, adapter: Databas
       preHandler: [fastify.authenticate, fastify.requirePermission("manage", "settings")],
       schema: {
         description: "Delete a webhook configuration (requires manage:settings permission)",
+        params: idParamSchema,
+        response: {
+          "2xx": messageResponseSchema,
+          "404": errorSchema,
+        },
         summary: "Delete webhook",
         tags: ["Settings"],
       },

@@ -5,6 +5,15 @@ import type { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import { AuthService, JwtService } from "@arche-cms/auth";
 
 import { verifyApiToken, ensureApiTokensTable } from "../routes/api-tokens.js";
+import {
+  authTokensResponseSchema,
+  authUserResponseSchema,
+  errorSchema,
+  errorWithCodeSchema,
+  hasAdminResponseSchema,
+  messageResponseSchema,
+  userObjectSchema,
+} from "../schemas/shared.js";
 
 const publicSchema = {
   security: [] as const,
@@ -66,7 +75,26 @@ export async function registerAuth(
     {
       schema: {
         ...publicSchema,
+        body: {
+          properties: {
+            email: { type: "string" },
+            password: { type: "string" },
+          },
+          required: ["email", "password"],
+          type: "object",
+        },
         description: "Create a new user account (requires setup to be complete)",
+        response: {
+          "201": {
+            ...authUserResponseSchema,
+            ...authTokensResponseSchema,
+            properties: {
+              ...authUserResponseSchema.properties,
+              ...authTokensResponseSchema.properties,
+            },
+          },
+          "400": errorWithCodeSchema,
+        },
         summary: "Register a new user",
         tags: ["Auth"],
       },
@@ -105,7 +133,26 @@ export async function registerAuth(
     {
       schema: {
         ...publicSchema,
+        body: {
+          properties: {
+            email: { format: "email", type: "string" },
+            password: { type: "string" },
+          },
+          required: ["email", "password"],
+          type: "object",
+        },
         description: "Authenticate with email and password, returns JWT tokens",
+        response: {
+          "2xx": {
+            ...authUserResponseSchema,
+            ...authTokensResponseSchema,
+            properties: {
+              ...authUserResponseSchema.properties,
+              ...authTokensResponseSchema.properties,
+            },
+          },
+          "401": errorSchema,
+        },
         summary: "Login",
         tags: ["Auth"],
       },
@@ -129,7 +176,18 @@ export async function registerAuth(
     {
       schema: {
         ...publicSchema,
+        body: {
+          properties: {
+            refreshToken: { type: "string" },
+          },
+          required: ["refreshToken"],
+          type: "object",
+        },
         description: "Exchange a refresh token for a new access token and refresh token pair",
+        response: {
+          "2xx": authTokensResponseSchema,
+          "401": errorSchema,
+        },
         summary: "Refresh tokens",
         tags: ["Auth"],
       },
@@ -150,8 +208,19 @@ export async function registerAuth(
     {
       schema: {
         ...publicSchema,
+        body: {
+          properties: {
+            email: { format: "email", type: "string" },
+          },
+          required: ["email"],
+          type: "object",
+        },
         description:
           "Request a password reset email (always returns success to prevent email enumeration)",
+        response: {
+          "2xx": messageResponseSchema,
+          "400": errorWithCodeSchema,
+        },
         summary: "Forgot password",
         tags: ["Auth"],
       },
@@ -180,7 +249,19 @@ export async function registerAuth(
     {
       schema: {
         ...publicSchema,
+        body: {
+          properties: {
+            password: { minLength: 8, type: "string" },
+            token: { type: "string" },
+          },
+          required: ["token", "password"],
+          type: "object",
+        },
         description: "Reset password using a token from the forgot-password email",
+        response: {
+          "2xx": messageResponseSchema,
+          "400": errorSchema,
+        },
         summary: "Reset password",
         tags: ["Auth"],
       },
@@ -205,6 +286,11 @@ export async function registerAuth(
       preHandler: [fastify.authenticate],
       schema: {
         description: "Returns the authenticated user's profile",
+        response: {
+          "2xx": userObjectSchema,
+          "401": errorSchema,
+          "404": errorSchema,
+        },
         summary: "Get current user",
         tags: ["Auth"],
       },
@@ -228,6 +314,9 @@ export async function registerAuth(
     {
       schema: {
         description: "Check if the CMS has been set up (at least one admin user exists)",
+        response: {
+          "2xx": hasAdminResponseSchema,
+        },
         security: [],
         summary: "Setup status",
         tags: ["Auth"],
