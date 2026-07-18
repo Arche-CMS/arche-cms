@@ -47,6 +47,20 @@ function fieldToInputType(field: FieldDefinition): string {
       return "slug";
     case "relation":
       return "relation";
+    case "component":
+      return "component";
+    case "dynamicZone":
+      return "dynamicZone";
+    case "array":
+      return "array";
+    case "object":
+      return "object";
+    case "group":
+      return "group";
+    case "repeater":
+      return "repeater";
+    case "tabs":
+      return "tabs";
     default:
       return "text";
   }

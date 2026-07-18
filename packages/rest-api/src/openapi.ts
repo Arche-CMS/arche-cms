@@ -10,17 +10,20 @@ const SIMPLE_OPENAPI_TYPES: Record<string, Record<string, unknown> | undefined> 
   checkbox: { type: "boolean" },
   color: { format: "color", type: "string" },
   component: { properties: {}, type: "object" },
-  date: { format: "date-time", type: "string" },
+  date: { format: "date", type: "string" },
   datetime: { format: "date-time", type: "string" },
   dynamicZone: { items: { type: "object" }, type: "array" },
+  email: { format: "email", type: "string" },
   group: { properties: {}, type: "object" },
   json: { type: "object" },
   media: { description: "Media file ID reference", type: "string" },
   multiSelect: { items: { type: "string" }, type: "array" },
   number: { type: "number" },
   object: { properties: {}, type: "object" },
+  password: { format: "password", type: "string" },
   relation: { type: "string" },
   repeater: { items: { properties: {}, type: "object" }, type: "array" },
+  richText: { format: "html", type: "string" },
   upload: { description: "Media file ID reference", type: "string" },
   url: { format: "uri", type: "string" },
 };
@@ -70,6 +73,7 @@ function generateCollectionSchema(collection: CollectionDefinition): Record<stri
   };
 
   for (const field of collection.fields) {
+    if (field.type === "password") continue;
     properties[field.name] = {
       ...fieldToOpenApiType(field),
       description: field.label ?? field.name,

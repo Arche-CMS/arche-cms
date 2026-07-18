@@ -15,7 +15,7 @@ function fieldToSchemaType(type: string): Record<string, unknown> {
     case "json":
       return { type: "object" };
     case "richText":
-      return { type: "object" };
+      return { format: "html", type: "string" };
     case "multiSelect":
       return { items: { type: "string" }, type: "array" };
     default:
@@ -31,9 +31,9 @@ function generateOpenApiFile(collections: CollectionDefinition[]): string {
     const name = toPascal(col.slug);
 
     const properties: Record<string, Record<string, unknown>> = {
-      createdAt: { format: "date-time", type: "string" },
+      createdAt: { format: "date", type: "string" },
       id: { type: "string" },
-      updatedAt: { format: "date-time", type: "string" },
+      updatedAt: { format: "date", type: "string" },
     };
 
     for (const f of col.fields) {

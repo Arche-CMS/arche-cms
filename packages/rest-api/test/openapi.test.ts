@@ -170,7 +170,7 @@ describe("generateOpenApiSpec", () => {
       unknown
     >;
     expect((properties.eventDate as Record<string, unknown>).type).toBe("string");
-    expect((properties.eventDate as Record<string, unknown>).format).toBe("date-time");
+    expect((properties.eventDate as Record<string, unknown>).format).toBe("date");
   });
 
   it("excludes timestamps when disabled", () => {

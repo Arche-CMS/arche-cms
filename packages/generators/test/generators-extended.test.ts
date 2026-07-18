@@ -35,6 +35,16 @@ const allFieldTypesCollection: CollectionDefinition = {
     { name: "f_slug", type: "slug" },
     { name: "f_relation", to: "other", type: "relation" },
     { component: "seo", name: "f_component", type: "component" },
+    { components: ["hero", "text"], name: "f_dynamicZone", type: "dynamicZone" },
+    { fields: [{ name: "item", type: "text" }], name: "f_array", type: "array" },
+    { fields: [{ name: "key", type: "text" }], name: "f_object", type: "object" },
+    { fields: [{ name: "inner", type: "text" }], name: "f_group", type: "group" },
+    { fields: [{ name: "row", type: "text" }], name: "f_repeater", type: "repeater" },
+    {
+      name: "f_tabs",
+      tabs: [{ fields: [{ name: "tab_field", type: "text" }], label: "Tab1" }],
+      type: "tabs",
+    },
   ],
   labels: { plural: "All Fields", singular: "All Field" },
   slug: "all-fields",
@@ -68,6 +78,13 @@ describe("adminFormGenerator - field type coverage", () => {
     expect(content).toContain('input: "radio"');
     expect(content).toContain('input: "slug"');
     expect(content).toContain('input: "relation"');
+    expect(content).toContain('input: "component"');
+    expect(content).toContain('input: "dynamicZone"');
+    expect(content).toContain('input: "array"');
+    expect(content).toContain('input: "object"');
+    expect(content).toContain('input: "group"');
+    expect(content).toContain('input: "repeater"');
+    expect(content).toContain('input: "tabs"');
   });
 
   it("returns empty for no collections", async () => {
@@ -134,10 +151,16 @@ describe("migrationGenerator - field type coverage", () => {
     expect(content).toContain("f_checkbox INTEGER");
     expect(content).toContain("f_slug TEXT");
     expect(content).toContain("f_relation TEXT");
-    // component fields are skipped in migration output
+    expect(content).toContain("f_component TEXT");
+    expect(content).toContain("f_dynamicZone TEXT");
+    expect(content).toContain("f_array TEXT");
+    expect(content).toContain("f_object TEXT");
+    expect(content).toContain("f_group TEXT");
+    expect(content).toContain("f_repeater TEXT");
+    expect(content).toContain("f_tabs TEXT");
   });
 
-  it("skips component, dynamicZone, array, repeater, tabs, object, group fields", async () => {
+  it("generates TEXT columns for complex/nested field types", async () => {
     const col: CollectionDefinition = {
       fields: [
         { name: "title", type: "text" },
@@ -159,13 +182,13 @@ describe("migrationGenerator - field type coverage", () => {
     const files = await migrationGenerator.generate({ collections: [col], outputDir: "/tmp" });
     const content = files[0]?.content ?? "";
     expect(content).toContain("title TEXT");
-    expect(content).not.toContain("comp TEXT");
-    expect(content).not.toContain("dz TEXT");
-    expect(content).not.toContain("arr TEXT");
-    expect(content).not.toContain("rep TEXT");
-    expect(content).not.toContain("tab_fields TEXT");
-    expect(content).not.toContain("obj TEXT");
-    expect(content).not.toContain("grp TEXT");
+    expect(content).toContain("comp TEXT");
+    expect(content).toContain("dz TEXT");
+    expect(content).toContain("arr TEXT");
+    expect(content).toContain("rep TEXT");
+    expect(content).toContain("tab_fields TEXT");
+    expect(content).toContain("obj TEXT");
+    expect(content).toContain("grp TEXT");
   });
 
   it("returns empty for no collections", async () => {
@@ -217,7 +240,7 @@ describe("sdkGenerator - field type coverage", () => {
     expect(content).toContain("count?: number;");
     expect(content).toContain("active?: boolean;");
     expect(content).toContain("meta?: Record<string, unknown>;");
-    expect(content).toContain("body?: unknown;");
+    expect(content).toContain("body?: string;");
     expect(content).toContain("tags?: string[];");
     expect(content).toContain("author?: string;");
     expect(content).toContain("publishedAt?: string;");
@@ -280,7 +303,7 @@ describe("openApiGenerator (generators) - field type coverage", () => {
     expect(schemas.properties.count.type).toBe("number");
     expect(schemas.properties.active.type).toBe("boolean");
     expect(schemas.properties.meta.type).toBe("object");
-    expect(schemas.properties.body.type).toBe("object");
+    expect(schemas.properties.body.type).toBe("string");
     expect(schemas.properties.tags.type).toBe("array");
     expect(schemas.properties.tags.items.type).toBe("string");
     expect(schemas.properties.title.type).toBe("string");
