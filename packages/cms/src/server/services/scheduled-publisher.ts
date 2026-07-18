@@ -33,8 +33,8 @@ export function createScheduledPublisher(
               _status: "published",
             } as Record<string, unknown>);
           }
-        } catch {
-          // Log and continue — don't crash the scheduler
+        } catch (e) {
+          console.error("[scheduled-publisher] publish failed:", e);
         }
       }
     })();
