@@ -5,8 +5,6 @@ export function defineCollection(config: CollectionDefinition): CollectionDefini
   return {
     ...config,
     timestamps:
-      config.timestamps === false
-        ? false
-        : { ...defaultTimestamps, ...(config.timestamps ?? {}) },
+      config.timestamps === false ? false : { ...defaultTimestamps, ...(config.timestamps ?? {}) },
   };
 }
