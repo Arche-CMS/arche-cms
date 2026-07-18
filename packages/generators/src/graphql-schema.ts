@@ -7,6 +7,7 @@ function toPascal(s: string): string {
 }
 
 const fieldTypeToGraphQL: Record<string, string> = {
+  array: "[JSON!]",
   boolean: "Boolean",
   checkbox: "Boolean",
   code: "String",
@@ -14,16 +15,20 @@ const fieldTypeToGraphQL: Record<string, string> = {
   date: "String",
   datetime: "String",
   email: "String",
+  group: "JSON",
   json: "JSON",
   markdown: "String",
   media: "String",
   multiSelect: "[String]",
   number: "Float",
+  object: "JSON",
   password: "String",
   radio: "String",
+  repeater: "[JSON!]",
   richText: "JSON",
   select: "String",
   slug: "String",
+  tabs: "JSON",
   text: "String",
   textarea: "String",
   upload: "String",

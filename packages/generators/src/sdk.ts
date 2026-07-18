@@ -15,7 +15,7 @@ function fieldToTsType(field: FieldDefinition): string {
     case "json":
       return "Record<string, unknown>";
     case "richText":
-      return "unknown";
+      return "string";
     case "multiSelect":
       return "string[]";
     case "relation":
@@ -24,6 +24,19 @@ function fieldToTsType(field: FieldDefinition): string {
       return "string";
     case "datetime":
       return "string";
+    case "array":
+      return "Array<Record<string, unknown>>";
+    case "object":
+    case "group":
+      return "Record<string, unknown>";
+    case "repeater":
+      return "Array<Record<string, unknown>>";
+    case "tabs":
+      return "Record<string, unknown>";
+    case "component":
+      return "Record<string, unknown>";
+    case "dynamicZone":
+      return "Array<Record<string, unknown>>";
     default:
       return "string";
   }

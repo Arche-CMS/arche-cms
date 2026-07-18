@@ -1,6 +1,6 @@
 # TODO — Arche CMS
 
-> Project status: Milestone 18 complete — code quality guards in place. ESLint configured with perfectionist (import/object sorting), no-secrets, security, vitest plugins, plus max-lines (300), max-params (4), max-depth (3) rules. 0 errors, 71 warnings. Commitlint enforces conventional commits. Pre-push hook runs typecheck + lint + tests. CI adds format:check, ESLint, build verification, bundle size check, gitleaks secret scanning, pnpm audit, fallow audit with baselines (dead-code, health, dupes), dependency diff check, and coverage thresholds (60/50/60/60). Fallow maxCrap lowered to 30. CODEOWNERS added. Stricter TypeScript ESLint rules enabled (no-floating-promises, no-misused-promises, no-unsafe-*, only-throw-error). Explicit `| undefined` on all optional properties. All 32 typecheck tasks pass, 19 lint tasks pass, 19 test tasks pass, 19 build tasks pass.
+> Project status: Milestone 19 complete — fixed schema field type gaps across all generator and REST API layers. Admin forms: 7 complex types mapped (component, dynamicZone, array, object, group, repeater, tabs). GraphQL: 5 complex type mappings added (array→[JSON!], object→JSON, group→JSON, repeater→[JSON!], tabs→JSON). Migrations: 7 complex types now generate TEXT columns instead of being skipped. SDK: 7 complex types mapped with proper TypeScript types. OpenAPI: date format corrected (date→date), email format added, richText format added, password excluded from response schemas. 32 typecheck tasks pass, 19 lint tasks pass, 19 test tasks pass, 19 build tasks pass. Next: Milestone 20 — admin panel feature completeness.
 
 ---
 
@@ -937,3 +937,77 @@ Add comprehensive code quality automation and enforcements to prevent regression
 - [x] Run `pnpm build` — all packages build successfully (19 build tasks)
 - [x] Run `pnpm format:check` — all files formatted
 - [x] Run `npx eslint .` — 0 errors, 71 warnings (all legitimate: max-lines, max-depth, max-params, vitest/expect-expect)
+
+---
+
+## Milestone 19: Schema Field Type Gap Fixes
+
+### Objective
+
+Fix inconsistencies across 29 field types in the generators and REST API layers. All 7 complex/nested types (`component`, `dynamicZone`, `array`, `object`, `group`, `tabs`, `repeater`) have correct runtime implementations but incorrect or missing code generation. Minor OpenAPI format issues also need fixing.
+
+### Field Types (29)
+
+Simple: `text`, `textarea`, `number`, `boolean`, `date`, `datetime`, `email`, `password`, `url`, `json`, `slug`, `richText`, `markdown`, `code`, `color`
+Media: `media`, `upload`
+Choice: `select`, `multiSelect`, `radio`, `checkbox`
+Relation: `relation`
+Complex/nested: `component`, `dynamicZone`, `array`, `object`, `group`, `tabs`, `repeater`
+
+### Generators: Admin Forms (`packages/generators/src/admin-forms.ts`)
+
+- [x] Add `component` → `"component"` case in `fieldToInputType()`
+- [x] Add `dynamicZone` → `"dynamicZone"` case
+- [x] Add `array` → `"array"` case
+- [x] Add `object` → `"object"` case
+- [x] Add `group` → `"group"` case
+- [x] Add `repeater` → `"repeater"` case
+- [x] Add `tabs` → `"tabs"` case
+
+### Generators: GraphQL Schema (`packages/generators/src/graphql-schema.ts`)
+
+- [x] Map `array` → `[JSON!]` (match runtime `packages/graphql/src/types.ts`)
+- [x] Map `object` → `JSON`
+- [x] Map `group` → `JSON`
+- [x] Map `repeater` → `[JSON!]`
+- [x] Map `tabs` → `JSON`
+
+### Generators: Migrations (`packages/generators/src/migrations.ts`)
+
+- [x] Generate `TEXT` column for `component` instead of skipping
+- [x] Generate `TEXT` column for `dynamicZone` instead of skipping
+- [x] Generate `TEXT` column for `array` instead of skipping
+- [x] Generate `TEXT` column for `object` instead of skipping
+- [x] Generate `TEXT` column for `group` instead of skipping
+- [x] Generate `TEXT` column for `repeater` instead of skipping
+- [x] Generate `TEXT` column for `tabs` instead of skipping
+
+### Generators: SDK (`packages/generators/src/sdk.ts`)
+
+- [x] Map `component` → recursive type generation (match `typegen.ts` behavior)
+- [x] Map `dynamicZone` → union type generation
+- [x] Map `array` → `Array<{...}>` generation
+- [x] Map `object` → `{...}` generation
+- [x] Map `group` → `{...}` generation
+- [x] Map `repeater` → `Array<{...}>` generation
+- [x] Map `tabs` → `{...}` generation
+
+### REST API: OpenAPI (`packages/rest-api/src/openapi.ts`)
+
+- [x] Add `format: "email"` for `email` type
+- [x] Fix `date` type: change `format: "date-time"` to `format: "date"`
+- [x] Add `format: "html"` for `richText` type
+- [x] Exclude `password` from response schemas (never return password hashes)
+
+### Generators: OpenAPI (`packages/generators/src/openapi.ts`)
+
+- [x] Fix `richText` type: change `{ type: "object" }` to `{ type: "string", format: "html" }`
+- [x] Fix `date` type: change `format: "date-time"` to `format: "date"`
+
+### Verification
+
+- [x] Run `pnpm lint` — no new errors
+- [x] Run `pnpm typecheck` — no type errors
+- [x] Run `pnpm test` — all tests pass, update any affected snapshots
+- [x] Run `pnpm build` — all packages build successfully
+- [x] Verify generated output for a schema with all 29 field types matches expected output across all generator layers

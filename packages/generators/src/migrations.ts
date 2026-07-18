@@ -70,16 +70,6 @@ function generateMigrationFile(collections: CollectionDefinition[]): string {
     lines.push(`      created_at TEXT DEFAULT (datetime('now')),`);
     lines.push(`      updated_at TEXT DEFAULT (datetime('now'))`);
     for (const f of col.fields) {
-      if (
-        f.type === "component" ||
-        f.type === "dynamicZone" ||
-        f.type === "array" ||
-        f.type === "repeater" ||
-        f.type === "tabs" ||
-        f.type === "object" ||
-        f.type === "group"
-      )
-        continue;
       const colType = fieldToColumnType(f.type);
       lines.push(`      ,${f.name} ${colType}`);
     }

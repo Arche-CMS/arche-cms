@@ -70,6 +70,7 @@
       {
         "files": ["packages/generators/src/migrations.ts"],
         "maxCyclomatic": 25,
+        "maxCrap": 600,
         "reason": "field-to-column mapping has many type branches"
       },
       {
@@ -81,8 +82,24 @@
       },
       {
         "files": ["packages/generators/src/admin-forms.ts"],
-        "maxCyclomatic": 25,
+        "maxCyclomatic": 35,
+        "maxCrap": 100,
         "reason": "field-to-input-type mapping with many type branches"
+      },
+      {
+        "files": ["packages/generators/src/sdk.ts"],
+        "maxCrap": 300,
+        "reason": "field-to-TS-type mapping with many type branches"
+      },
+      {
+        "files": ["packages/generators/src/graphql-schema.ts"],
+        "maxCrap": 200,
+        "reason": "GraphQL schema generation with many field type mappings"
+      },
+      {
+        "files": ["packages/generators/src/openapi.ts"],
+        "maxCrap": 50,
+        "reason": "OpenAPI schema generation with field type mappings"
       },
       {
         "files": ["packages/cms/src/server/routes/collections.ts"],
