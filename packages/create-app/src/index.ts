@@ -125,6 +125,52 @@ export function scaffold(
     ["node_modules", "dist", "*.db", "uploads", ".env", ""].join("\n"),
   );
 
+  // Dockerfile
+  writeFileSync(
+    resolve(projectDir, "Dockerfile"),
+    [
+      "FROM node:24-alpine AS builder",
+      "WORKDIR /app",
+      "",
+      "COPY package.json pnpm-lock.yaml* ./",
+      "RUN corepack enable && pnpm install",
+      "",
+      "COPY . .",
+      "RUN pnpm build",
+      "",
+      "FROM node:24-alpine AS runner",
+      "WORKDIR /app",
+      "",
+      "RUN addgroup --system --gid 1001 nodejs && \\",
+      "    adduser --system --uid 1001 cms",
+      "",
+      "COPY package.json pnpm-lock.yaml* ./",
+      "RUN corepack enable && pnpm install --prod",
+      "",
+      "COPY --from=builder /app/node_modules/@arche-cms ./node_modules/@arche-cms",
+      "COPY --from=builder /app/node_modules/.bin ./node_modules/.bin",
+      "COPY --from=builder /app/node_modules/.pnpm ./node_modules/.pnpm",
+      "COPY cms ./cms",
+      "",
+      "EXPOSE 3000",
+      "",
+      "ENV NODE_ENV=production",
+      "ENV HOST=0.0.0.0",
+      "ENV PORT=3000",
+      "",
+      "USER cms",
+      "",
+      'CMD ["npx", "cms", "start"]',
+      "",
+    ].join("\n"),
+  );
+
+  // .dockerignore
+  writeFileSync(
+    resolve(projectDir, ".dockerignore"),
+    ["node_modules", "dist", "*.db", "uploads", ".env", ".git", ""].join("\n"),
+  );
+
   console.log(`\nScaffolded CMS project at ${projectDir}`);
   console.log("\nNext steps:");
   console.log(`  cd ${projectDir.split("/").pop()}`);
@@ -156,6 +202,10 @@ Creates a new Arche CMS project in the specified directory.
   console.log(`Creating CMS project: ${projectName}\n`);
 
   const dbAdapter = await ask("Database adapter (sqlite/postgres)", "sqlite");
+  if (!["sqlite", "postgres"].includes(dbAdapter)) {
+    console.error(`Invalid database adapter: "${dbAdapter}". Must be "sqlite" or "postgres".`);
+    process.exit(1);
+  }
   const defaultLocale = await ask("Default locale", "en");
 
   scaffold(projectDir, { dbAdapter, defaultLocale });

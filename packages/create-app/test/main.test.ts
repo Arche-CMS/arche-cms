@@ -143,4 +143,16 @@ describe("main - error handling", () => {
     expect(mockErr).toHaveBeenCalledWith("Error:", expect.stringContaining("readline failure"));
     expect(process.exit).toHaveBeenCalledWith(1);
   });
+
+  it("rejects invalid database adapter and calls process.exit(1)", async () => {
+    process.argv = ["node", "test", "bad-adapter-project"];
+    process.cwd = () => tmpDir;
+    mockProcessExit();
+    mockReadline(["mysql", "en"]);
+
+    await import("../src/index.js").catch(() => {});
+
+    expect(mockErr).toHaveBeenCalledWith(expect.stringContaining("Invalid database adapter"));
+    expect(process.exit).toHaveBeenCalledWith(1);
+  });
 });

@@ -93,4 +93,26 @@ describe("create-app scaffold", () => {
     expect(gi).toContain("*.db");
     expect(gi).toContain("uploads");
   });
+
+  it("creates Dockerfile with multi-stage build", async () => {
+    const projectDir = resolve(tmpDir, "docker-test");
+    await scaffold(projectDir, { dbAdapter: "sqlite", defaultLocale: "en" });
+    const dockerfile = readFileSync(resolve(projectDir, "Dockerfile"), "utf-8");
+    expect(dockerfile).toContain("FROM node:24-alpine AS builder");
+    expect(dockerfile).toContain("FROM node:24-alpine AS runner");
+    expect(dockerfile).toContain("pnpm build");
+    expect(dockerfile).toContain('CMD ["npx", "cms", "start"]');
+    expect(dockerfile).toContain("EXPOSE 3000");
+    expect(dockerfile).toContain("USER cms");
+  });
+
+  it("creates .dockerignore", async () => {
+    const projectDir = resolve(tmpDir, "dockerignore-test");
+    await scaffold(projectDir, { dbAdapter: "sqlite", defaultLocale: "en" });
+    const di = readFileSync(resolve(projectDir, ".dockerignore"), "utf-8");
+    expect(di).toContain("node_modules");
+    expect(di).toContain("*.db");
+    expect(di).toContain(".env");
+    expect(di).toContain(".git");
+  });
 });
