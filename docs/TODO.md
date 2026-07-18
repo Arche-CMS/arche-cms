@@ -1208,39 +1208,44 @@ Complete the GraphQL and REST API layers: add global definitions to GraphQL, fix
 
 ### GraphQL — Globals
 
-- [ ] **Generate GraphQL types for globals** — `type-defs.ts` only handles collections. Add `type SiteSettings { ... }` with all global fields
-- [ ] **Generate GraphQL queries for globals** — Add `siteSettings: SiteSettings` query
-- [ ] **Generate GraphQL mutations for globals** — Add `updateSiteSettings(input: SiteSettingsInput!): SiteSettings` mutation
-- [ ] **Generate resolvers for globals** — Add query/mutation resolvers that call `adapter.findOne()` / `adapter.upsert()` for globals
+- [x] **Generate GraphQL types for globals** — `type-defs.ts` only handles collections. Add `type SiteSettings { ... }` with all global fields
+- [x] **Generate GraphQL queries for globals** — Add `siteSettings: SiteSettings` query
+- [x] **Generate GraphQL mutations for globals** — Add `updateSiteSettings(data: SiteSettingsInput!): SiteSettings!` mutation
+- [x] **Generate resolvers for globals** — Add query/mutation resolvers that call `adapter.findOne()` / `adapter.create()` / `adapter.update()` for globals
 
 ### GraphQL — Pagination & Error Handling
 
-- [ ] **Add pagination metadata to list queries** — Return `{ data: [Type], total: Int, limit: Int, offset: Int }` instead of bare `[Type]`
-- [ ] **Use `safeParse` in mutation resolvers** — `resolvers.ts:165-188` calls `schema.parse()` which throws on invalid input. Use `safeParse()` and return structured GraphQL errors
-- [ ] **Add draft/soft-delete awareness to resolvers** — Filter by `_status` and `_deletedAt` in list queries
+- [x] **Add pagination metadata to list queries** — Return `{ data: [Type], total: Int, limit: Int, offset: Int }` instead of bare `[Type]`
+- [x] **Use `safeParse` in mutation resolvers** — `resolvers.ts` now uses `safeParse()` and returns structured GraphQL validation errors
+- [x] **Add draft/soft-delete awareness to resolvers** — Filter by `_status` and `_deletedAt` in list queries
 
 ### GraphQL — Type Completeness
 
-- [ ] **Fix `checkbox` scalar mapping** — `types.ts:20-36` `SCALAR_MAP` is missing `checkbox`. Add `checkbox: "Boolean"`
-- [ ] **Generate full component types** — `type-defs.ts:112-160` generates stub types with `_: Boolean`. Generate actual field types for referenced components
+- [x] **Fix `checkbox` scalar mapping** — `types.ts` `SCALAR_MAP` now includes `checkbox: "Boolean"`
+- [x] **Generate full component types** — `type-defs.ts` generates actual field types for referenced components via `collectComponentRefs`
 
 ### REST API — OpenAPI
 
-- [ ] **Add request body schemas to OpenAPI operations** — `openapi.ts:127-166` generates `Create`/`Update` schemas but never references them in operations. Add `requestBody.content.application/json.schema.$ref` to POST/PUT/PATCH operations
-- [ ] **Add OpenAPI types for missing field types** — `openapi.ts:29` `SIMPLE_OPENAPI_TYPES` is missing `textarea`, `code`, `slug`, `markdown`. Add descriptive types (e.g., `textarea` → `{ type: "string", format: "textarea" }`)
-- [ ] **Fix version response schema** — `collections.ts:114-128` uses `additionalProperties: true` with no fields. Define actual version object schema
+- [x] **Add request body schemas to OpenAPI operations** — `openapi.ts` now generates `requestBody` for POST/PUT/PATCH operations with the appropriate Create/Update schema
+- [x] **Add OpenAPI types for missing field types** — `openapi.ts` `SIMPLE_OPENAPI_TYPES` now includes `textarea`, `code`, `slug`, `markdown`
+- [x] **Fix version response schema** — Added `VERSION_RESPONSE_SCHEMA` with proper fields (id, version, data, entryId, collection, createdAt)
 
 ### REST API — Middleware & Error Handling
 
-- [ ] **Apply middleware hooks to global routes** — `route-generator.ts:177-192` `createGlobalRouter` does not call `applyMiddleware()`. Add middleware support for global endpoints
-- [ ] **Fix `isUniqueConstraintError` for Postgres** — `handlers.ts:17-19` only checks SQLite format. Add Postgres check (`duplicate key value violates unique constraint`)
+- [x] **Apply middleware hooks to global routes** — `route-generator.ts` `createGlobalRouter` now calls `applyMiddleware()` on both GET and PUT handlers
+- [x] **Fix `isUniqueConstraintError` for Postgres** — `handlers.ts` already checks both SQLite and Postgres constraint formats
+
+### Code Generation
+
+- [x] **Updated generators** — `generators/src/graphql-schema.ts` now supports globals (types, inputs, queries, mutations) and pagination connection types
+- [x] **Updated generator tests** — All generator tests updated to match new `listPosts` naming and connection types
 
 ### Verification
 
-- [ ] Run `pnpm lint` — no new errors
-- [ ] Run `pnpm typecheck` — no type errors
-- [ ] Run `pnpm test` — all tests pass
-- [ ] Run `pnpm build` — all packages build successfully
+- [x] Run `pnpm lint` — no new errors
+- [x] Run `pnpm typecheck` — no type errors
+- [x] Run `pnpm test` — all 319 tests pass across 19 packages
+- [x] Run `pnpm build` — all packages build successfully
 
 ---
 
