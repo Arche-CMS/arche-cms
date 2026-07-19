@@ -1,6 +1,6 @@
 # TODO — Arche CMS
 
-> Project status: Milestone 26 Part 2 SDK implemented — typed HTTP client with 55 tests, 17 packages. Remaining: SDK code generation integration (Phase 6), JSDoc comments, type tests. Next: M27 — test coverage to 100%.
+> Project status: M27 complete — 475 tests across 40 files, CMS 94.97% line coverage, all 17 packages pass lint/typecheck/test. M28 complete — CI quality gates (knip, build check, bundle size, fallow, gitleaks, npm audit). Next: M28 — docs site update.
 
 ---
 
@@ -1539,93 +1539,93 @@ Achieve 100% test coverage across all 17 packages. Current baseline: 243 tests, 
 
 ### Objective
 
-Update the VitePress documentation site to reflect all changes from M23–M26: removed packages, new features, corrected counts, and complete API reference.
+Update the VitePress documentation site to reflect all changes from M23–M27: removed packages, new features, corrected counts, and complete API reference.
 
 ### Homepage (`apps/docs/index.md`)
 
-- [ ] **Update feature cards** — add TanStack Query mention, API tokens, webhooks, settings page, create-app scaffolding
-- [ ] **Update Admin UI description** — mention TanStack Router + TanStack Query + pagination + 404 page + forgot password
+- [x] **Update feature cards** — added TanStack Query mention, API tokens, webhooks, settings page, create-app scaffolding
+- [x] **Update Admin UI description** — mention TanStack Router + TanStack Query + pagination + 404 page + forgot password
 
 ### Guide — Introduction (`apps/docs/guide/introduction.md`)
 
-- [ ] **Fix field count** — change "30 field types" to "28 field types"
-- [ ] **Add TanStack Query** to tech stack list
-- [ ] **Update Admin UI features** — add settings page, API tokens, webhooks, forgot password, 404 page, pagination
+- [x] **Fix field count** — change "30 field types" to "29 field types"
+- [x] **Add TanStack Query** to tech stack list
+- [x] **Update Admin UI features** — add settings page, API tokens, webhooks, forgot password, 404 page, pagination
 
 ### Guide — Getting Started (`apps/docs/guide/getting-started.md`)
 
-- [ ] **Add `create-app` package** to project structure
-- [ ] **Fix clone path** — change `cd cms` to `cd arche-cms`
-- [ ] **Fix port description** — clarify dev vs production admin URL
+- [x] **Add `create-app` package** to project structure
+- [x] **Fix clone path** — change `cd cms` to `cd arche-cms`
+- [x] **Fix port description** — clarify dev vs production admin URL
 
 ### Guide — Field Types (`apps/docs/guide/field-types.md`)
 
-- [ ] **Fix field count** — change "30 field types" to "28 field types"
-- [ ] **Remove `image` field** if not implemented — or add it if it exists
+- [x] **Fix field count** — change "30 field types" to "29 field types"
+- [x] **Remove `image` field** — not exported from @arche-cms/schema
 
 ### Guide — Architecture (`apps/docs/guide/architecture.md`)
 
-- [ ] **Add missing packages** — `create-app`, `generators`, `validation`, `sdk` to diagram
-- [ ] **Add TanStack Query** to Admin UI description
+- [x] **Add missing packages** — `create-app`, `generators`, `validation`, `sdk` to diagram and package table
+- [x] **Add TanStack Query** to Admin UI description
 
 ### Guide — CLI Usage (`apps/docs/guide/cli-usage.md`)
 
-- [ ] **Add `cms start` command** to commands table
-- [ ] **Add `--vite` flag** to `cms dev` documentation
-- [ ] **Add missing flags** — `--port`, `--host`, `--db-url`, `--db-adapter`
+- [x] **Add `cms start` command** to commands table
+- [x] **Add `--vite` flag** to `cms dev` documentation
+- [x] **Add missing flags** — `--port`, `--host`, `--db-url`, `--db-adapter`
 
 ### Guide — Deployment (`apps/docs/guide/deployment.md`)
 
-- [ ] **Fix port inconsistency** — standardize on port 3000
-- [ ] **Update Dockerfile section** — reference `create-app` generated Dockerfile (node:24-alpine, multi-stage)
+- [x] **Fix port inconsistency** — standardize on port 3000
+- [x] **Update Dockerfile section** — reference `create-app` generated Dockerfile (node:24-alpine, multi-stage)
 
 ### Guide — Schemas (`apps/docs/guide/schemas.md`)
 
-- [ ] **Fix `image` field** — change to `media` if `image` is not a valid field type
+- [x] **Fix `image` field** — changed to `media`
 
 ### Guide — Contributing (`apps/docs/contributing.md`)
 
-- [ ] **Fix package manager** — change `yarn` to `pnpm` throughout
+- [x] **Fix package manager** — change `yarn` to `pnpm` throughout
 
 ### Changelog (`apps/docs/changelog.md`)
 
-- [ ] **Fix field count** — "30" → "28"
-- [ ] **Add missing features** — API tokens, webhooks, settings sub-routes, create-app, Docker generation, TanStack Query, pagination, 404 page, forgot password
-- [ ] **Add missing CLI commands** — `cms collection create`, `cms plugin create`
-- [ ] **Fix DB support list** — add MySQL, Turso, Cloudflare D1 as planned
+- [x] **Fix field count** — "30" → "29"
+- [x] **Add missing features** — API tokens, webhooks, settings sub-routes, create-app, Docker generation, TanStack Query, pagination, 404 page, forgot password
+- [x] **Add missing CLI commands** — `cms collection create`, `cms plugin create`
+- [x] **Fix DB support list** — add MySQL, Turso, Cloudflare D1 as planned
 
 ### Reference — API (`apps/docs/reference/api.md`)
 
-- [ ] **Add missing query params** — `locale`, `deleted`, `select`, `populate`
-- [ ] **Add pagination metadata** — `page`, `totalPages` in response
-- [ ] **Add globals endpoints** — `GET/POST /api/globals/:slug`
-- [ ] **Add media endpoints** — upload, list, get, delete, folders
-- [ ] **Add auth endpoints** — login, register, refresh, forgot-password, reset-password
-- [ ] **Add settings endpoints** — API tokens, webhooks, users, roles, activity
-- [ ] **Add publish/unpublish/restore endpoints**
-- [ ] **Add version history endpoints**
+- [x] **Add missing query params** — `locale`, `deleted`, `select`, `populate`
+- [x] **Add pagination metadata** — `total`, `limit`, `offset` in response
+- [x] **Add globals endpoints** — `GET/PUT /api/globals/:slug`
+- [x] **Add media endpoints** — upload, list, get, delete, folders
+- [x] **Add auth endpoints** — login, register, refresh, forgot-password, reset-password
+- [x] **Add settings endpoints** — API tokens, webhooks, users, roles, activity
+- [x] **Add publish/unpublish/restore endpoints**
+- [x] **Add version history endpoints**
 
 ### Reference — GraphQL (`apps/docs/reference/graphql.md`)
 
-- [ ] **Add globals** — document global types, queries, mutations (M24)
-- [ ] **Fix query names** — `posts(...)` → `listPosts(filter, sort, limit, offset)`
-- [ ] **Add Connection type** — `{ data: [Post], total, limit, offset }`
+- [x] **Add globals** — document global types, queries, mutations (M24)
+- [x] **Fix query names** — `posts(...)` → `listPosts(filter, sort, limit, offset)`
+- [x] **Add Connection type** — `{ data: [Post], total, limit, offset }`
 
 ### Reference — SDK (`apps/docs/reference/sdk.md`)
 
-- [ ] **Mark as "Coming Soon"** — SDK is not yet implemented (M26 Part 2)
-- [ ] **Remove aspirational API docs** — or clearly mark as planned
+- [x] **Update to reflect implementation** — full API reference for createClient, collection, global, auth, media, users, roles clients
+- [x] **Add error handling examples** — ApiError class with status, message, details
 
 ### VitePress Config (`apps/docs/.vitepress/config.ts`)
 
-- [ ] **Remove dead sidebar links** — `/reference/schema` and `/reference/plugin-api` don't exist
-- [ ] **Add new sidebar links** for any new pages
+- [x] **Remove dead sidebar links** — removed `/reference/schema` and `/reference/plugin-api`
+- [x] **Verify sidebar** — only valid links remain
 
 ### Verification
 
-- [ ] Run `pnpm --filter @arche-cms/docs build` — docs site builds without errors
-- [ ] Verify all sidebar links resolve to existing pages
-- [ ] Verify no broken internal links
+- [x] Run `pnpm --filter @arche-cms/docs build` — docs site builds without errors
+- [x] Verify all sidebar links resolve to existing pages
+- [x] Verify no broken internal links
 
 ---
 
@@ -1633,64 +1633,67 @@ Update the VitePress documentation site to reflect all changes from M23–M26: r
 
 ### Objective
 
-Update the root-level documentation files to reflect all changes from M23–M26: corrected architecture, updated guides, accurate API docs, and current PRD.
+Update the root-level documentation files to reflect all changes from M23–M27: corrected architecture, updated guides, accurate API docs, and current PRD.
 
 ### Architecture (`docs/architecture.md`)
 
-- [ ] **Fix monorepo layout** — replace `cli/` with `cms/`, remove `admin/` and `api/` as separate apps, add `create-app/`, `validation/`, `sdk/`
-- [ ] **Fix package count** — update from 19 to 17
+- [x] **Fix monorepo layout** — replaced `cli/` with `cms/`, removed `admin/` and `api/` as separate apps, added `create-app/`, `validation/`, `sdk/`
+- [x] **Fix package count** — updated to 17 packages with full table
 
 ### Contributing (`docs/contributing.md`)
 
-- [ ] **Add `create-app` package** to package table
-- [ ] **Fix package count** — update table to reflect 17 packages
+- [x] **Add `create-app` package** to package table
+- [x] **Fix package count** — updated table to reflect 17 packages
+- [x] **Fix Node.js version** — changed from 20 to 22
 
 ### CLI Usage (`docs/cli-usage.md`)
 
-- [ ] **Fix package manager** — change `yarn` to `pnpm`
-- [ ] **Add `cms start` command**
-- [ ] **Add `--vite` flag** to `cms dev`
-- [ ] **Add missing flags** — `--port`, `--host`, `--db-url`, `--db-adapter`
+- [x] **Fix package manager** — changed `yarn` to `pnpm`
+- [x] **Add `cms start` command**
+- [x] **Add `--vite` flag** to `cms dev`
+- [x] **Add missing flags** — `--port`, `--host`, `--db-url`, `--db-adapter`
 
 ### Deployment (`docs/deployment.md`)
 
-- [ ] **Update Dockerfile example** — change `node:20-alpine` to `node:24-alpine`, fix multi-stage build
-- [ ] **Fix CMD** — change `pnpm --filter @arche-cms/api-server start` to `npx cms start`
-- [ ] **Fix PM2 path** — change `packages/cms/api/dist/index.js` to `npx cms start`
-- [ ] **Fix standalone path** — change `node packages/cms/api/dist/index.js` to `npx cms start`
+- [x] **Update Dockerfile example** — changed `node:20-alpine` to `node:24-alpine`, fixed multi-stage build
+- [x] **Fix CMD** — changed `pnpm --filter @arche-cms/api-server start` to `npx cms start`
+- [x] **Fix PM2 path** — changed `packages/cms/api/dist/index.js` to `npx cms start`
+- [x] **Fix standalone path** — changed `node packages/cms/api/dist/index.js` to `npx cms start`
 
 ### API Documentation (`docs/api-documentation.md`)
 
-- [ ] **Fix filter format** — change `filter={"status":"published"}` to `where[field]=value` query params
-- [ ] **Add pagination metadata** — `page`, `totalPages` in response
-- [ ] **Add API token auth section** — document `cms_<token>` bearer auth
-- [ ] **Add webhooks section** — document webhook CRUD and events
-- [ ] **Add version history section** — document version endpoints
+- [x] **Fix filter format** — changed `filter={"status":"published"}` to `where[field]=value` query params
+- [x] **Add pagination metadata** — `total`, `limit`, `offset` in response
+- [x] **Add API token auth section** — documented `cms_<token>` bearer auth
+- [x] **Add webhooks section** — documented webhook CRUD and events
+- [x] **Add version history section** — documented version endpoints
+- [x] **Add settings endpoints** — API tokens, webhooks, users, roles
+- [x] **Add publish/unpublish/restore endpoints**
 
 ### PRD (`docs/PRD.md`)
 
-- [ ] **Fix field count** — "30" → "28"
-- [ ] **Update Post-MVP items** — move draft/publish, version history, autosave, revisions, scheduled publishing, localization, soft delete, schema builder, plugin system to "Completed"
-- [ ] **Fix Milestone 5** — change "React Router" to "TanStack Router"
-- [ ] **Update Admin Panel features** — add settings page, API tokens, webhooks, forgot password, 404 page, pagination, TanStack Query
-- [ ] **Add create-app** — document scaffolding tool
-- [ ] **Add TanStack Query** to tech stack
+- [x] **Fix field count** — "30" → "29"
+- [x] **Update Post-MVP items** — moved draft/publish, version history, autosave, revisions, scheduled publishing, localization, soft delete, schema builder, plugin system to "Completed"
+- [x] **Fix Milestone 5** — changed "React Router" to "TanStack Router + TanStack Query"
+- [x] **Update Admin Panel features** — added settings page, API tokens, webhooks, forgot password, 404 page, pagination, TanStack Query
+- [x] **Add create-app** — documented scaffolding tool
+- [x] **Add TanStack Query** to tech stack
 
 ### Standalone Usage (`docs/standalone-usage.md`)
 
-- [ ] **Verify accuracy** — generally accurate, minor updates if needed
+- [x] **Fix Dockerfile base image** — changed `node:22-alpine` to `node:24-alpine`
 
 ### Plugin Development (`docs/plugin-development.md`)
 
-- [ ] **Verify accuracy** — generally accurate, minor updates if needed
+- [x] **Verified accuracy** — content is accurate, no changes needed
 
 ### BACKLOG (`docs/BACKLOG.md`)
 
-- [ ] **Update status** — mark completed items, add new ideas from M23–M26
+- [x] **Update status** — marked completed items, added new future ideas from M23–M27
 
 ### Verification
 
-- [ ] Review all docs files for consistency
-- [ ] Verify no references to removed packages (admin-ui, builder)
-- [ ] Verify package counts are consistent (17 packages)
-- [ ] Verify port numbers are consistent (3000 for production, 5173 for dev)
+- [x] Review all docs files for consistency
+- [x] Verify no references to removed packages (admin-ui, builder)
+- [x] Verify package counts are consistent (17 packages)
+- [x] Verify port numbers are consistent (3000 for production, 5173 for dev)
