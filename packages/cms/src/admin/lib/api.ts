@@ -74,6 +74,20 @@ export async function bulkDelete(path: string, ids: string[]): Promise<void> {
   });
 }
 
+export async function bulkPublish(path: string, ids: string[]): Promise<void> {
+  await apiFetch(`/api/${path}/bulk-publish`, {
+    body: JSON.stringify({ ids }),
+    method: "POST",
+  });
+}
+
+export async function bulkUnpublish(path: string, ids: string[]): Promise<void> {
+  await apiFetch(`/api/${path}/bulk-unpublish`, {
+    body: JSON.stringify({ ids }),
+    method: "POST",
+  });
+}
+
 export async function deleteSchema(type: string, slug: string): Promise<void> {
   await apiFetch(`/api/schemas/${type}/${slug}`, { method: "DELETE" });
 }
@@ -519,4 +533,30 @@ export type PluginMeta = {
 
 export async function fetchPlugins(): Promise<{ data: PluginMeta[]; total: number }> {
   return apiFetch("/api/plugins");
+}
+
+export type VersionMeta = {
+  id: string;
+  collection: string;
+  entryId: string;
+  version: number;
+  data: string;
+  createdAt: string;
+};
+
+export async function fetchVersions(
+  slug: string,
+  entryId: string,
+): Promise<{ data: VersionMeta[]; total: number }> {
+  return apiFetch(`/api/${slug}/${entryId}/versions`);
+}
+
+export async function restoreVersion(
+  slug: string,
+  entryId: string,
+  versionId: string,
+): Promise<Record<string, unknown>> {
+  return apiFetch(`/api/${slug}/${entryId}/versions/${versionId}/restore`, {
+    method: "POST",
+  });
 }
