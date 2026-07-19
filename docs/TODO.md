@@ -1,6 +1,6 @@
 # TODO — Arche CMS
 
-> Project status: Milestone 26 Part 1 complete — removed empty `admin-ui` and `builder` packages (17 packages remain). M23–M25 all committed. Next: Milestone 27 — test coverage to 100%, docs site update, docs files update.
+> Project status: Milestone 26 Part 2 SDK implemented — typed HTTP client with 55 tests, 17 packages. Remaining: SDK code generation integration (Phase 6), JSDoc comments, type tests. Next: M27 — test coverage to 100%.
 
 ---
 
@@ -1353,40 +1353,40 @@ The generators already produce TypeScript types (`packages/generators/src/sdk.ts
 
 #### Phase 1: Package Setup
 
-- [ ] **Add dependencies** — `@arche-cms/types` (peer), `@arche-cms/schema` (dev, for type generation)
-- [ ] **Add `README.md`** — document API, usage examples, configuration
-- [ ] **Define package exports** — `src/index.ts` exports `createClient`, types, and utilities
+- [x] **Add dependencies** — `@arche-cms/types` (peer), `@arche-cms/schema` (dev, for type generation)
+- [x] **Add `README.md`** — document API, usage examples, configuration
+- [x] **Define package exports** — `src/index.ts` exports `createClient`, types, and utilities
 
 #### Phase 2: HTTP Client Core
 
-- [ ] **Implement `createClient(config)` factory** — accepts `baseUrl`, `token?`, `fetch?` (custom fetch adapter), returns typed client
-- [ ] **Implement base HTTP methods** — `get<T>()`, `post<T>()`, `put<T>()`, `patch<T>()`, `delete<T>()` with JSON serialization, error handling, and auth header injection
-- [ ] **Implement error classes** — `ApiError` with `status`, `message`, `details` (validation errors), `code`
-- [ ] **Implement request/response interceptors** — `onRequest`, `onResponse`, `onError` hooks for logging, retry, token refresh
+- [x] **Implement `createClient(config)` factory** — accepts `baseUrl`, `token?`, `fetch?` (custom fetch adapter), returns typed client
+- [x] **Implement base HTTP methods** — `get<T>()`, `post<T>()`, `put<T>()`, `patch<T>()`, `delete<T>()` with JSON serialization, error handling, and auth header injection
+- [x] **Implement error classes** — `ApiError` with `status`, `message`, `details` (validation errors), `code`
+- [x] **Implement request/response interceptors** — `onRequest`, `onResponse`, `onError` hooks for logging, retry, token refresh
 
 #### Phase 3: Typed Collection Client
 
-- [ ] **Implement collection client factory** — `collection<T>(slug)` returns `{ list, get, create, update, delete, bulkDelete, publish, unpublish, restore, versions, restoreVersion }`
-- [ ] **Type-safe list method** — `list(params?)` with `limit`, `offset`, `sort`, `filter`, `select`, `populate` query params; returns `{ data: T[], total: number, limit: number, offset: number }`
-- [ ] **Type-safe get method** — `get(id)` returns `T`
-- [ ] **Type-safe create method** — `create(data)` returns `T`
-- [ ] **Type-safe update method** — `update(id, data)` returns `T`
-- [ ] **Type-safe delete method** — `delete(id)` returns `{ success: boolean }`
-- [ ] **Type-safe bulk operations** — `bulkDelete(ids)`, `publish(id)`, `unpublish(id)`, `restore(id)`
-- [ ] **Type-safe version operations** — `versions(id)`, `restoreVersion(id, versionId)`
+- [x] **Implement collection client factory** — `collection<T>(slug)` returns `{ list, get, create, update, delete, bulkDelete, publish, unpublish, restore, versions, restoreVersion }`
+- [x] **Type-safe list method** — `list(params?)` with `limit`, `offset`, `sort`, `filter`, `select`, `populate` query params; returns `{ data: T[], total: number, limit: number, offset: number }`
+- [x] **Type-safe get method** — `get(id)` returns `T`
+- [x] **Type-safe create method** — `create(data)` returns `T`
+- [x] **Type-safe update method** — `update(id, data)` returns `T`
+- [x] **Type-safe delete method** — `delete(id)` returns `{ success: boolean }`
+- [x] **Type-safe bulk operations** — `bulkDelete(ids)`, `publish(id)`, `unpublish(id)`, `restore(id)`
+- [x] **Type-safe version operations** — `versions(id)`, `restoreVersion(id, versionId)`
 
 #### Phase 4: Global Client
 
-- [ ] **Implement global client factory** — `global<T>(slug)` returns `{ get, upsert }`
-- [ ] **Type-safe get** — `get()` returns `T`
-- [ ] **Type-safe upsert** — `upsert(data)` returns `T`
+- [x] **Implement global client factory** — `global<T>(slug)` returns `{ get, upsert }`
+- [x] **Type-safe get** — `get()` returns `T`
+- [x] **Type-safe upsert** — `upsert(data)` returns `T`
 
 #### Phase 5: Auth & Media Clients
 
-- [ ] **Implement auth client** — `auth.login(email, password)`, `auth.register(email, password, name)`, `auth.refresh(refreshToken)`, `auth.forgotPassword(email)`, `auth.resetPassword(token, password)`, `auth.me()`
-- [ ] **Implement media client** — `media.list(params?)`, `media.get(id)`, `media.upload(file)`, `media.delete(id)`, `media.getFile(id)`
-- [ ] **Implement users client** — `users.list()`, `users.get(id)`, `users.create(data)`, `users.update(id, data)`, `users.delete(id)`
-- [ ] **Implement roles client** — `roles.list()`, `roles.get(id)`, `roles.create(data)`, `roles.update(id, data)`, `roles.delete(id)`
+- [x] **Implement auth client** — `auth.login(email, password)`, `auth.register(email, password, name)`, `auth.refresh(refreshToken)`, `auth.forgotPassword(email)`, `auth.resetPassword(token, password)`, `auth.me()`
+- [x] **Implement media client** — `media.list(params?)`, `media.get(id)`, `media.upload(file)`, `media.delete(id)`, `media.getFile(id)`
+- [x] **Implement users client** — `users.list()`, `users.get(id)`, `users.create(data)`, `users.update(id, data)`, `users.delete(id)`
+- [x] **Implement roles client** — `roles.list()`, `roles.get(id)`, `roles.create(data)`, `roles.update(id, data)`, `roles.delete(id)`
 
 #### Phase 6: Code Generation Integration
 
@@ -1397,27 +1397,27 @@ The generators already produce TypeScript types (`packages/generators/src/sdk.ts
 
 #### Phase 7: Testing
 
-- [ ] **Unit tests for HTTP client** — request/response handling, error classes, auth headers, interceptors
-- [ ] **Unit tests for collection client** — typed methods, query param serialization, response parsing
-- [ ] **Unit tests for global client** — typed methods
-- [ ] **Unit tests for auth client** — login, register, refresh, forgot/reset password
-- [ ] **Unit tests for media client** — upload, list, get, delete
-- [ ] **Integration tests** — mock fetch, verify full request lifecycle
+- [x] **Unit tests for HTTP client** — request/response handling, error classes, auth headers, interceptors
+- [x] **Unit tests for collection client** — typed methods, query param serialization, response parsing
+- [x] **Unit tests for global client** — typed methods
+- [x] **Unit tests for auth client** — login, register, refresh, forgot/reset password
+- [x] **Unit tests for media client** — upload, list, get, delete
+- [x] **Integration tests** — mock fetch, verify full request lifecycle
 - [ ] **Type tests** — verify type inference with `expectTypeOf` (TypeScript type-level tests)
 
 #### Phase 8: Documentation & Polish
 
-- [ ] **Write README** — installation, quick start, configuration, API reference, examples
+- [x] **Write README** — installation, quick start, configuration, API reference, examples
 - [ ] **Add JSDoc comments** — all public methods and types
-- [ ] **Add CHANGELOG entry** — v0.2.0 with SDK release
+- [x] **Add CHANGELOG entry** — v0.2.0 with SDK release
 
 ### Verification
 
-- [ ] Run `pnpm lint` — no new errors
-- [ ] Run `pnpm typecheck` — no type errors
-- [ ] Run `pnpm test` — all tests pass (existing + new SDK tests)
-- [ ] Run `pnpm build` — all packages build successfully
-- [ ] Verify SDK imports work: `import { createClient } from "@arche-cms/sdk"`
+- [x] Run `pnpm lint` — no new errors
+- [x] Run `pnpm typecheck` — no type errors
+- [x] Run `pnpm test` — all tests pass (existing + new SDK tests)
+- [x] Run `pnpm build` — all packages build successfully
+- [x] Verify SDK imports work: `import { createClient } from "@arche-cms/sdk"`
 - [ ] Verify generated SDK types compile against real schema definitions
 
 ---
