@@ -1,4 +1,4 @@
-import { defineComponent, text, media, select } from "@arche-cms/schema";
+import { defineComponent, text, media, select, textarea } from "@arche-cms/schema";
 
 export default defineComponent({
   fields: [

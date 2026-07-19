@@ -3,12 +3,12 @@ import {
   json,
   code,
   color,
-  component,
+  componentField,
   dynamicZone,
-  array,
-  object,
-  tabs,
-  group,
+  arrayField,
+  objectField,
+  tabsField,
+  groupField,
   repeater,
   text,
   richText,
@@ -19,20 +19,20 @@ export default defineGlobal({
     json("customSettings", { label: "Custom Settings (JSON)" }),
     code("customScript", { label: "Custom Script" }),
     color("primaryColor", { label: "Primary Brand Color" }),
-    component("heroBanner", { component: "seo", label: "Hero Banner" }),
+    componentField("heroBanner", { component: "seo", label: "Hero Banner" }),
     dynamicZone("pageBlocks", {
       components: ["seo", "media-card"],
       label: "Page Blocks",
     }),
-    array("socialLinks", {
+    arrayField("socialLinks", {
       fields: [text("platform", { label: "Platform" }), text("url", { label: "URL" })],
       label: "Social Links",
     }),
-    object("contactInfo", {
+    objectField("contactInfo", {
       fields: [text("phone", { label: "Phone" }), text("address", { label: "Address" })],
       label: "Contact Info",
     }),
-    tabs("tabbedSettings", {
+    tabsField("tabbedSettings", {
       label: "Tabbed Settings",
       tabs: [
         {
@@ -51,7 +51,7 @@ export default defineGlobal({
         },
       ],
     }),
-    group("footerSettings", {
+    groupField("footerSettings", {
       fields: [
         text("copyright", { label: "Copyright Text" }),
         text("footerLinks", { label: "Footer Links" }),

@@ -21,12 +21,12 @@ import {
   radio,
   checkbox,
   relation,
-  component,
+  componentField,
   dynamicZone,
-  array,
-  object,
-  tabs,
-  group,
+  arrayField,
+  objectField,
+  tabsField,
+  groupField,
   repeater,
   slug,
 } from "@arche-cms/schema";
@@ -77,17 +77,17 @@ export default defineCollection({
     checkbox("published", { label: "Published" }),
     relation("author", { label: "Author", to: "users" }),
     relation("relatedPosts", { kind: "manyToMany", label: "Related Posts", to: "posts" }),
-    component("seo", { component: "seo", label: "SEO" }),
-    component("mediaCard", { component: "media-card", label: "Media Card" }),
+    componentField("seo", { component: "seo", label: "SEO" }),
+    componentField("mediaCard", { component: "media-card", label: "Media Card" }),
     dynamicZone("contentBlocks", {
       components: ["seo", "media-card"],
       label: "Content Blocks",
     }),
-    array("galleryItems", {
+    arrayField("galleryItems", {
       fields: [text("caption", { label: "Caption" }), media("image", { label: "Image" })],
       label: "Gallery Items",
     }),
-    object("address", {
+    objectField("address", {
       fields: [
         text("street", { label: "Street" }),
         text("city", { label: "City" }),
@@ -96,7 +96,7 @@ export default defineCollection({
       ],
       label: "Address",
     }),
-    tabs("tabbedContent", {
+    tabsField("tabbedContent", {
       label: "Tabbed Content",
       tabs: [
         {
@@ -115,7 +115,7 @@ export default defineCollection({
         },
       ],
     }),
-    group("advancedSettings", {
+    groupField("advancedSettings", {
       fields: [
         boolean("enableComments", { label: "Enable Comments" }),
         select("template", {
