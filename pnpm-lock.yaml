@@ -109,6 +109,15 @@ importers:
         specifier: workspace:*
         version: link:../../packages/schema
     devDependencies:
+      '@arche-cms/database':
+        specifier: workspace:*
+        version: link:../../packages/database
+      '@arche-cms/storage':
+        specifier: workspace:*
+        version: link:../../packages/storage
+      '@arche-cms/types':
+        specifier: workspace:*
+        version: link:../../packages/types
       fastify:
         specifier: ^5.3.2
         version: 5.10.0
