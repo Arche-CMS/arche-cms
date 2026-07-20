@@ -92,6 +92,9 @@ function generateCreateInput(
     .map((f) => {
       const gqlType = fieldToGraphQLType(f, collections);
       const required = f.validation?.required ? "!" : "";
+      if (f.type === "component") {
+        return `  ${f.name}: JSON${required}`;
+      }
       return `  ${f.name}: ${gqlType}${required}`;
     })
     .join("\n");
@@ -109,6 +112,9 @@ function generateUpdateInput(
     .filter((f) => f.type !== "relation")
     .map((f) => {
       const gqlType = fieldToGraphQLType(f, collections);
+      if (f.type === "component") {
+        return `  ${f.name}: JSON`;
+      }
       return `  ${f.name}: ${gqlType}`;
     })
     .join("\n");
