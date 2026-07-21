@@ -4,6 +4,7 @@ import { useState, type FormEvent } from "react";
 
 import { useToast } from "@/components/toast-provider";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PasswordInput } from "@/components/ui/password-input";
@@ -19,6 +20,7 @@ export const Route = createRoute({
 function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState("");
   const { toast } = useToast();
   const { isLoading, login } = useAuth();
@@ -28,7 +30,7 @@ function LoginPage() {
     e.preventDefault();
     setError("");
     try {
-      await login(email, password);
+      await login(email, password, rememberMe);
       navigate({ to: "/" });
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Login failed";
@@ -69,6 +71,16 @@ function LoginPage() {
               onChange={(e) => setPassword(e.target.value)}
               required
             />
+          </div>
+          <div className="flex items-center gap-2">
+            <Checkbox
+              id="remember-me"
+              checked={rememberMe}
+              onChange={(e) => setRememberMe(e.target.checked)}
+            />
+            <Label htmlFor="remember-me" className="text-sm font-normal cursor-pointer">
+              Remember me
+            </Label>
           </div>
           <Button type="submit" className="w-full" loading={isLoading}>
             Sign In

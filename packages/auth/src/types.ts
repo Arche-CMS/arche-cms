@@ -44,6 +44,7 @@ export interface PublicUser {
 export interface LoginInput {
   email: string;
   password: string;
+  rememberMe?: boolean;
 }
 
 export interface RegisterInput {

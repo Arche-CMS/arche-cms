@@ -155,7 +155,7 @@ export async function registerAuth(
       },
     },
     async (
-      request: FastifyRequest<{ Body: { email: string; password: string } }>,
+      request: FastifyRequest<{ Body: { email: string; password: string; rememberMe?: boolean } }>,
       reply: FastifyReply,
     ) => {
       try {

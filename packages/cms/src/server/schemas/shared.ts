@@ -161,6 +161,11 @@ export const loginBodySchema = {
       examples: ["admin123456"],
       type: "string",
     },
+    rememberMe: {
+      description:
+        "If true, tokens persist across browser sessions (30-day refresh token). If false, tokens are cleared when the browser closes (1-hour refresh token).",
+      type: "boolean",
+    },
   },
   required: ["email", "password"],
   type: "object",

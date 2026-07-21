@@ -1,5 +1,19 @@
 const API_URL = (import.meta.env.VITE_API_URL as string) ?? "http://localhost:3000";
 
+function storageGet(key: string): string | null {
+  return localStorage.getItem(key) ?? sessionStorage.getItem(key);
+}
+
+function storageSet(key: string, value: string, persistent: boolean) {
+  const store = persistent ? localStorage : sessionStorage;
+  store.setItem(key, value);
+}
+
+function storageRemove(key: string) {
+  localStorage.removeItem(key);
+  sessionStorage.removeItem(key);
+}
+
 export type SchemaInfo = {
   slug: string;
   label: string;
@@ -97,7 +111,7 @@ export function getApiUrl(): string {
 }
 
 export async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> {
-  const token = localStorage.getItem("cms_token");
+  const token = storageGet("cms_token");
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
     ...((options.headers as Record<string, string>) ?? {}),
@@ -107,7 +121,7 @@ export async function apiFetch<T>(path: string, options: RequestInit = {}): Prom
   }
   const res = await fetch(`${API_URL}${path}`, { ...options, headers });
   if (res.status === 401) {
-    const refreshToken = localStorage.getItem("cms_refresh");
+    const refreshToken = storageGet("cms_refresh");
     if (refreshToken) {
       const refreshRes = await fetch(`${API_URL}/api/auth/refresh`, {
         body: JSON.stringify({ refreshToken }),
@@ -116,8 +130,9 @@ export async function apiFetch<T>(path: string, options: RequestInit = {}): Prom
       });
       if (refreshRes.ok) {
         const data = (await refreshRes.json()) as { accessToken: string; refreshToken: string };
-        localStorage.setItem("cms_token", data.accessToken);
-        localStorage.setItem("cms_refresh", data.refreshToken);
+        const persistent = !!localStorage.getItem("cms_token");
+        storageSet("cms_token", data.accessToken, persistent);
+        storageSet("cms_refresh", data.refreshToken, persistent);
         headers["Authorization"] = `Bearer ${data.accessToken}`;
         const retryRes = await fetch(`${API_URL}${path}`, { ...options, headers });
         if (!retryRes.ok) {
@@ -148,9 +163,9 @@ export async function apiFetch<T>(path: string, options: RequestInit = {}): Prom
 }
 
 function logoutAndRedirect(): never {
-  localStorage.removeItem("cms_token");
-  localStorage.removeItem("cms_refresh");
-  localStorage.removeItem("cms_user");
+  storageRemove("cms_token");
+  storageRemove("cms_refresh");
+  storageRemove("cms_user");
   window.location.href = "/login";
   throw new Error("Session expired");
 }
