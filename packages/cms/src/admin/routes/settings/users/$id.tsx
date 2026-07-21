@@ -6,6 +6,7 @@ import { useToast } from "@/components/toast-provider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { fetchUsers, updateUser, fetchRoles, type UserMeta, type RoleMeta } from "@/lib/api";
 import { Route as settingsRoute } from "@/routes/settings/index";
@@ -151,17 +152,16 @@ function EditUser() {
         </div>
         <div className="space-y-2">
           <Label htmlFor="password">New Password</Label>
-          <Input
+          <PasswordInput
             id="password"
-            type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Leave blank to keep current password"
           />
         </div>
         <div className="flex items-center gap-2 pt-4">
-          <Button type="submit" disabled={saving}>
-            {saving ? "Saving..." : "Save Changes"}
+          <Button type="submit" loading={saving}>
+            Save Changes
           </Button>
           <Link to="/settings/users">
             <Button type="button" variant="outline">

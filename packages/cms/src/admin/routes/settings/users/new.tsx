@@ -6,6 +6,7 @@ import { useToast } from "@/components/toast-provider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { PasswordInput } from "@/components/ui/password-input";
 import { createUser } from "@/lib/api";
 import { Route as settingsRoute } from "@/routes/settings/index";
 
@@ -76,9 +77,8 @@ function CreateUser() {
 
         <div className="space-y-2">
           <Label htmlFor="password">Password</Label>
-          <Input
+          <PasswordInput
             id="password"
-            type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
@@ -87,8 +87,8 @@ function CreateUser() {
         </div>
 
         <div className="flex items-center gap-2 pt-4">
-          <Button type="submit" disabled={saving}>
-            {saving ? "Creating..." : "Create User"}
+          <Button type="submit" loading={saving}>
+            Create User
           </Button>
           <Link to="/settings/users">
             <Button type="button" variant="outline">

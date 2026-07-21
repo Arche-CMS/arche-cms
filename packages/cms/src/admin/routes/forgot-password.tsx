@@ -66,8 +66,8 @@ function ForgotPasswordPage() {
               required
             />
           </div>
-          <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? "Sending..." : "Send Reset Link"}
+          <Button type="submit" className="w-full" loading={loading}>
+            Send Reset Link
           </Button>
         </form>
         <p className="text-center text-sm text-muted-foreground">

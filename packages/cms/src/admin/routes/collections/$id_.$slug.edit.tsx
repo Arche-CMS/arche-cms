@@ -203,8 +203,8 @@ function EditEntry() {
           />
         ))}
         <div className="flex items-center gap-2 pt-4">
-          <Button type="submit" disabled={updateEntry.isPending}>
-            {updateEntry.isPending ? "Saving..." : "Save Changes"}
+          <Button type="submit" loading={updateEntry.isPending}>
+            Save Changes
           </Button>
           {collection.versions?.drafts && (
             <>
@@ -212,19 +212,19 @@ function EditEntry() {
                 <Button
                   type="button"
                   variant="outline"
-                  disabled={unpublishEntry.isPending}
+                  loading={unpublishEntry.isPending}
                   onClick={handleUnpublish}
                 >
-                  {unpublishEntry.isPending ? "Unpublishing..." : "Unpublish"}
+                  Unpublish
                 </Button>
               ) : (
                 <Button
                   type="button"
                   variant="outline"
-                  disabled={publishEntry.isPending}
+                  loading={publishEntry.isPending}
                   onClick={handlePublish}
                 >
-                  {publishEntry.isPending ? "Publishing..." : "Publish"}
+                  Publish
                 </Button>
               )}
             </>

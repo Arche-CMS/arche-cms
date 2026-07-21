@@ -135,9 +135,9 @@ function NewSchema() {
           </p>
         </div>
 
-        <Button type="submit" className="w-full" disabled={creating}>
+        <Button type="submit" className="w-full" loading={creating}>
           <Plus className="mr-2 h-4 w-4" />
-          {creating ? "Creating..." : "Create Schema"}
+          Create Schema
         </Button>
       </form>
     </div>

@@ -165,8 +165,8 @@ function ApiTokensPage() {
               />
             </div>
             <div className="flex gap-2">
-              <Button type="submit" disabled={createApiToken.isPending || !newName.trim()}>
-                {createApiToken.isPending ? "Creating..." : "Create"}
+              <Button type="submit" disabled={!newName.trim()} loading={createApiToken.isPending}>
+                Create
               </Button>
               <Button
                 type="button"

@@ -127,18 +127,20 @@ export function DialogContent({
     <>
       <div
         aria-hidden="true"
-        className="fixed inset-0 z-50 bg-overlay animate-in fade-in-0"
+        className="fixed inset-0 z-50 bg-overlay"
+        style={{ animation: "fade-in 0.15s ease-out" }}
         onClick={onClose}
       />
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
         <div
           aria-modal="true"
           className={cn(
-            "relative z-50 grid w-full max-w-lg gap-4 border bg-background p-6 shadow-lg duration-200 animate-in fade-in-0 zoom-in-95 sm:rounded-lg",
+            "relative z-50 grid w-full max-w-lg gap-4 border bg-background p-6 shadow-lg duration-200 sm:rounded-lg",
             className,
           )}
           ref={contentRef}
           role="dialog"
+          style={{ animation: "fade-in 0.15s ease-out, zoom-in-95 0.15s ease-out" }}
           tabIndex={-1}
           {...props}
         >

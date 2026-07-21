@@ -7,6 +7,7 @@ type Toast = {
   id: string;
   message: string;
   variant: ToastVariant;
+  closing?: boolean;
 };
 
 type ToastContextValue = {
@@ -34,13 +35,20 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   const toast = useCallback((message: string, variant: ToastVariant = "info") => {
     const id = crypto.randomUUID();
     setToasts((prev) => [...prev, { id, message, variant }]);
+    const timeout = variant === "error" ? 8000 : 4000;
     setTimeout(() => {
-      setToasts((prev) => prev.filter((t) => t.id !== id));
-    }, 4000);
+      setToasts((prev) => prev.map((t) => (t.id === id ? { ...t, closing: true } : t)));
+      setTimeout(() => {
+        setToasts((prev) => prev.filter((t) => t.id !== id));
+      }, 300);
+    }, timeout);
   }, []);
 
   const dismiss = useCallback((id: string) => {
-    setToasts((prev) => prev.filter((t) => t.id !== id));
+    setToasts((prev) => prev.map((t) => (t.id === id ? { ...t, closing: true } : t)));
+    setTimeout(() => {
+      setToasts((prev) => prev.filter((t) => t.id !== id));
+    }, 300);
   }, []);
 
   return (
@@ -55,7 +63,10 @@ export function ToastProvider({ children }: { children: ReactNode }) {
         {toasts.map((t) => (
           <div
             key={t.id}
-            className={`flex items-start gap-2 rounded-lg border px-4 py-3 text-sm shadow-lg animate-in slide-in-from-right ${variantStyles[t.variant]}`}
+            className={`flex items-start gap-2 rounded-lg border px-4 py-3 text-sm shadow-lg ${variantStyles[t.variant]}`}
+            style={{
+              animation: t.closing ? "toast-out 0.3s ease-in forwards" : "toast-in 0.3s ease-out",
+            }}
           >
             <span className="mt-0.5 font-mono text-xs">{variantIcons[t.variant]}</span>
             <p className="flex-1">{t.message}</p>

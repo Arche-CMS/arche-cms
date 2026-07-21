@@ -161,8 +161,8 @@ function CreateWebhook() {
         </div>
 
         <div className="flex items-center gap-2 pt-4">
-          <Button type="submit" disabled={createWebhook.isPending || events.length === 0}>
-            {createWebhook.isPending ? "Creating..." : "Create Webhook"}
+          <Button type="submit" disabled={events.length === 0} loading={createWebhook.isPending}>
+            Create Webhook
           </Button>
           <Link to="/settings/webhooks">
             <Button type="button" variant="outline">

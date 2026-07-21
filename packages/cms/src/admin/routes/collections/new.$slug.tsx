@@ -158,8 +158,8 @@ function CreateEntry() {
           />
         ))}
         <div className="flex items-center gap-2 pt-4">
-          <Button type="submit" disabled={createEntry.isPending}>
-            {createEntry.isPending ? "Creating..." : "Create"}
+          <Button type="submit" loading={createEntry.isPending}>
+            Create
           </Button>
           <Link to="/collections/$slug" params={{ slug }}>
             <Button type="button" variant="outline">

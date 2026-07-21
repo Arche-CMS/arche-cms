@@ -907,9 +907,9 @@ function SchemaEditor() {
             <Eye className="mr-2 h-4 w-4" />
             {showPreview ? "Editor" : "Preview"}
           </Button>
-          <Button onClick={handleSave} disabled={saving}>
+          <Button onClick={handleSave} loading={saving}>
             <Save className="mr-2 h-4 w-4" />
-            {saving ? "Saving..." : "Save"}
+            Save
           </Button>
         </div>
       </div>

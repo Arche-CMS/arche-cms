@@ -143,8 +143,8 @@ function CreateRole() {
         </div>
 
         <div className="flex items-center gap-2 pt-4">
-          <Button type="submit" disabled={saving}>
-            {saving ? "Creating..." : "Create Role"}
+          <Button type="submit" loading={saving}>
+            Create Role
           </Button>
           <Link to="/settings/roles">
             <Button type="button" variant="outline">

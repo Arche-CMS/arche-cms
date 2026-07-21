@@ -353,11 +353,11 @@ function MediaLibrary() {
           </Button>
           <Button
             onClick={() => fileInputRef.current?.click()}
-            disabled={uploading}
+            loading={uploading}
             className="w-full sm:w-auto"
           >
             <Upload className="mr-2 h-4 w-4" />
-            {uploading ? "Uploading..." : "Upload File"}
+            Upload File
           </Button>
         </div>
       </div>

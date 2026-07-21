@@ -145,10 +145,11 @@ export function SelectContent({
   return (
     <div
       className={cn(
-        "relative z-50 max-h-72 min-w-[8rem] overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md animate-in fade-in-0 zoom-in-95",
+        "relative z-50 max-h-72 min-w-[8rem] overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md",
         className,
       )}
       role="listbox"
+      style={{ animation: "fade-in 0.15s ease-out, zoom-in-95 0.15s ease-out" }}
     >
       <div className="p-1">{children}</div>
     </div>

@@ -136,8 +136,8 @@ function EditGlobal() {
           />
         ))}
         <div className="flex items-center gap-2 pt-4">
-          <Button type="submit" disabled={saveGlobal.isPending}>
-            {saveGlobal.isPending ? "Saving..." : "Save"}
+          <Button type="submit" loading={saveGlobal.isPending}>
+            Save
           </Button>
           <Link to="/globals">
             <Button type="button" variant="outline">

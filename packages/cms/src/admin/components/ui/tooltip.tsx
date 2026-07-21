@@ -47,7 +47,7 @@ export function Tooltip({ children, content, side = "top" }: TooltipProps) {
       {open && (
         <div
           className={cn(
-            "absolute z-50 overflow-hidden rounded-md bg-primary px-3 py-1.5 text-xs text-primary-foreground animate-in fade-in-0 zoom-in-95",
+            "absolute z-50 overflow-hidden rounded-md bg-primary px-3 py-1.5 text-xs text-primary-foreground",
             positionClasses[side],
           )}
           id={tooltipId}

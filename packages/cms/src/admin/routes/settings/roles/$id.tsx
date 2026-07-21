@@ -208,8 +208,8 @@ function EditRole() {
         </div>
 
         <div className="flex items-center gap-2 pt-4">
-          <Button type="submit" disabled={saving}>
-            {saving ? "Saving..." : "Save Changes"}
+          <Button type="submit" loading={saving}>
+            Save Changes
           </Button>
           <Link to="/settings/roles">
             <Button type="button" variant="outline">

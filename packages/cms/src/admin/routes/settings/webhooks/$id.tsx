@@ -210,8 +210,8 @@ function EditWebhook() {
         </div>
 
         <div className="flex items-center gap-2 pt-4">
-          <Button type="submit" disabled={updateWebhook.isPending || events.length === 0}>
-            {updateWebhook.isPending ? "Saving..." : "Save Changes"}
+          <Button type="submit" disabled={events.length === 0} loading={updateWebhook.isPending}>
+            Save Changes
           </Button>
           <Link to="/settings/webhooks">
             <Button type="button" variant="outline">
