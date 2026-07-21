@@ -1,18 +1,10 @@
 import { createRoute, Link, useParams } from "@tanstack/react-router";
-import {
-  ArrowLeft,
-  Plus,
-  Pencil,
-  Trash2,
-  CheckCircle,
-  XCircle,
-  RefreshCw,
-  Send,
-  Undo2,
-} from "lucide-react";
+import { ArrowLeft, Plus, Trash2, CheckCircle, Send, Undo2 } from "lucide-react";
 import { useState } from "react";
 
 import { ConfirmDialog } from "@/components/confirm-dialog";
+import { EntryActions } from "@/components/entry-actions";
+import { LocaleSelector } from "@/components/locale-selector";
 import { useToast } from "@/components/toast-provider";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -277,18 +269,11 @@ function CollectionEntries() {
           </div>
         </div>
         <div className="flex items-center gap-2 self-start sm:self-auto">
-          <select
+          <LocaleSelector
             value={locale}
-            onChange={(e) => setLocale(e.target.value)}
-            className="h-9 rounded-md border border-input bg-background px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 transition-colors"
-            aria-label="Locale"
-          >
-            {(collection.localization?.locales ?? ["en"]).map((l) => (
-              <option key={l} value={l}>
-                {l.toUpperCase()}
-              </option>
-            ))}
-          </select>
+            onChange={setLocale}
+            locales={collection.localization?.locales ?? ["en"]}
+          />
           {hasSoftDelete && (
             <Button
               variant={showDeleted ? "secondary" : "outline"}
@@ -403,15 +388,15 @@ function CollectionEntries() {
                     )}
                     <td className="px-4 py-3 text-right">
                       <div className="flex items-center justify-end gap-1">
-                        {renderActions(
-                          entry,
-                          hasDrafts,
-                          handlePublish,
-                          handleUnpublish,
-                          handleRestore,
-                          handleDelete,
-                          slug,
-                        )}
+                        <EntryActions
+                          entry={entry}
+                          hasDrafts={hasDrafts}
+                          onPublish={handlePublish}
+                          onUnpublish={handleUnpublish}
+                          onRestore={handleRestore}
+                          onDelete={handleDelete}
+                          slug={slug}
+                        />
                       </div>
                     </td>
                   </tr>
@@ -446,55 +431,6 @@ function CollectionEntries() {
         onConfirm={handleConfirmDelete}
         onCancel={() => setConfirmDeleteId(null)}
       />
-    </div>
-  );
-}
-
-// fallow-ignore-next-line complexity
-function renderActions(
-  entry: Entry,
-  hasDrafts: boolean,
-  handlePublish: (id: string) => void,
-  handleUnpublish: (id: string) => void,
-  handleRestore: (id: string) => void,
-  handleDelete: (id: string) => void,
-  slug: string,
-) {
-  const deleted = Boolean(entry._deletedAt);
-  if (deleted) {
-    return (
-      <div className="flex items-center justify-end gap-1">
-        <Button variant="ghost" size="icon" onClick={() => handleRestore(entry.id)} title="Restore">
-          <RefreshCw className="h-4 w-4 text-info" />
-        </Button>
-      </div>
-    );
-  }
-  return (
-    <div className="flex items-center justify-end gap-1">
-      {hasDrafts && entry._status !== "published" && (
-        <Button variant="ghost" size="icon" onClick={() => handlePublish(entry.id)} title="Publish">
-          <CheckCircle className="h-4 w-4 text-success" />
-        </Button>
-      )}
-      {hasDrafts && entry._status === "published" && (
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => handleUnpublish(entry.id)}
-          title="Unpublish"
-        >
-          <XCircle className="h-4 w-4 text-warning" />
-        </Button>
-      )}
-      <Link to="/collections/$slug/$id" params={{ id: entry.id, slug }}>
-        <Button variant="ghost" size="icon">
-          <Pencil className="h-4 w-4" />
-        </Button>
-      </Link>
-      <Button variant="ghost" size="icon" onClick={() => handleDelete(entry.id)}>
-        <Trash2 className="h-4 w-4" />
-      </Button>
     </div>
   );
 }

@@ -2003,12 +2003,12 @@ Modernize typography scale, improve readability, and ensure accessible font size
 
 Break down oversized components for maintainability. This phase does not change visuals but makes future changes easier.
 
-- [ ] **Extract `MediaLibrary` sub-components** — `media/index.tsx` (645 lines, 15+ useState) into: `MediaGrid`, `MediaToolbar`, `MediaBreadcrumbs`, `FolderTree`, `UploadZone`, `MediaItem`
-- [ ] **Extract `SchemaEditor` sub-components** — `schemas/$type.$slug.tsx` (1574 lines) into: `FieldList`, `FieldEditor`, `FieldTypePicker`, `FieldSettingsPanel`, `SchemaPreview`, `NestedFieldEditor`
-- [ ] **Extract `FieldInput` sub-components** — `field-input.tsx` (1397 lines) into separate files per complex field type: `RichTextInput.tsx`, `MarkdownInput.tsx`, `CodeInput.tsx`, `ComponentInput.tsx`, `DynamicZoneInput.tsx`, `ArrayInput.tsx`, `TabsInput.tsx`, `RepeaterInput.tsx`. Keep simple types in `field-input.tsx`
-- [ ] **Remove duplicate `BooleanInput`/`CheckboxInput`** — `field-input.tsx` lines 155-217 has two identical components. Remove `CheckboxInput` and alias to `BooleanInput`
-- [ ] **Extract locale selector into shared component** — `LocaleSelector.tsx` used by `collections/$slug.tsx`, `new.$slug.tsx`, `$id_.$slug.edit.tsx`. Currently duplicated raw `<select>` markup in 3 files
-- [ ] **Extract `renderActions` into a component** — `collections/$slug.tsx` line 477 has a standalone function receiving 7 parameters. Convert to `<EntryActions entry={entry} onDelete={...} onPublish={...} />` component
+- [x] **Extract `MediaLibrary` sub-components** — `media/index.tsx` (645→377 lines) into: `MediaLoadingSkeleton`, `MediaHeader`, `BreadcrumbNav`, `FolderCard`, `MediaCard`, `UploadOverlay`, `NewFolderInput`, `EmptyState` in `media/components/`
+- [x] **Extract `SchemaEditor` sub-components** — `schemas/$type.$slug.tsx` (1574→1393 lines) into: `field-config.ts` (FIELD_TYPE_CONFIG, FIELD_TYPE_GROUPS, defaultField, getFieldConfig), `FieldTypePicker`, `SchemaLoadingSkeleton` in `schemas/components/`
+- [x] **Extract `FieldInput` sub-components** — `field-input.tsx` (1409→131 lines, 91% reduction) into `field-types/`: `field-helpers.tsx` (FieldLabel, FieldError, mapInputType, getOptions), `basic-inputs.tsx`, `text-inputs.tsx`, `media-inputs.tsx`, `structure-inputs.tsx`
+- [x] **Remove duplicate `BooleanInput`/`CheckboxInput`** — merged into single `BooleanInput` that handles both `boolean` and `checkbox` field types
+- [x] **Extract locale selector into shared component** — `LocaleSelector.tsx` replaces duplicated `<select>` markup in `collections/$slug.tsx`, `new.$slug.tsx`, `$id_.$slug.edit.tsx`
+- [x] **Extract `renderActions` into `EntryActions` component** — `collections/$slug.tsx` standalone function (47 lines, 7 params) → `components/entry-actions.tsx` with typed props
 
 ---
 

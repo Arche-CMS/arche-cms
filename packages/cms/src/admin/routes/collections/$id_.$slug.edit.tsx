@@ -3,6 +3,7 @@ import { ArrowLeft, CheckCircle, History } from "lucide-react";
 import { useRef, useState, type FormEvent } from "react";
 
 import { FieldInput } from "@/components/field-input";
+import { LocaleSelector } from "@/components/locale-selector";
 import { useToast } from "@/components/toast-provider";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -167,18 +168,11 @@ function EditEntry() {
           <p className="text-muted-foreground">Editing entry {id}</p>
         </div>
         <div className="ml-auto flex items-center gap-2">
-          <select
+          <LocaleSelector
             value={locale}
-            onChange={(e) => setLocale(e.target.value)}
-            className="h-9 rounded-md border border-input bg-background px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 transition-colors"
-            aria-label="Locale"
-          >
-            {(collection.localization?.locales ?? ["en"]).map((l) => (
-              <option key={l} value={l}>
-                {l.toUpperCase()}
-              </option>
-            ))}
-          </select>
+            onChange={setLocale}
+            locales={collection.localization?.locales ?? ["en"]}
+          />
           {collection.versions?.drafts &&
             entryStatus &&
             (entryStatus === "published" ? (
