@@ -61,7 +61,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         {...props}
       >
         {loading && <Spinner />}
-        <span className={cn(loading && "invisible")}>{children}</span>
+        <span className={cn("relative inline-flex", loading && "invisible")}>{children}</span>
       </button>
     );
   },
