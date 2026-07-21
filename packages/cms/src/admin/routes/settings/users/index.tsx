@@ -103,8 +103,14 @@ function UsersList() {
       )}
 
       {users.length === 0 ? (
-        <div className="flex flex-col items-center gap-4 rounded-lg border p-12 text-center">
+        <div className="flex flex-col items-center gap-4 rounded-lg border border-dashed p-12 text-center">
           <p className="text-lg text-muted-foreground">No users found</p>
+          <Link to="/settings/users/new">
+            <Button size="sm">
+              <Plus className="mr-2 h-4 w-4" />
+              Create User
+            </Button>
+          </Link>
         </div>
       ) : (
         <>

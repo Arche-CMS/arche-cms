@@ -66,25 +66,43 @@ function CollectionsList() {
         </Link>
       </div>
       <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-        {collections.map((col) => (
-          <Link
-            key={col.slug}
-            to="/collections/$slug"
-            params={{ slug: col.slug }}
-            className="group rounded-lg border p-4 transition-colors hover:bg-accent"
-          >
-            <div className="flex items-start gap-3">
-              <FileText className="mt-1 h-5 w-5 text-muted-foreground" />
-              <div>
-                <h3 className="font-semibold">{col.label}</h3>
-                <p className="text-sm text-muted-foreground">
-                  {counts[col.slug] ?? 0} entry{(counts[col.slug] ?? 0) !== 1 ? "s" : ""} ·{" "}
-                  {col.fields.length} field{col.fields.length !== 1 ? "s" : ""}
-                </p>
-              </div>
+        {collections.length === 0 ? (
+          <div className="col-span-full flex flex-col items-center gap-4 rounded-lg border border-dashed p-12 text-center">
+            <FileText className="h-10 w-10 text-muted-foreground/50" />
+            <div>
+              <p className="text-lg font-medium">No collections yet</p>
+              <p className="text-sm text-muted-foreground">
+                Create your first collection to get started.
+              </p>
             </div>
-          </Link>
-        ))}
+            <Link to="/schemas/new">
+              <Button size="sm">
+                <Plus className="mr-2 h-4 w-4" />
+                Create Collection
+              </Button>
+            </Link>
+          </div>
+        ) : (
+          collections.map((col) => (
+            <Link
+              key={col.slug}
+              to="/collections/$slug"
+              params={{ slug: col.slug }}
+              className="group rounded-lg border p-4 transition-colors hover:bg-accent"
+            >
+              <div className="flex items-start gap-3">
+                <FileText className="mt-1 h-5 w-5 text-muted-foreground" />
+                <div>
+                  <h3 className="font-semibold">{col.label}</h3>
+                  <p className="text-sm text-muted-foreground">
+                    {counts[col.slug] ?? 0} entry{(counts[col.slug] ?? 0) !== 1 ? "s" : ""} ·{" "}
+                    {col.fields.length} field{col.fields.length !== 1 ? "s" : ""}
+                  </p>
+                </div>
+              </div>
+            </Link>
+          ))
+        )}
       </div>
     </div>
   );

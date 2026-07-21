@@ -140,7 +140,7 @@ function Dashboard() {
               <s.icon className="h-4 w-4 text-muted-foreground" />
             </div>
             {loading ? (
-              <p className="mt-1 text-sm text-muted-foreground">...</p>
+              <Skeleton className="mt-1 h-8 w-16" />
             ) : (
               <p className="mt-1 text-2xl font-bold">{s.value}</p>
             )}
@@ -161,7 +161,7 @@ function Dashboard() {
           <div className="divide-y">
             {collections.length === 0 ? (
               <p className="p-4 text-sm text-muted-foreground">
-                {loading ? "Loading..." : "No collections yet"}
+                {loading ? <Skeleton className="h-4 w-32" /> : "No collections yet"}
               </p>
             ) : (
               collections.map((c) => (
@@ -195,7 +195,7 @@ function Dashboard() {
               ))
             ) : (
               <p className="text-sm text-muted-foreground">
-                {loading ? "Loading..." : "Create a collection to get started"}
+                {loading ? <Skeleton className="h-4 w-40" /> : "Create a collection to get started"}
               </p>
             )}
           </div>
