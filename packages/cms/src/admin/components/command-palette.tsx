@@ -134,10 +134,20 @@ export function CommandPalette({ onClose, open }: CommandPaletteProps) {
     [navigate, onClose],
   );
 
+  const NAV_ROUTES: Record<string, string> = {
+    "nav-collections": "/collections",
+    "nav-dashboard": "/",
+    "nav-globals": "/globals",
+    "nav-media": "/media",
+    "nav-roles": "/roles",
+    "nav-settings": "/settings",
+    "nav-users": "/users",
+  };
+
   const items: CommandItem[] = [
     ...pageItems.map((item) => ({
       ...item,
-      onSelect: () => navigateTo(item.id.replace("nav-", "/")),
+      onSelect: () => navigateTo(NAV_ROUTES[item.id] ?? "/"),
     })),
     ...collections.map((c) => ({
       category: "Content" as const,
