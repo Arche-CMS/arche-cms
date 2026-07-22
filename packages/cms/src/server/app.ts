@@ -188,7 +188,26 @@ export async function createApp(options: AppOptions): Promise<FastifyInstance> {
         response: {
           "2xx": {
             properties: {
-              data: { items: { type: "object" }, type: "array" },
+              data: {
+                items: {
+                  properties: {
+                    enabled: { type: "boolean" },
+                    plugin: {
+                      properties: {
+                        description: { type: "string" },
+                        name: { type: "string" },
+                        slug: { type: "string" },
+                        version: { type: "string" },
+                      },
+                      required: ["slug", "name"],
+                      type: "object",
+                    },
+                  },
+                  required: ["plugin", "enabled"],
+                  type: "object",
+                },
+                type: "array",
+              },
               total: { type: "number" },
             },
             required: ["data", "total"],

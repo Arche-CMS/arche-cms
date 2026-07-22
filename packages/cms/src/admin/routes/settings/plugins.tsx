@@ -17,7 +17,7 @@ function PluginsPage() {
   const plugins: PluginMeta[] = (pluginsData?.data ?? []).filter(
     (p): p is PluginMeta => p != null && p.plugin != null,
   );
-  const total = pluginsData?.total ?? 0;
+  const total = plugins.length;
 
   if (loading) {
     return (
