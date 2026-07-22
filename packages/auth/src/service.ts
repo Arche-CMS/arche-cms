@@ -53,6 +53,7 @@ export class AuthService {
     await this.db.createTable(USERS_TABLE, {
       createdAt: "TEXT NOT NULL",
       email: "TEXT NOT NULL UNIQUE",
+      name: "TEXT DEFAULT ''",
       password: "TEXT NOT NULL",
       role: "TEXT NOT NULL DEFAULT 'editor'",
       updatedAt: "TEXT NOT NULL",
@@ -95,6 +96,7 @@ export class AuthService {
     const created = await this.db.create(USERS_TABLE, {
       createdAt: now,
       email: input.email,
+      name: input.name ?? "",
       password: passwordHash,
       role: "editor",
       updatedAt: now,
@@ -223,12 +225,13 @@ export class AuthService {
 
   async updateUser(
     id: string,
-    data: { email?: string; role?: string; password?: string },
+    data: { email?: string; name?: string; role?: string; password?: string },
   ): Promise<PublicUser | null> {
     const user = await this.findById(id);
     if (!user) return null;
     const updateData: Record<string, unknown> = { updatedAt: new Date().toISOString() };
     if (data.email !== undefined) updateData.email = data.email;
+    if (data.name !== undefined) updateData.name = data.name;
     if (data.role !== undefined) updateData.role = data.role;
     if (data.password) {
       updateData.password = await hashPassword(data.password);

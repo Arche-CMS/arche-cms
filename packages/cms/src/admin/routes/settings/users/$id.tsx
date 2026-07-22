@@ -24,6 +24,7 @@ function EditUser() {
   const [user, setUser] = useState<UserMeta | null>(null);
   const [roles, setRoles] = useState<RoleMeta[]>([]);
   const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
   const [role, setRole] = useState("");
   const [password, setPassword] = useState("");
   const [saving, setSaving] = useState(false);
@@ -40,6 +41,7 @@ function EditUser() {
         if (cancelled) return;
         setUser(u);
         setEmail(u.email);
+        setName(u.name ?? "");
         setRole(u.role);
         setRoles(rolesRes.data);
       } catch (err) {
@@ -59,8 +61,9 @@ function EditUser() {
     if (!user) return;
     setSaving(true);
     try {
-      const updates: { email: string; role: string; password?: string } = {
+      const updates: { email: string; name: string; role: string; password?: string } = {
         email,
+        name,
         role,
       };
       if (password) updates.password = password;
@@ -136,6 +139,17 @@ function EditUser() {
             onChange={(e) => setEmail(e.target.value)}
             required
             autoComplete="email"
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="name">Name</Label>
+          <Input
+            id="name"
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Optional"
+            autoComplete="name"
           />
         </div>
         <div className="space-y-2">

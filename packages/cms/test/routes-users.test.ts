@@ -225,7 +225,7 @@ describe("Users Routes", () => {
     expect(body.role).toBe("admin");
   });
 
-  it("PATCH /api/users/:id ignores unknown fields like name", async () => {
+  it("PATCH /api/users/:id persists name field", async () => {
     const createRes = await app.inject({
       body: { email: "name-test@test.com", password: "password123" },
       headers: { authorization: `Bearer ${authToken}` },
@@ -235,7 +235,7 @@ describe("Users Routes", () => {
     const userId = JSON.parse(createRes.body).user.id;
 
     const res = await app.inject({
-      body: { email: "name-test@test.com", name: "asdfasdf", role: "admin" },
+      body: { email: "name-test@test.com", name: "Alchie Tagudin", role: "admin" },
       headers: { authorization: `Bearer ${authToken}` },
       method: "PATCH",
       url: `/api/users/${userId}`,
@@ -243,7 +243,7 @@ describe("Users Routes", () => {
     expect(res.statusCode).toBe(200);
     const body = JSON.parse(res.body);
     expect(body.email).toBe("name-test@test.com");
-    expect(body).not.toHaveProperty("name");
+    expect(body.name).toBe("Alchie Tagudin");
   });
 
   it("PATCH /api/users/:id with password update succeeds", async () => {
@@ -264,9 +264,9 @@ describe("Users Routes", () => {
     expect(res.statusCode).toBe(200);
   });
 
-  it("POST /api/users ignores unknown fields like name", async () => {
+  it("POST /api/users persists name field", async () => {
     const res = await app.inject({
-      body: { email: "extra@test.com", name: "Should Be Ignored", password: "password123" },
+      body: { email: "extra@test.com", name: "Should Persist", password: "password123" },
       headers: { authorization: `Bearer ${authToken}` },
       method: "POST",
       url: "/api/users",
@@ -274,7 +274,7 @@ describe("Users Routes", () => {
     expect(res.statusCode).toBe(201);
     const body = JSON.parse(res.body);
     expect(body.user.email).toBe("extra@test.com");
-    expect(body.user).not.toHaveProperty("name");
+    expect(body.user.name).toBe("Should Persist");
   });
 
   it("POST /api/users returns 400 for duplicate email", async () => {

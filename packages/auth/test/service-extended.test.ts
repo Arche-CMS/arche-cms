@@ -207,12 +207,16 @@ describe("AuthService extended", () => {
       expect(updated).toBeNull();
     });
 
-    it("only persists known columns — ignores unknown fields", async () => {
-      const { user } = await service.register({ email: "strip@example.com", password: "pass" });
-      const updated = await service.updateUser(user.id, {
-        email: "newstrip@example.com",
-      } as { email?: string; name?: string; role?: string; password?: string });
-      expect(updated?.email).toBe("newstrip@example.com");
+    it("persists name field via register and updateUser", async () => {
+      const { user } = await service.register({
+        email: "named@example.com",
+        name: "John Doe",
+        password: "pass",
+      });
+      expect(user.name).toBe("John Doe");
+
+      const updated = await service.updateUser(user.id, { name: "Jane Doe" });
+      expect(updated?.name).toBe("Jane Doe");
     });
 
     it("updates password via updateUser", async () => {
