@@ -200,6 +200,16 @@ describe("Users Routes", () => {
     expect(JSON.parse(res.body).error).toBe("User not found");
   });
 
+  it("DELETE /api/users/1 rejects deleting the default admin", async () => {
+    const res = await app.inject({
+      headers: { authorization: `Bearer ${authToken}` },
+      method: "DELETE",
+      url: "/api/users/1",
+    });
+    expect(res.statusCode).toBe(400);
+    expect(JSON.parse(res.body).error).toContain("default admin");
+  });
+
   it("rejects unauthenticated requests", async () => {
     const res = await app.inject({ method: "GET", url: "/api/users" });
     expect(res.statusCode).toBe(401);
