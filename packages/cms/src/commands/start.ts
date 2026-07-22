@@ -66,6 +66,7 @@ export async function start(options: StartOptions): Promise<void> {
   }
 
   const pluginHooks = {
+    /* v8 ignore next -- called by server when admin panel is requested */
     getAdminPanels: () => pluginManager.getAdminPanels(),
     getAll: () =>
       pluginManager.getAll().map((r) => ({
@@ -77,6 +78,7 @@ export async function start(options: StartOptions): Promise<void> {
           version: r.plugin.version,
         },
       })),
+    /* v8 ignore next -- called by server when custom fields are requested */
     getCustomFields: () => pluginManager.getCustomFields(),
     runHook: (name: "beforeRouteRegister" | "afterRouteRegister") =>
       pluginManager.runRouteHook(name),

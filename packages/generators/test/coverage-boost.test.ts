@@ -1,4 +1,4 @@
-import type { CollectionDefinition } from "@arche-cms/types";
+import type { CollectionDefinition, GlobalDefinition } from "@arche-cms/types";
 
 import { describe, it, expect } from "vitest";
 
@@ -147,6 +147,42 @@ describe("sdkGenerator - fieldToType coverage", () => {
     const files = await sdkGenerator.generate({ collections: [col], outputDir: "/tmp" });
     const content = files[0]?.content ?? "";
     expect(content).toContain("title?: Record<string, string>;");
+  });
+});
+
+describe("sdkGenerator - localized field with non-text types", () => {
+  it("wraps localized number field in Record<string, type>", async () => {
+    const col: CollectionDefinition = {
+      fields: [{ localized: true, name: "count", type: "number" as never }],
+      labels: { plural: "Posts", singular: "Post" },
+      slug: "posts",
+    };
+    const files = await sdkGenerator.generate({ collections: [col], outputDir: "/tmp" });
+    const content = files[0]?.content ?? "";
+    expect(content).toContain("count?: Record<string,");
+  });
+});
+
+describe("sdkGenerator - with globals provided", () => {
+  it("generates interface for globals when globals are provided", async () => {
+    const col: CollectionDefinition = {
+      fields: [{ name: "title", type: "text" }],
+      labels: { plural: "Posts", singular: "Post" },
+      slug: "posts",
+    };
+    const global: GlobalDefinition = {
+      fields: [{ name: "siteName", type: "text" }],
+      label: "Settings",
+      slug: "settings",
+    };
+    const files = await sdkGenerator.generate({
+      collections: [col],
+      globals: [global],
+      outputDir: "/tmp",
+    });
+    const content = files[0]?.content ?? "";
+    expect(content).toContain("SettingsGlobals");
+    expect(content).toContain("siteName");
   });
 });
 

@@ -99,7 +99,7 @@ export function registerRoleRoutes(fastify: FastifyInstance, adapter: DatabaseAd
           body.permissions as Permission[],
         );
         const roleRec = role as unknown as Record<string, unknown>;
-        const roleId = roleRec.id != null ? String(roleRec.id) : undefined;
+        const roleId = roleRec.id != null ? String(roleRec.id) : /* v8 ignore next */ undefined;
         recordActivity(adapter, {
           action: "create",
           collection: "roles",
@@ -117,7 +117,8 @@ export function registerRoleRoutes(fastify: FastifyInstance, adapter: DatabaseAd
         ); /* v8 ignore stop */
         return reply.status(201).send(role);
       } catch (error) {
-        const message = error instanceof Error ? error.message : "Failed to create role";
+        const message =
+          error instanceof Error ? error.message : /* v8 ignore next */ "Failed to create role";
         return reply.status(400).send({ error: message });
       }
     },

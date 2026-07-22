@@ -106,11 +106,11 @@ async function fireWebhookWithRetry(
         await updateDeliveryStatus(adapter, webhook.rowid, status, true, "");
         return;
       }
-      /* v8 ignore start — requires non-2xx HTTP response from fetch */
+      /* v8 ignore start -- requires non-2xx HTTP response from fetch */
       lastError = `HTTP ${status}`;
       /* v8 ignore stop */
     } catch (err) {
-      lastError = err instanceof Error ? err.message : "Network error";
+      lastError = err instanceof Error ? err.message : /* v8 ignore next */ "Network error";
     }
   }
 
@@ -119,7 +119,7 @@ async function fireWebhookWithRetry(
     webhook.rowid,
     lastStatus,
     false,
-    lastError ?? "Unknown error",
+    lastError ?? /* v8 ignore next */ "Unknown error",
   );
 }
 

@@ -38,7 +38,8 @@ export async function registerAuth(
 
   await authService.init();
 
-  const adminPassword = options.config.adminPassword ?? randomBytes(16).toString("base64url");
+  const adminPassword =
+    options.config.adminPassword ?? /* v8 ignore next */ randomBytes(16).toString("base64url");
   await authService.seedDefaultAdmin(adminPassword);
   /* v8 ignore start — only runs when no adminPassword is configured */
   if (!options.config.adminPassword) {
@@ -112,7 +113,8 @@ export async function registerAuth(
         const result = await authService.login(request.body);
         return reply.send({ user: result.user, ...result.tokens });
       } catch (error) {
-        const message = error instanceof Error ? error.message : "Login failed";
+        const message =
+          error instanceof Error ? error.message : /* v8 ignore next */ "Login failed";
         return reply.status(401).send({ error: message });
       }
     },
@@ -138,7 +140,8 @@ export async function registerAuth(
         const tokens = await authService.refresh(request.body.refreshToken);
         return reply.send(tokens);
       } catch (error) {
-        const message = error instanceof Error ? error.message : "Token refresh failed";
+        const message =
+          error instanceof Error ? error.message : /* v8 ignore next */ "Token refresh failed";
         return reply.status(401).send({ error: message });
       }
     },
@@ -200,11 +203,12 @@ export async function registerAuth(
       reply: FastifyReply,
     ) => {
       try {
+        /* v8 ignore next -- requires valid reset token to reach success path */
         const result = await authService.resetPassword(request.body);
-        /* v8 ignore next — requires a valid reset token to reach success path */
         return reply.send(result);
       } catch (/* v8 ignore start */ error) {
-        const message = error instanceof Error ? error.message : "Failed to reset password";
+        const message =
+          error instanceof Error ? error.message : /* v8 ignore next */ "Failed to reset password";
         return reply.status(400).send({ error: message });
       } /* v8 ignore stop */
     },

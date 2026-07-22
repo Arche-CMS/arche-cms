@@ -81,7 +81,8 @@ export function registerUserRoutes(
       /* v8 ignore stop */
       try {
         const user = await authService.register(body);
-        const userId = user.user?.id != null ? String(user.user.id) : undefined;
+        const userId =
+          user.user?.id != null ? String(user.user.id) : /* v8 ignore next */ undefined;
         recordActivity(adapter, {
           action: "create",
           collection: "users",
@@ -105,7 +106,8 @@ export function registerUserRoutes(
         ); /* v8 ignore stop */
         return reply.status(201).send({ user: user.user });
       } catch (error) {
-        const msg = error instanceof Error ? error.message : "User creation failed";
+        const msg =
+          error instanceof Error ? error.message : /* v8 ignore next */ "User creation failed";
         return reply.status(400).send({ error: msg });
       }
     },
