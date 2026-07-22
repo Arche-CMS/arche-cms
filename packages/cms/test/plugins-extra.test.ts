@@ -146,6 +146,163 @@ describe("Plugins — extra", () => {
 
   const auth = () => ({ authorization: `Bearer ${authToken}` });
 
+  describe("GET /api/plugins — shape and count", () => {
+    it("returns data array and total with no pluginManager", async () => {
+      const res = await app.inject({
+        headers: auth(),
+        method: "GET",
+        url: "/api/plugins",
+      });
+      expect(res.statusCode).toBe(200);
+      const body = JSON.parse(res.body);
+      expect(Array.isArray(body.data)).toBe(true);
+      expect(typeof body.total).toBe("number");
+      expect(body.total).toBe(body.data.length);
+    });
+
+    it("returns empty list and total 0 when no plugins registered", async () => {
+      const res = await app.inject({
+        headers: auth(),
+        method: "GET",
+        url: "/api/plugins",
+      });
+      const body = JSON.parse(res.body);
+      expect(body.data).toEqual([]);
+      expect(body.total).toBe(0);
+    });
+
+    it("total always equals data.length (count/list sync)", async () => {
+      const res = await app.inject({
+        headers: auth(),
+        method: "GET",
+        url: "/api/plugins",
+      });
+      const body = JSON.parse(res.body);
+      expect(body.total).toBe(body.data.length);
+    });
+  });
+
+  describe("GET /api/plugins — with mock pluginManager", () => {
+    it("returns registered plugins with correct shape", async () => {
+      const mockPluginManager = {
+        getAdminPanels: () => [],
+        getAll: () => [
+          {
+            enabled: true,
+            plugin: {
+              description: "Test plugin",
+              name: "Test Plugin",
+              slug: "test-plugin",
+              version: "1.0.0",
+            },
+          },
+          {
+            enabled: false,
+            plugin: {
+              description: "Another plugin",
+              name: "Another Plugin",
+              slug: "another-plugin",
+            },
+          },
+        ],
+        getCustomFields: () => ({}),
+        runHook: async () => {},
+      };
+
+      const adapter = createMockAdapter();
+      const customApp = await createApp({
+        adapter,
+        collections: [],
+        config: testConfig,
+        pluginManager: mockPluginManager,
+      });
+
+      const loginRes = await customApp.inject({
+        body: { email: "admin@arche-cms.com", password: "admin123" },
+        method: "POST",
+        url: "/api/auth/login",
+      });
+      const token = JSON.parse(loginRes.body).accessToken;
+
+      const res = await customApp.inject({
+        headers: { authorization: `Bearer ${token}` },
+        method: "GET",
+        url: "/api/plugins",
+      });
+      expect(res.statusCode).toBe(200);
+      const body = JSON.parse(res.body);
+      expect(body.data.length).toBe(2);
+      expect(body.total).toBe(2);
+      expect(body.data[0].plugin.slug).toBe("test-plugin");
+      expect(body.data[0].enabled).toBe(true);
+      expect(body.data[1].plugin.slug).toBe("another-plugin");
+      expect(body.data[1].enabled).toBe(false);
+
+      await customApp.close();
+    });
+
+    it("each item always has plugin property (prevents empty list with count mismatch)", async () => {
+      const mockPluginManager = {
+        getAdminPanels: () => [],
+        getAll: () => [
+          {
+            enabled: true,
+            plugin: {
+              description: "SEO plugin",
+              name: "SEO",
+              slug: "seo",
+              version: "0.1.0",
+            },
+          },
+        ],
+        getCustomFields: () => ({}),
+        runHook: async () => {},
+      };
+
+      const adapter = createMockAdapter();
+      const customApp = await createApp({
+        adapter,
+        collections: [],
+        config: testConfig,
+        pluginManager: mockPluginManager,
+      });
+
+      const loginRes = await customApp.inject({
+        body: { email: "admin@arche-cms.com", password: "admin123" },
+        method: "POST",
+        url: "/api/auth/login",
+      });
+      const token = JSON.parse(loginRes.body).accessToken;
+
+      const res = await customApp.inject({
+        headers: { authorization: `Bearer ${token}` },
+        method: "GET",
+        url: "/api/plugins",
+      });
+      const body = JSON.parse(res.body);
+
+      // Every item in data must have a plugin property with slug and name
+      for (const item of body.data) {
+        expect(item.plugin).toBeDefined();
+        expect(typeof item.plugin.slug).toBe("string");
+        expect(typeof item.plugin.name).toBe("string");
+        expect(typeof item.enabled).toBe("boolean");
+      }
+
+      // Simulate the admin UI filter — count must match filtered length
+      const filtered = body.data.filter(
+        (p: unknown) =>
+          p != null &&
+          typeof p === "object" &&
+          "plugin" in p &&
+          (p as { plugin: unknown }).plugin != null,
+      );
+      expect(filtered.length).toBe(body.total);
+
+      await customApp.close();
+    });
+  });
+
   describe("requirePermission middleware", () => {
     it("returns 401 when request has no user role", async () => {
       const res = await app.inject({
