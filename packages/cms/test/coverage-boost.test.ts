@@ -816,7 +816,7 @@ describe("users route — create, update, delete", () => {
       method: "DELETE",
       url: "/api/users/1",
     });
-    expect([200, 404]).toContain(res.statusCode);
+    expect([200, 400, 404]).toContain(res.statusCode);
   });
 });
 

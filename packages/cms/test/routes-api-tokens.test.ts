@@ -254,6 +254,26 @@ describe("API Token Routes", () => {
     expect(JSON.parse(res.body).error).toBe("Token not found");
   });
 
+  it("returns 400 when deleting with invalid ID (undefined)", async () => {
+    const res = await app.inject({
+      headers: auth(),
+      method: "DELETE",
+      url: "/api/settings/api-tokens/undefined",
+    });
+    expect(res.statusCode).toBe(400);
+    expect(JSON.parse(res.body).error).toContain("Invalid");
+  });
+
+  it("returns 400 when deleting with non-numeric ID", async () => {
+    const res = await app.inject({
+      headers: auth(),
+      method: "DELETE",
+      url: "/api/settings/api-tokens/abc",
+    });
+    expect(res.statusCode).toBe(400);
+    expect(JSON.parse(res.body).error).toContain("Invalid");
+  });
+
   it("rejects unauthenticated requests", async () => {
     const res = await app.inject({
       method: "GET",

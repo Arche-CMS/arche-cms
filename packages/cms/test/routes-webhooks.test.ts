@@ -488,6 +488,26 @@ describe("Webhook Routes", () => {
     expect(JSON.parse(res.body).error).toBe("Webhook not found");
   });
 
+  it("returns 400 when deleting with invalid ID (undefined)", async () => {
+    const res = await app.inject({
+      headers: auth(),
+      method: "DELETE",
+      url: "/api/settings/webhooks/undefined",
+    });
+    expect(res.statusCode).toBe(400);
+    expect(JSON.parse(res.body).error).toContain("Invalid");
+  });
+
+  it("returns 400 when deleting with non-numeric ID", async () => {
+    const res = await app.inject({
+      headers: auth(),
+      method: "DELETE",
+      url: "/api/settings/webhooks/abc",
+    });
+    expect(res.statusCode).toBe(400);
+    expect(JSON.parse(res.body).error).toContain("Invalid");
+  });
+
   it("toggles webhook enabled status", async () => {
     const createRes = await app.inject({
       body: {
