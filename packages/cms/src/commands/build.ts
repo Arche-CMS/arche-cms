@@ -129,7 +129,19 @@ export async function build(options: BuildOptions): Promise<void> {
   if (!existsSync(outDir)) mkdirSync(outDir, { recursive: true });
 
   const cmsDist = resolve(cmsPackageRoot(), "dist");
-  const adminDist = resolve(cmsDist, "admin");
+
+  // Find admin build from admin-ui package
+  const adminUiDist = resolve(cmsPackageRoot(), "../admin-ui/dist");
+  const nodeModulesAdminDist = resolve(
+    cmsPackageRoot(),
+    "node_modules/@arche-cms/admin-ui/dist",
+  );
+
+  const adminDist = existsSync(resolve(adminUiDist, "index.html"))
+    ? adminUiDist
+    : existsSync(resolve(nodeModulesAdminDist, "index.html"))
+      ? nodeModulesAdminDist
+      : resolve(cmsDist, "admin");
 
   if (existsSync(adminDist)) {
     const adminOut = resolve(outDir, "admin");
