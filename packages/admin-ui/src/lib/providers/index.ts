@@ -12,3 +12,4 @@ export type {
 
 export { Provider, useProvider } from "./context";
 export { createRestProvider } from "./rest";
+export { registerProvider, getRegisteredProvider } from "./registry";

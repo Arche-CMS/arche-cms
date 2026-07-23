@@ -14,4 +14,4 @@ export type {
   ActivityItem,
 } from "@/lib/providers/types";
 
-export { Provider, useProvider, createRestProvider } from "@/lib/providers";
+export { Provider, useProvider, createRestProvider, registerProvider } from "@/lib/providers";

@@ -17,6 +17,7 @@
     "packages/graphql/src/types.ts": ["exports", "types"],
     "packages/types/src/schema.ts": ["types"],
     "packages/admin-ui/src/lib/providers/**": ["exports", "types"],
+    "packages/admin-ui/src/lib/api.ts": ["exports", "types"],
     "packages/cms-firebase/src/content.ts": ["exports", "types"]
   },
   "workspaces": {

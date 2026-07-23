@@ -57,10 +57,10 @@
       {
         "files": ["packages/cms/src/index.ts"],
         "maxUnitSize": 250,
-        "maxCyclomatic": 55,
-        "maxCognitive": 90,
+        "maxCyclomatic": 65,
+        "maxCognitive": 100,
         "maxCrap": 650,
-        "reason": "command-line arg parser with multiple subcommands including generate:types/sdk/validation"
+        "reason": "command-line arg parser with multiple subcommands including generate:types/sdk/validation and firebase"
       },
       {
         "files": ["packages/database/src/migration-generator.ts"],
@@ -151,6 +151,23 @@
         "files": ["packages/admin-ui/src/routes/settings/index.tsx"],
         "maxCrap": 40,
         "reason": "settings layout with mode-aware sub-navigation and redirect logic"
+      },
+      {
+        "files": [
+          "packages/admin-ui/src/routes/media/index.tsx",
+          "packages/admin-ui/src/routes/media/components/*.tsx",
+          "packages/admin-ui/src/routes/settings/users/*.tsx",
+          "packages/admin-ui/src/routes/settings/roles/*.tsx",
+          "packages/admin-ui/src/components/field-types/*.tsx",
+          "packages/admin-ui/src/routes/__root.tsx",
+          "packages/admin-ui/src/lib/auth.tsx",
+          "packages/admin-ui/src/routes/reset-password.tsx"
+        ],
+        "maxCrap": 150,
+        "maxCyclomatic": 15,
+        "maxCognitive": 35,
+        "maxUnitSize": 350,
+        "reason": "admin UI routes with complex form logic, media handling, and mode-aware rendering"
       }
     ]
   },

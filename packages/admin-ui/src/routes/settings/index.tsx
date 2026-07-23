@@ -2,6 +2,7 @@ import { Outlet, createRoute, Link, useLocation, useNavigate } from "@tanstack/r
 import { Key, Puzzle, Webhook, Shield, Users } from "lucide-react";
 import { useEffect } from "react";
 
+import { FirebaseModeNotice } from "@/components/firebase-mode-notice";
 import { isFirebaseMode } from "@/lib/backend-mode";
 import { cn } from "@/lib/utils";
 import { Route as rootRoute } from "@/routes/__root";
@@ -65,7 +66,8 @@ function SettingsLayout() {
           );
         })}
       </nav>
-      <div className="min-w-0 flex-1">
+      <div className="min-w-0 flex-1 space-y-4">
+        <FirebaseModeNotice />
         <Outlet />
       </div>
     </div>
