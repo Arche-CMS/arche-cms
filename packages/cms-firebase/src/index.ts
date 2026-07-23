@@ -9,9 +9,9 @@ export { createFirestoreRolesProvider } from "./roles";
 export { createFirestoreActivityProvider } from "./activity";
 
 export type { FirebaseConfig, FirebaseServices } from "./config";
-export type { FirebaseProviderOptions, AdminProvider, AdminUser } from "./provider";
+export type { AdminProvider, AdminUser, FirebaseProviderOptions } from "./provider";
 export type { FirebaseAuthProvider, AuthUser } from "./auth";
-export type { FirestoreContentProvider, ListParams, PaginatedResult } from "./content";
+export type { FirestoreContentProvider } from "./content";
 export type { FirestoreGlobalsProvider } from "./globals";
 export type { FirebaseStorageProvider, MediaFile, MediaFolder, ListMediaParams } from "./media";
 export type { FirestoreUsersProvider, User, ListUsersParams } from "./users";

@@ -1,5 +1,3 @@
-export { router } from "@/router";
-
 export type {
   AdminProvider,
   AdminUser,
@@ -10,6 +8,7 @@ export type {
   UserItem,
   RoleItem,
   ActivityItem,
-} from "@/lib/providers/types";
+} from "./types";
 
-export { Provider, useProvider, createRestProvider } from "@/lib/providers";
+export { Provider, useProvider } from "./context";
+export { createRestProvider } from "./rest";

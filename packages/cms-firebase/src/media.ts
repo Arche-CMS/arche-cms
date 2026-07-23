@@ -43,7 +43,7 @@ export interface ListMediaParams {
 
 export interface FirebaseStorageProvider {
   uploadMedia(file: File, folderId?: string): Promise<MediaFile>;
-  listMedia(params?: ListMediaParams): Promise<MediaFile[]>;
+  listMedia(params?: ListMediaParams): Promise<{ data: MediaFile[]; total: number }>;
   getMedia(id: string): Promise<MediaFile | null>;
   deleteMedia(id: string): Promise<void>;
   getMediaFile(id: string): Promise<string>;
@@ -125,7 +125,7 @@ export function createFirebaseStorageProvider(): FirebaseStorageProvider {
       return snapshot.docs.map(mapFolderDoc);
     },
 
-    async listMedia(params: ListMediaParams = {}): Promise<MediaFile[]> {
+    async listMedia(params: ListMediaParams = {}): Promise<{ data: MediaFile[]; total: number }> {
       const { db } = getFirebaseServices();
       const { folderId, limit = 25 } = params;
 
@@ -145,7 +145,7 @@ export function createFirebaseStorageProvider(): FirebaseStorageProvider {
       }
 
       const snapshot = await getDocs(q);
-      return snapshot.docs.map(mapMediaDoc);
+      return { data: snapshot.docs.map(mapMediaDoc), total: snapshot.size };
     },
 
     async renameFolder(id: string, name: string): Promise<void> {

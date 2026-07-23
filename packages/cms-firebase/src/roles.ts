@@ -31,7 +31,7 @@ export interface ListRolesParams {
 }
 
 export interface FirestoreRolesProvider {
-  listRoles(params?: ListRolesParams): Promise<Role[]>;
+  listRoles(params?: ListRolesParams): Promise<{ data: Role[]; total: number }>;
   getRole(id: string): Promise<Role | null>;
   createRole(data: Omit<Role, "id" | "createdAt" | "updatedAt">): Promise<Role>;
   updateRole(id: string, data: Partial<Role>): Promise<Role>;
@@ -73,7 +73,7 @@ export function createFirestoreRolesProvider(): FirestoreRolesProvider {
       return { id: docSnap.id, ...docSnap.data() } as Role;
     },
 
-    async listRoles(params: ListRolesParams = {}): Promise<Role[]> {
+    async listRoles(params: ListRolesParams = {}): Promise<{ data: Role[]; total: number }> {
       const { db } = getFirebaseServices();
       const { limit = 25 } = params;
 
@@ -83,7 +83,7 @@ export function createFirestoreRolesProvider(): FirestoreRolesProvider {
         firestoreLimit(limit),
       );
       const snapshot = await getDocs(q);
-      return snapshot.docs.map(mapRoleDoc);
+      return { data: snapshot.docs.map(mapRoleDoc), total: snapshot.size };
     },
 
     async updateRole(id: string, data: Partial<Role>): Promise<Role> {

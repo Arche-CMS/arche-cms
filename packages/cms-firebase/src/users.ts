@@ -32,7 +32,7 @@ export interface ListUsersParams {
 }
 
 export interface FirestoreUsersProvider {
-  listUsers(params?: ListUsersParams): Promise<User[]>;
+  listUsers(params?: ListUsersParams): Promise<{ data: User[]; total: number }>;
   getUser(id: string): Promise<User | null>;
   createUser(data: Omit<User, "id" | "createdAt" | "updatedAt">): Promise<User>;
   updateUser(id: string, data: Partial<User>): Promise<User>;
@@ -74,7 +74,7 @@ export function createFirestoreUsersProvider(): FirestoreUsersProvider {
       return { id: docSnap.id, ...docSnap.data() } as User;
     },
 
-    async listUsers(params: ListUsersParams = {}): Promise<User[]> {
+    async listUsers(params: ListUsersParams = {}): Promise<{ data: User[]; total: number }> {
       const { db } = getFirebaseServices();
       const { limit = 25 } = params;
 
@@ -84,7 +84,7 @@ export function createFirestoreUsersProvider(): FirestoreUsersProvider {
         firestoreLimit(limit),
       );
       const snapshot = await getDocs(q);
-      return snapshot.docs.map(mapUserDoc);
+      return { data: snapshot.docs.map(mapUserDoc), total: snapshot.size };
     },
 
     async updateUser(id: string, data: Partial<User>): Promise<User> {

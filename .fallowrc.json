@@ -124,6 +124,11 @@
         "files": ["packages/cms/src/server/plugins/auth.ts"],
         "maxUnitSize": 250,
         "reason": "auth plugin with JWT, API key, and session management"
+      },
+      {
+        "files": ["packages/admin-ui/src/lib/providers/rest.ts"],
+        "maxCrap": 50,
+        "reason": "REST provider with auth token refresh and error handling"
       }
     ]
   },
@@ -136,7 +141,9 @@
       "packages/cms/src/server/**",
       "packages/graphql/src/resolvers.ts",
       "packages/rest-api/src/handlers.ts",
-      "packages/graphql/src/types.ts"
+      "packages/graphql/src/types.ts",
+      "packages/admin-ui/src/lib/providers/types.ts",
+      "packages/cms-firebase/src/provider.ts"
     ]
   },
   "entry": ["packages/cms/src/admin/main.tsx", "packages/*/src/index.ts"]

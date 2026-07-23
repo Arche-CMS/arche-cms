@@ -1,20 +1,10 @@
-import type { FirestoreActivityProvider, ActivityEvent, ListActivityParams } from "./activity";
+import type { FirestoreActivityProvider } from "./activity";
 import type { FirebaseAuthProvider } from "./auth";
-import type { FirestoreContentProvider, ListParams, PaginatedResult } from "./content";
+import type { FirestoreContentProvider } from "./content";
 import type { FirestoreGlobalsProvider } from "./globals";
-import type { FirebaseStorageProvider, MediaFile, MediaFolder, ListMediaParams } from "./media";
-import type { FirestoreRolesProvider, Role, ListRolesParams } from "./roles";
-import type { FirestoreUsersProvider, User, ListUsersParams } from "./users";
-
-export interface FirebaseProviderOptions {
-  auth: FirebaseAuthProvider;
-  content: FirestoreContentProvider;
-  globals: FirestoreGlobalsProvider;
-  storage: FirebaseStorageProvider;
-  users: FirestoreUsersProvider;
-  roles: FirestoreRolesProvider;
-  activity: FirestoreActivityProvider;
-}
+import type { FirebaseStorageProvider } from "./media";
+import type { FirestoreRolesProvider } from "./roles";
+import type { FirestoreUsersProvider } from "./users";
 
 export interface AdminUser {
   uid: string;
@@ -32,11 +22,13 @@ export interface AdminProvider {
     getCurrentUser(): Promise<AdminUser | null>;
     forgotPassword(email: string): Promise<void>;
     resetPassword(token: string, password: string): Promise<void>;
-    onAuthStateChanged(callback: (user: AdminUser | null) => void): () => void;
   };
 
   collections: {
-    listEntries<T>(slug: string, params?: ListParams): Promise<PaginatedResult<T>>;
+    listEntries<T>(
+      slug: string,
+      params?: { limit?: number; offset?: number },
+    ): Promise<{ data: T[]; total: number }>;
     getEntry<T>(slug: string, id: string): Promise<T | null>;
     createEntry<T>(slug: string, data: Partial<T>): Promise<T>;
     updateEntry<T>(slug: string, id: string, data: Partial<T>): Promise<T>;
@@ -53,37 +45,64 @@ export interface AdminProvider {
   };
 
   media: {
-    uploadMedia(file: File, folderId?: string): Promise<MediaFile>;
-    listMedia(params?: ListMediaParams): Promise<MediaFile[]>;
-    getMedia(id: string): Promise<MediaFile | null>;
+    uploadMedia(file: File, folderId?: string): Promise<import("./media").MediaFile>;
+    listMedia(params?: {
+      limit?: number;
+      offset?: number;
+    }): Promise<{ data: import("./media").MediaFile[]; total: number }>;
+    getMedia(id: string): Promise<import("./media").MediaFile | null>;
     deleteMedia(id: string): Promise<void>;
     getMediaFile(id: string): Promise<string>;
-    listFolders(): Promise<MediaFolder[]>;
-    createFolder(name: string): Promise<MediaFolder>;
+    listFolders(): Promise<import("./media").MediaFolder[]>;
+    createFolder(name: string): Promise<import("./media").MediaFolder>;
     renameFolder(id: string, name: string): Promise<void>;
     deleteFolder(id: string): Promise<void>;
   };
 
   users: {
-    listUsers(params?: ListUsersParams): Promise<User[]>;
-    getUser(id: string): Promise<User | null>;
-    createUser(data: Omit<User, "id" | "createdAt" | "updatedAt">): Promise<User>;
-    updateUser(id: string, data: Partial<User>): Promise<User>;
+    listUsers(params?: {
+      limit?: number;
+      offset?: number;
+    }): Promise<{ data: import("./users").User[]; total: number }>;
+    getUser(id: string): Promise<import("./users").User | null>;
+    createUser(
+      data: Omit<import("./users").User, "id" | "createdAt" | "updatedAt">,
+    ): Promise<import("./users").User>;
+    updateUser(id: string, data: Partial<import("./users").User>): Promise<import("./users").User>;
     deleteUser(id: string): Promise<void>;
   };
 
   roles: {
-    listRoles(params?: ListRolesParams): Promise<Role[]>;
-    getRole(id: string): Promise<Role | null>;
-    createRole(data: Omit<Role, "id" | "createdAt" | "updatedAt">): Promise<Role>;
-    updateRole(id: string, data: Partial<Role>): Promise<Role>;
+    listRoles(params?: {
+      limit?: number;
+      offset?: number;
+    }): Promise<{ data: import("./roles").Role[]; total: number }>;
+    getRole(id: string): Promise<import("./roles").Role | null>;
+    createRole(
+      data: Omit<import("./roles").Role, "id" | "createdAt" | "updatedAt">,
+    ): Promise<import("./roles").Role>;
+    updateRole(id: string, data: Partial<import("./roles").Role>): Promise<import("./roles").Role>;
     deleteRole(id: string): Promise<void>;
   };
 
   activity: {
-    recordActivity(event: Omit<ActivityEvent, "id" | "timestamp">): Promise<void>;
-    listActivity(params?: ListActivityParams): Promise<ActivityEvent[]>;
+    recordActivity(
+      event: Omit<import("./activity").ActivityEvent, "id" | "timestamp">,
+    ): Promise<void>;
+    listActivity(params?: {
+      limit?: number;
+    }): Promise<{ data: import("./activity").ActivityEvent[]; total: number }>;
   };
+}
+
+export interface FirebaseProviderOptions {
+  auth: FirebaseAuthProvider;
+  content: FirestoreContentProvider;
+  globals: FirestoreGlobalsProvider;
+  storage: FirebaseStorageProvider;
+  users: FirestoreUsersProvider;
+  roles: FirestoreRolesProvider;
+  activity: FirestoreActivityProvider;
 }
 
 export function createFirebaseProvider(options: FirebaseProviderOptions): AdminProvider {

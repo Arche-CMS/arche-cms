@@ -33,7 +33,7 @@ export interface ListActivityParams {
 
 export interface FirestoreActivityProvider {
   recordActivity(event: Omit<ActivityEvent, "id" | "timestamp">): Promise<void>;
-  listActivity(params?: ListActivityParams): Promise<ActivityEvent[]>;
+  listActivity(params?: ListActivityParams): Promise<{ data: ActivityEvent[]; total: number }>;
 }
 
 function mapActivityDoc(doc: QueryDocumentSnapshot<DocumentData>): ActivityEvent {
@@ -42,7 +42,9 @@ function mapActivityDoc(doc: QueryDocumentSnapshot<DocumentData>): ActivityEvent
 
 export function createFirestoreActivityProvider(): FirestoreActivityProvider {
   return {
-    async listActivity(params: ListActivityParams = {}): Promise<ActivityEvent[]> {
+    async listActivity(
+      params: ListActivityParams = {},
+    ): Promise<{ data: ActivityEvent[]; total: number }> {
       const { db } = getFirebaseServices();
       const { action, collection: collectionName, limit = 25 } = params;
 
@@ -60,7 +62,7 @@ export function createFirestoreActivityProvider(): FirestoreActivityProvider {
 
       const q = query(collection(db, ACTIVITY_COLLECTION), ...constraints);
       const snapshot = await getDocs(q);
-      return snapshot.docs.map(mapActivityDoc);
+      return { data: snapshot.docs.map(mapActivityDoc), total: snapshot.size };
     },
 
     async recordActivity(event: Omit<ActivityEvent, "id" | "timestamp">): Promise<void> {

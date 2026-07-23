@@ -2080,7 +2080,7 @@ Build an MVP variant of the CMS that uses Firebase directly (Auth + Firestore + 
 
 #### Provider Contract (in `packages/admin-ui/`)
 
-- [ ] **Define `AdminProvider` interface** — `packages/admin-ui/src/lib/providers/types.ts` with methods:
+- [x] **Define `AdminProvider` interface** — `packages/admin-ui/src/lib/providers/types.ts` with methods:
   - Auth: `login(email, password)`, `register(email, password, name)`, `logout()`, `refreshToken()`, `getCurrentUser()`, `forgotPassword(email)`, `resetPassword(token, password)`
   - Collections: `listEntries(slug, params)`, `getEntry(slug, id, locale?)`, `createEntry(slug, data)`, `updateEntry(slug, id, data)`, `deleteEntry(slug, id)`, `bulkDelete(slug, ids)`, `publishEntry(slug, id)`, `unpublishEntry(slug, id)`, `restoreEntry(slug, id)`
   - Globals: `getGlobal(slug)`, `upsertGlobal(slug, data)`
@@ -2091,12 +2091,12 @@ Build an MVP variant of the CMS that uses Firebase directly (Auth + Firestore + 
   - Metadata: `listCollections()`, `listGlobals()`, `listPlugins()`, `getDashboardData(colSlugs)`
   - Activity: `listActivity(params)`
 
-- [ ] **Create `ProviderContext`** — React Context (`packages/admin-ui/src/lib/providers/context.tsx`) that provides the active provider to all components
-- [ ] **Create provider factory** — `packages/admin-ui/src/lib/providers/index.ts` that returns the correct provider based on `VITE_BACKEND_MODE`
+- [x] **Create `ProviderContext`** — React Context (`packages/admin-ui/src/lib/providers/context.tsx`) that provides the active provider to all components
+- [x] **Create provider factory** — `packages/admin-ui/src/lib/providers/index.ts` that returns the correct provider based on `VITE_BACKEND_MODE`
 
 #### REST Provider (Existing Behavior — in `packages/admin-ui/`)
 
-- [ ] **Create `RestProvider`** — `packages/admin-ui/src/lib/providers/rest.ts` implementing `AdminProvider`
+- [x] **Create `RestProvider`** — `packages/admin-ui/src/lib/providers/rest.ts` implementing `AdminProvider`
 - [ ] **Move existing `apiFetch` calls** — refactor `lib/api.ts` functions into `RestProvider` methods
 - [ ] **Keep `lib/api.ts` as thin wrapper** — delegate to provider, maintain backward compatibility during migration
 - [ ] **Verify REST mode regression** — all existing tests pass, no behavior changes
