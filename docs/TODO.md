@@ -1,6 +1,6 @@
 # TODO — Arche CMS
 
-> Project status: M30 complete — v0.3.0 released. M31 complete — 15 coverage gap tests. M32 complete — Version history UI, bulk publish/unpublish, media folder rename. M33 complete — SDK code generation integration with typed imports and pipeline. 1,400+ tests passing across all 17 packages. CMS 95.71% line coverage. M34 complete — 90 playground E2E tests covering all API endpoints. M36 in progress — Firebase-backed CMS MVP variant (new `packages/cms-firebase/` package). M37 complete — Extract admin UI into `@arche-cms/admin-ui` package.
+> Project status: M30 complete — v0.3.0 released. M31 complete — 15 coverage gap tests. M32 complete — Version history UI, bulk publish/unpublish, media folder rename. M33 complete — SDK code generation integration with typed imports and pipeline. 1,400+ tests passing across all 17 packages. CMS 95.71% line coverage. M34 complete — 90 playground E2E tests covering all API endpoints. M36 in progress — Firebase-backed CMS MVP variant (new `packages/cms-firebase/` package). 1,929 tests passing. M37 complete — Extract admin UI into `@arche-cms/admin-ui` package.
 
 ---
 
@@ -2127,55 +2127,55 @@ Build an MVP variant of the CMS that uses Firebase directly (Auth + Firestore + 
 
 #### Firebase Auth
 
-- [ ] **Create Firebase config** — `packages/cms-firebase/src/config.ts` reading `VITE_FIREBASE_*` env vars
-- [ ] **Implement `FirebaseAuthProvider`** — `packages/cms-firebase/src/auth.ts`
+- [x] **Create Firebase config** — `packages/cms-firebase/src/config.ts` reading `VITE_FIREBASE_*` env vars
+- [x] **Implement `FirebaseAuthProvider`** — `packages/cms-firebase/src/auth.ts`
   - Replace JWT refresh-cycle with Firebase Auth session listener (`onAuthStateChanged`)
   - `login(email, password)` → `signInWithEmailAndPassword`
   - `register(email, password, name)` → `createUserWithEmailAndPassword` + `updateProfile`
   - `logout()` → `signOut`
-  - `getCurrentUser()` → Firebase Auth user with custom claims
+  - `getCurrentUser()` → Firebase Auth user with custom claims via `getIdTokenResult()`
   - `forgotPassword(email)` → `sendPasswordResetEmail`
   - `resetPassword(token, password)` → `confirmPasswordReset`
   - Token retrieval via `getIdToken()` for any Firestore/Storage operations
-- [ ] **Add Firebase Auth state to provider** — expose `user`, `loading`, `error` via React Context
-- [ ] **Update auth route guards** — check Firebase Auth state instead of JWT for protected routes
+- [x] **Add Firebase Auth state to provider** — expose `user`, `loading`, `error` via React Context
+- [x] **Update auth route guards** — check Firebase Auth state instead of JWT for protected routes
 
 #### Firebase Firestore — Content
 
-- [ ] **Design Firestore data model** — Option A: one Firestore collection per CMS collection slug (recommended for MVP)
+- [x] **Design Firestore data model** — Option A: one Firestore collection per CMS collection slug (recommended for MVP)
   - Document ID: entry ID (UUID)
   - Fields: all schema fields + `_status`, `_deletedAt`, `_version`, `createdAt`, `updatedAt`
   - Globals: single document per global slug in a `__cms_globals` collection
-- [ ] **Create Firestore content provider** — `packages/cms-firebase/src/content.ts`
+- [x] **Create Firestore content provider** — `packages/cms-firebase/src/content.ts`
   - `listEntries(slug, params)` → Firestore query with `where`, `orderBy`, `limit`, `offset`
   - `getEntry(slug, id)` → `getDoc(doc(db, slug, id))`
   - `createEntry(slug, data)` → `addDoc(collection(db, slug), data)`
   - `updateEntry(slug, id, data)` → `updateDoc(doc(db, slug, id), data)`
   - `deleteEntry(slug, id)` → soft delete (set `_deletedAt`) or hard delete based on collection config
-  - `bulkDelete(slug, ids)` → batch write
+  - `bulkDelete(slug, ids)` → atomic batch write
   - `publishEntry(slug, id)` → update `_status` to `"published"`
   - `unpublishEntry(slug, id)` → update `_status` to `"draft"`
   - `restoreEntry(slug, id)` → clear `_deletedAt`
-- [ ] **Implement Firestore query builder** — `packages/cms-firebase/src/query-builder.ts`
-  - Map Arche filter syntax to Firestore `where` clauses
+- [x] **Implement Firestore query builder** — `packages/cms-firebase/src/query-builder.ts`
+  - Map Arche filter syntax to Firestore `where` clauses (eq/ne/gt/gte/lt/lte/in/array-contains)
   - Handle pagination via `startAfter` cursor (not offset, for performance)
   - Handle sorting via `orderBy`
   - Handle field selection via `select` (limited in Firestore)
-- [ ] **Define Firestore indexes** — `firestore.indexes.json` for common query patterns:
+- [x] **Define Firestore indexes** — `firestore.indexes.json` for common query patterns:
   - `{collection}: _status + createdAt`
   - `{collection}: _status + _deletedAt + createdAt`
   - `{collection}: _status + updatedAt`
-- [ ] **Handle Firestore limitations** — document array-contains-any limits, compound query constraints, 1MB document limit
+- [x] **Handle Firestore limitations** — document array-contains-any limits, compound query constraints, 1MB document limit
 
 #### Firebase Firestore — Globals
 
-- [ ] **Implement global provider** — `packages/cms-firebase/src/globals.ts`
+- [x] **Implement global provider** — `packages/cms-firebase/src/globals.ts`
   - `getGlobal(slug)` → `getDoc(doc(db, "__cms_globals", slug))`
   - `upsertGlobal(slug, data)` → `setDoc(doc(db, "__cms_globals", slug), data, { merge: true })`
 
 #### Firebase Storage — Media
 
-- [ ] **Create Firebase Storage provider** — `packages/cms-firebase/src/media.ts`
+- [x] **Create Firebase Storage provider** — `packages/cms-firebase/src/media.ts`
   - `uploadMedia(file)` → `uploadBytes(ref(storage, path), file)` + Firestore metadata record
   - `listMedia(params)` → Firestore query on `__cms_media` collection
   - `getMedia(id)` → Firestore doc + `getDownloadURL` for preview
@@ -2185,15 +2185,15 @@ Build an MVP variant of the CMS that uses Firebase directly (Auth + Firestore + 
   - `createFolder(name)` → `addDoc(collection(db, "__cms_media_folders"), { name })`
   - `renameFolder(id, name)` → `updateDoc`
   - `deleteFolder(id)` → `deleteDoc`
-- [ ] **Design storage path structure** — `media/{collection}/{entryId}/{filename}`
-- [ ] **Handle Firebase Storage security** — ensure uploads respect auth state
+- [x] **Design storage path structure** — `media/{collection}/{entryId}/{filename}`
+- [x] **Handle Firebase Storage security** — ensure uploads respect auth state
 
 #### Firebase Firestore — Users & Roles
 
-- [ ] **Implement users provider** — `packages/cms-firebase/src/users.ts`
+- [x] **Implement users provider** — `packages/cms-firebase/src/users.ts`
   - Map to Firestore `__cms_users` collection
   - Use Firebase Auth `customClaims` for role assignment
-- [ ] **Implement roles provider** — `packages/cms-firebase/src/roles.ts`
+- [x] **Implement roles provider** — `packages/cms-firebase/src/roles.ts`
   - Map to Firestore `__cms_roles` collection
   - Store permissions as JSON document
 
@@ -2204,44 +2204,44 @@ Build an MVP variant of the CMS that uses Firebase directly (Auth + Firestore + 
 
 #### Firebase — Activity
 
-- [ ] **Implement activity provider** — `packages/cms-firebase/src/activity.ts`
+- [x] **Implement activity provider** — `packages/cms-firebase/src/activity.ts`
   - Write audit events to Firestore `__cms_activity` collection on mutations
   - List activity with filters (collection, action)
 
 #### Firebase Provider Entry Point
 
-- [ ] **Create `FirebaseProvider`** — `packages/cms-firebase/src/provider.ts` implementing `AdminProvider` from `packages/admin-ui`
-- [ ] **Export barrel** — `packages/cms-firebase/src/index.ts` exports `FirebaseProvider`, config, and individual providers
+- [x] **Create `FirebaseProvider`** — `packages/cms-firebase/src/provider.ts` implementing `AdminProvider` from `packages/admin-ui`
+- [x] **Export barrel** — `packages/cms-firebase/src/index.ts` exports `FirebaseProvider`, config, and individual providers
 
 ### Phase 4: RBAC & Security Rules (in `packages/cms-firebase/`)
 
-- [ ] **Define role model** — custom claims on Firebase Auth users (`role` field) + optional Firestore role documents
-- [ ] **Encode permission matrix** — Firestore Security Rules equivalent to `requirePermission` checks
-- [ ] **Write Firestore Security Rules** — `packages/cms-firebase/firestore.rules` file:
+- [x] **Define role model** — custom claims on Firebase Auth users (`role` field) + optional Firestore role documents
+- [x] **Encode permission matrix** — Firestore Security Rules equivalent to `requirePermission` checks
+- [x] **Write Firestore Security Rules** — `packages/cms-firebase/firestore.rules` file:
   - Allow reads only if authenticated and role matches permission
   - Allow writes only if authenticated and role matches permission
   - Deny unauthenticated access to all collections except public reads
-- [ ] **Write Storage Security Rules** — `packages/cms-firebase/storage.rules` file:
+- [x] **Write Storage Security Rules** — `packages/cms-firebase/storage.rules` file:
   - Allow uploads only if authenticated
   - Allow reads for authenticated users
   - Allow deletes only for admin/editor roles
-- [ ] **Add audit event writes** — Firestore writes for critical mutations (create/update/delete/publish) in `__cms_activity`
+- [x] **Add audit event writes** — Firestore writes for critical mutations (create/update/delete/publish) in `__cms_activity` via `wrapContentWithActivity()`
 
 ### Phase 5: Mode-Aware Admin UX (in `packages/admin-ui/`)
 
-- [ ] **Add `BackendMode` type** — `"rest" | "firebase"` union type in `packages/types/src/index.ts`
-- [ ] **Add backend mode config** — `VITE_BACKEND_MODE` env var (default `"rest"`)
-- [ ] **Hide unsupported pages in Firebase mode** — API Tokens, Webhooks, Schema Builder (write), Settings → Plugins
-- [ ] **Update sidebar navigation** — conditionally show/hide items based on `VITE_BACKEND_MODE`
+- [x] **Add `BackendMode` type** — `"rest" | "firebase"` union type in `packages/types/src/index.ts`
+- [x] **Add backend mode config** — `VITE_BACKEND_MODE` env var (default `"rest"`) via `packages/admin-ui/src/lib/backend-mode.ts`
+- [x] **Hide unsupported pages in Firebase mode** — API Tokens, Webhooks, Schema Builder (write), Settings → Plugins
+- [x] **Update sidebar navigation** — conditionally show/hide items based on `VITE_BACKEND_MODE` + Firebase badge
 - [ ] **Update route guards** — prevent navigation to unsupported routes with redirect
 - [ ] **Update empty/error states** — explain Firebase-mode limitations (e.g., "Schema editing is not supported in Firebase mode")
-- [ ] **Add mode indicator** — show backend mode badge in admin sidebar header
-- [ ] **Update command palette** — filter actions based on mode
+- [x] **Add mode indicator** — show backend mode badge in admin sidebar header
+- [x] **Update command palette** — filter actions based on mode
 - [ ] **Handle offline behavior** — Firebase supports offline persistence; show offline indicator
 
 ### Phase 6: Validation & Test Strategy
 
-- [ ] **Provider contract tests** — `packages/admin-ui/test/providers/contract.test.ts`
+- [x] **Provider contract tests** — `packages/admin-ui/test/providers/contract.test.ts`
   - Test that both REST and Firebase providers implement the same `AdminProvider` interface
   - Verify UI-facing behavior matches expectations for each provider
 - [ ] **Firebase Emulator integration tests** — `packages/cms-firebase/test/`
@@ -2249,20 +2249,20 @@ Build an MVP variant of the CMS that uses Firebase directly (Auth + Firestore + 
   - Firestore tests: CRUD operations, queries, security rules
   - Storage tests: upload, download, delete, security rules
   - RBAC tests: permission enforcement via security rules
-- [ ] **Keep existing REST tests** — all 1,400+ tests pass unchanged for REST mode
+- [x] **Keep existing REST tests** — all 1,929 tests pass unchanged for REST mode
 - [ ] **Add mode-specific test suites** — separate Firebase test suite, only run when `FIREBASE_EMULATOR=true`
 - [ ] **Provider switching tests** — verify admin works correctly when switching modes
 
 ### Phase 7: Packaging & Rollout
 
-- [ ] **Update `@arche-cms/create-app`** — add `backend mode` question (`rest | firebase`, default `rest`) to scaffold prompts; write `VITE_BACKEND_MODE` to `.env` and include `@arche-cms/cms-firebase` in `package.json` dependencies when firebase is selected
-- [ ] **Create `apps/playground-firebase/`** — copy of `apps/playground/` using `@arche-cms/cms-firebase` as the backend provider; configured with Firebase emulator env vars; included in `pnpm-workspace.yaml` and `turbo.json`
-- [ ] **Ship `@arche-cms/cms-firebase` as experimental** — new package with explicit MVP capability matrix in README
-- [ ] **Add Firebase config docs** — required env vars, emulator/prod setup, index deployment
+- [x] **Update `@arche-cms/create-app`** — add `backend mode` question (`rest | firebase`, default `rest`) to scaffold prompts; write `VITE_BACKEND_MODE` to `.env` and include `@arche-cms/cms-firebase` in `package.json` dependencies when firebase is selected
+- [x] **Create `apps/playground-firebase/`** — copy of `apps/playground/` using `@arche-cms/cms-firebase` as the backend provider; configured with Firebase emulator env vars; included in `pnpm-workspace.yaml` and `turbo.json`
+- [x] **Ship `@arche-cms/cms-firebase` as experimental** — new package with explicit MVP capability matrix in README
+- [x] **Add Firebase config docs** — required env vars, emulator/prod setup, index deployment (in README)
 - [ ] **Add `cms firebase:setup` CLI command** — interactive Firebase project setup wizard (in `packages/cms-firebase/`)
 - [ ] **Add `cms firebase:deploy-rules` CLI command** — deploy Firestore/Storage security rules
 - [ ] **Add `cms firebase:deploy-indexes` CLI command** — deploy Firestore indexes
-- [ ] **Add Firebase mode to create-app** — `@arche-cms/create-app` scaffold with Firebase option
+- [x] **Add Firebase mode to create-app** — `@arche-cms/create-app` scaffold with Firebase option
 - [ ] **Write migration guide** — from REST mode to Firebase mode
 - [ ] **Document capability matrix** — what works in Firebase mode vs REST mode
 

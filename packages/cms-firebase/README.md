@@ -1,136 +1,121 @@
 # @arche-cms/cms-firebase
 
-Firebase-backed CMS provider for Arche CMS. This package implements the `AdminProvider` interface from `@arche-cms/admin-ui`, allowing the admin panel to work with Firebase (Auth + Firestore + Storage) as the backend.
-
-## Status
-
-**Experimental / MVP** — This package provides basic Firebase integration for the Arche CMS admin panel. Not all features are supported in Firebase mode.
-
-### Supported Features
-
-- Authentication (login, register, logout, password reset)
-- Collection CRUD (create, read, update, delete entries)
-- Global settings (get, upsert)
-- Media upload and listing
-- Basic role gating via Firebase Auth custom claims
-- Dashboard and read pages
-
-### Unsupported Features (Firebase Mode)
-
-- API tokens (no server to verify)
-- Runtime schema write/edit in browser
-- Server-side webhook dispatch
-- Scheduled publishing workers
-- GraphQL endpoint
-- Full revision history
+Firebase backend for Arche CMS. Provides Firestore-backed content, auth, media, globals, activity, users, and roles via the `AdminProvider` interface.
 
 ## Installation
 
 ```bash
-pnpm add @arche-cms/cms-firebase firebase
+pnpm add @arche-cms/cms-firebase
 ```
 
-## Setup
-
-### 1. Environment Variables
-
-Create a `.env` file in your project root:
+## Environment Variables
 
 ```env
 VITE_BACKEND_MODE=firebase
-
 VITE_FIREBASE_API_KEY=your-api-key
 VITE_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
 VITE_FIREBASE_PROJECT_ID=your-project-id
 VITE_FIREBASE_STORAGE_BUCKET=your-project.appspot.com
 VITE_FIREBASE_MESSAGING_SENDER_ID=123456789
-VITE_FIREBASE_APP_ID=1:123456789:web:abc123
+VITE_FIREBASE_APP_ID=1:123456789:web:abcdef
 ```
 
-### 2. Initialize Firebase
+## Usage
 
-```typescript
-import { initializeFirebase } from "@arche-cms/cms-firebase";
+```ts
+import { createFirebaseProvider } from "@arche-cms/cms-firebase";
 
-const app = initializeFirebase({
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+const provider = createFirebaseProvider({
   projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
 });
 ```
 
-### 3. Use Firebase Provider
+## Capabilities (MVP)
 
-```typescript
-import { FirebaseProvider } from "@arche-cms/cms-firebase";
+| Feature                        | Status |
+| ------------------------------ | ------ |
+| Auth (email/password)          | Done   |
+| Collections (CRUD + bulk)      | Done   |
+| Globals (read/write)           | Done   |
+| Media (upload/list/delete)     | Done   |
+| Media folders                  | Done   |
+| Draft / publish workflow       | Done   |
+| Soft delete                    | Done   |
+| Version history                | Done   |
+| Activity log                   | Done   |
+| Users CRUD                     | Done   |
+| Roles CRUD                     | Done   |
+| RBAC (admin/editor/viewer)     | Done   |
+| Query filters (eq/ne/gt/lt/in) | Done   |
+| Search (prefix matching)       | Done   |
+| Localization                   | Done   |
+| Content relations              | Todo   |
+| Deep population                | Todo   |
+| Component schemas              | Todo   |
+| Dynamic zones                  | Todo   |
+| Plugin hooks                   | Todo   |
+| Webhook triggers               | Todo   |
+| Scheduled publishing           | Todo   |
+| Full-text search               | Todo   |
 
-// The provider implements the AdminProvider interface
-// and can be used with the admin UI's ProviderContext
+## Firestore Indexes
+
+Composite indexes are defined in `firestore.indexes.json`. Deploy with:
+
+```bash
+firebase deploy --only firestore:indexes
 ```
-
-## Firebase Data Model
-
-### Firestore Collections
-
-| Collection            | Description                                               |
-| --------------------- | --------------------------------------------------------- |
-| `{collection-slug}`   | One document per entry (matches schema fields + metadata) |
-| `__cms_globals`       | One document per global slug                              |
-| `__cms_users`         | One document per user (email, role, createdAt)            |
-| `__cms_roles`         | One document per role (name, permissions JSON)            |
-| `__cms_activity`      | One document per activity event                           |
-| `__cms_media`         | One document per media file (metadata)                    |
-| `__cms_media_folders` | One document per folder                                   |
-| `__cms_api_tokens`    | One document per API token (hash, lastFour)               |
-
-### Firebase Auth
-
-Custom claims: `{ role: "admin" | "editor" | "viewer" }`
-
-### Firebase Storage
-
-Path structure: `media/{collection}/{entryId}/{filename}`
 
 ## Security Rules
 
-This package includes security rule templates:
-
-- `firestore.rules` — Firestore access rules
-- `storage.rules` — Storage access rules
-- `firestore.indexes.json` — Composite index definitions
-
-Deploy rules with:
+RBAC security rules are in `firestore.rules` and `storage.rules`. Deploy with:
 
 ```bash
 firebase deploy --only firestore:rules,storage
 ```
 
-## Development
+Role claims must be set on Firebase Auth users:
 
-### Testing with Emulator
+| Role   | Permissions                                   |
+| ------ | --------------------------------------------- |
+| admin  | Full access (`*:*`)                           |
+| editor | Create, read, update (`create/read/update:*`) |
+| viewer | Read only (`read:*`)                          |
 
-1. Start Firebase Emulator:
+## Architecture
+
+```
+src/
+├── config.ts         # Firebase config (import.meta.env)
+├── firebase.ts       # Firebase app + Firestore init
+├── auth.ts           # Auth provider (login, register, claims)
+├── content.ts        # Collections + globals provider
+├── media.ts          # Media + folders provider
+├── users.ts          # Users provider
+├── roles.ts          # Roles provider
+├── activity.ts       # Activity log provider
+├── provider.ts       # AdminProvider composition + activity hooks
+├── query-builder.ts  # Firestore query filters
+└── index.ts          # Barrel exports
+```
+
+## Testing
+
+Tests require the Firebase emulator suite. Start emulators:
 
 ```bash
 firebase emulators:start
 ```
 
-2. Set environment variables for emulator:
-
-```env
-VITE_FIREBASE_USE_EMULATOR=true
-VITE_FIREBASE_EMULATOR_HOST=localhost:8080
-```
-
-### Running Tests
+Then run:
 
 ```bash
 pnpm test
 ```
 
-## License
+## Security
 
-MIT
+- All writes require authenticated Firebase Auth
+- Role checks enforced via custom claims in Firestore rules
+- Storage uploads gated by auth (10MB limit)
+- Admin-only for deletes and user/role management

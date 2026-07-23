@@ -21,6 +21,8 @@
     "@arche-cms/schema",
     "@arche-cms/validation",
     "@arche-cms/cms",
+    "@arche-cms/cms-firebase",
+    "@arche-cms/admin-ui",
     "clsx",
     "lucide-react",
     "react",
