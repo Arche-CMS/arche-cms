@@ -103,13 +103,91 @@ export interface FirebaseProviderOptions {
   users: FirestoreUsersProvider;
   roles: FirestoreRolesProvider;
   activity: FirestoreActivityProvider;
+  userId?: string;
+}
+
+function wrapContentWithActivity(
+  content: FirestoreContentProvider,
+  activity: FirestoreActivityProvider,
+  userId: string,
+): FirestoreContentProvider {
+  return {
+    ...content,
+
+    async bulkDelete(slug: string, ids: string[]): Promise<void> {
+      await content.bulkDelete(slug, ids);
+      await activity.recordActivity({
+        action: "delete",
+        collection: slug,
+        data: { ids },
+        userId,
+      });
+    },
+
+    async createEntry<T>(slug: string, data: Partial<T>): Promise<T> {
+      const result = await content.createEntry<T>(slug, data);
+      const entryId = (result as { id?: string }).id;
+      await activity.recordActivity({
+        action: "create",
+        collection: slug,
+        ...(entryId !== undefined ? { entryId } : {}),
+        userId,
+      });
+      return result;
+    },
+
+    async deleteEntry(slug: string, id: string): Promise<void> {
+      await content.deleteEntry(slug, id);
+      await activity.recordActivity({
+        action: "delete",
+        collection: slug,
+        entryId: id,
+        userId,
+      });
+    },
+
+    async publishEntry(slug: string, id: string): Promise<void> {
+      await content.publishEntry(slug, id);
+      await activity.recordActivity({
+        action: "publish",
+        collection: slug,
+        entryId: id,
+        userId,
+      });
+    },
+
+    async unpublishEntry(slug: string, id: string): Promise<void> {
+      await content.unpublishEntry(slug, id);
+      await activity.recordActivity({
+        action: "unpublish",
+        collection: slug,
+        entryId: id,
+        userId,
+      });
+    },
+
+    async updateEntry<T>(slug: string, id: string, data: Partial<T>): Promise<T> {
+      const result = await content.updateEntry<T>(slug, id, data);
+      await activity.recordActivity({
+        action: "update",
+        collection: slug,
+        entryId: id,
+        userId,
+      });
+      return result;
+    },
+  };
 }
 
 export function createFirebaseProvider(options: FirebaseProviderOptions): AdminProvider {
+  const content = options.userId
+    ? wrapContentWithActivity(options.content, options.activity, options.userId)
+    : options.content;
+
   return {
     activity: options.activity,
     auth: options.auth,
-    collections: options.content,
+    collections: content,
     globals: options.globals,
     media: options.storage,
     roles: options.roles,
