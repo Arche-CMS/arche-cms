@@ -7,6 +7,8 @@ export { createFirebaseStorageProvider } from "./media";
 export { createFirestoreUsersProvider } from "./users";
 export { createFirestoreRolesProvider } from "./roles";
 export { createFirestoreActivityProvider } from "./activity";
+export { createFirestoreApiTokensProvider } from "./api-tokens";
+export { createFirestoreWebhooksProvider } from "./webhooks";
 export { createQueryBuilder, buildQueryConstraints } from "./query-builder";
 
 export type { FirebaseConfig, FirebaseServices } from "./config";
@@ -18,6 +20,19 @@ export type { FirebaseStorageProvider, MediaFile, MediaFolder, ListMediaParams }
 export type { FirestoreUsersProvider, User, ListUsersParams } from "./users";
 export type { FirestoreRolesProvider, Role, ListRolesParams } from "./roles";
 export type { FirestoreActivityProvider, ActivityEvent, ListActivityParams } from "./activity";
+export type {
+  FirestoreApiTokensProvider,
+  ApiToken,
+  CreateApiTokenResult,
+  ListApiTokensParams,
+} from "./api-tokens";
+export type {
+  FirestoreWebhooksProvider,
+  Webhook,
+  CreateWebhookData,
+  UpdateWebhookData,
+  ListWebhooksParams,
+} from "./webhooks";
 export type {
   QueryBuilderParams,
   FilterValue,

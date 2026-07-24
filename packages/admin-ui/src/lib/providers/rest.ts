@@ -252,6 +252,45 @@ export function createRestProvider(): AdminProvider {
         return apiFetch(`/api/roles/${id}`, { body: JSON.stringify(data), method: "PATCH" });
       },
     },
+    settings: {
+      async createApiToken(data) {
+        return apiFetch("/api/settings/api-tokens", {
+          body: JSON.stringify(data),
+          method: "POST",
+        });
+      },
+      async createWebhook(data) {
+        return apiFetch("/api/settings/webhooks", {
+          body: JSON.stringify(data),
+          method: "POST",
+        });
+      },
+      async deleteApiToken(id) {
+        await apiFetch(`/api/settings/api-tokens/${id}`, { method: "DELETE" });
+      },
+      async deleteWebhook(id) {
+        await apiFetch(`/api/settings/webhooks/${id}`, { method: "DELETE" });
+      },
+      async getWebhook(id) {
+        return apiFetch(`/api/settings/webhooks/${id}`);
+      },
+      async listApiTokens(params) {
+        return apiFetch(
+          `/api/settings/api-tokens${buildQuery({ limit: params?.limit, offset: params?.offset })}`,
+        );
+      },
+      async listWebhooks(params) {
+        return apiFetch(
+          `/api/settings/webhooks${buildQuery({ limit: params?.limit, offset: params?.offset })}`,
+        );
+      },
+      async updateWebhook(id, data) {
+        return apiFetch(`/api/settings/webhooks/${id}`, {
+          body: JSON.stringify(data),
+          method: "PUT",
+        });
+      },
+    },
     users: {
       async createUser(data) {
         return apiFetch("/api/users", { body: JSON.stringify(data), method: "POST" });

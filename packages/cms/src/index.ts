@@ -168,7 +168,9 @@ function parseArgs(): void {
     generate({
       dir: dirIdx !== -1 ? args[dirIdx + 1] : undefined,
       generators: genList,
+      hooks: args.includes("--hooks"),
       out: outIdx !== -1 ? args[outIdx + 1] : undefined,
+      sdk: args.includes("--sdk"),
     }).catch((err: unknown) => {
       console.error("Error:", err instanceof Error ? err.message : String(err));
       process.exit(1);
@@ -213,6 +215,21 @@ function parseArgs(): void {
     generate({
       dir: dirIdx !== -1 ? args[dirIdx + 1] : undefined,
       generators: ["validation"],
+      out: outIdx !== -1 ? args[outIdx + 1] : undefined,
+    }).catch((err: unknown) => {
+      console.error("Error:", err instanceof Error ? err.message : String(err));
+      process.exit(1);
+    });
+  } else if (cmd === "generate:hooks") {
+    if (hasHelp) {
+      printGenerateHelp();
+      return;
+    }
+    const dirIdx = args.indexOf("--dir");
+    const outIdx = args.indexOf("--out");
+    generate({
+      dir: dirIdx !== -1 ? args[dirIdx + 1] : undefined,
+      generators: ["hooks"],
       out: outIdx !== -1 ? args[outIdx + 1] : undefined,
     }).catch((err: unknown) => {
       console.error("Error:", err instanceof Error ? err.message : String(err));

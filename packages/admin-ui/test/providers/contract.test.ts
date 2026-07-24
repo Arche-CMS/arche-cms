@@ -77,6 +77,18 @@ function assertAdminProvider(provider: AdminProvider, label: string) {
       expect(provider.activity).toBeDefined();
       expect(typeof provider.activity.listActivity).toBe("function");
     });
+
+    it("has settings namespace", () => {
+      expect(provider.settings).toBeDefined();
+      expect(typeof provider.settings.listApiTokens).toBe("function");
+      expect(typeof provider.settings.createApiToken).toBe("function");
+      expect(typeof provider.settings.deleteApiToken).toBe("function");
+      expect(typeof provider.settings.listWebhooks).toBe("function");
+      expect(typeof provider.settings.getWebhook).toBe("function");
+      expect(typeof provider.settings.createWebhook).toBe("function");
+      expect(typeof provider.settings.updateWebhook).toBe("function");
+      expect(typeof provider.settings.deleteWebhook).toBe("function");
+    });
   });
 }
 
@@ -98,7 +110,15 @@ describe("Firebase provider contract", () => {
   it("createFirebaseProvider returns a valid AdminProvider", async () => {
     const { createFirebaseProvider } = await import("@arche-cms/cms-firebase");
     const provider = createFirebaseProvider({
-      projectId: "test-project",
+      activity: {} as never,
+      apiTokens: {} as never,
+      auth: {} as never,
+      content: {} as never,
+      globals: {} as never,
+      roles: {} as never,
+      storage: {} as never,
+      users: {} as never,
+      webhooks: {} as never,
     });
     assertAdminProvider(provider, "Firebase");
   });

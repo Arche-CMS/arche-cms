@@ -1,10 +1,12 @@
 import type { FirestoreActivityProvider } from "./activity";
+import type { FirestoreApiTokensProvider, ApiToken } from "./api-tokens";
 import type { FirebaseAuthProvider } from "./auth";
 import type { FirestoreContentProvider } from "./content";
 import type { FirestoreGlobalsProvider } from "./globals";
 import type { FirebaseStorageProvider } from "./media";
 import type { FirestoreRolesProvider } from "./roles";
 import type { FirestoreUsersProvider } from "./users";
+import type { FirestoreWebhooksProvider, Webhook } from "./webhooks";
 
 export interface AdminUser {
   uid: string;
@@ -93,6 +95,42 @@ export interface AdminProvider {
       limit?: number;
     }): Promise<{ data: import("./activity").ActivityEvent[]; total: number }>;
   };
+
+  settings: {
+    listApiTokens(params?: {
+      limit?: number;
+      offset?: number;
+    }): Promise<{ data: ApiToken[]; total: number }>;
+    createApiToken(data: {
+      name: string;
+      description?: string;
+    }): Promise<{ rawToken: string; token: ApiToken }>;
+    deleteApiToken(id: string): Promise<void>;
+    listWebhooks(params?: {
+      limit?: number;
+      offset?: number;
+    }): Promise<{ data: Webhook[]; total: number }>;
+    getWebhook(id: string): Promise<Webhook | null>;
+    createWebhook(data: {
+      name: string;
+      url: string;
+      events: string[];
+      collection?: string;
+      secret?: string;
+    }): Promise<Webhook>;
+    updateWebhook(
+      id: string,
+      data: Partial<{
+        name: string;
+        url: string;
+        events: string[];
+        collection: string;
+        enabled: boolean;
+        secret: string;
+      }>,
+    ): Promise<Webhook>;
+    deleteWebhook(id: string): Promise<void>;
+  };
 }
 
 export interface FirebaseProviderOptions {
@@ -103,6 +141,8 @@ export interface FirebaseProviderOptions {
   users: FirestoreUsersProvider;
   roles: FirestoreRolesProvider;
   activity: FirestoreActivityProvider;
+  apiTokens: FirestoreApiTokensProvider;
+  webhooks: FirestoreWebhooksProvider;
   userId?: string;
 }
 
@@ -191,6 +231,32 @@ export function createFirebaseProvider(options: FirebaseProviderOptions): AdminP
     globals: options.globals,
     media: options.storage,
     roles: options.roles,
+    settings: {
+      async createApiToken(data) {
+        return options.apiTokens.createApiToken(data, options.userId ?? "anonymous");
+      },
+      async createWebhook(data) {
+        return options.webhooks.createWebhook(data);
+      },
+      async deleteApiToken(id) {
+        await options.apiTokens.deleteApiToken(id);
+      },
+      async deleteWebhook(id) {
+        await options.webhooks.deleteWebhook(id);
+      },
+      async getWebhook(id) {
+        return options.webhooks.getWebhook(id);
+      },
+      async listApiTokens(params) {
+        return options.apiTokens.listApiTokens(params);
+      },
+      async listWebhooks(params) {
+        return options.webhooks.listWebhooks(params);
+      },
+      async updateWebhook(id, data) {
+        return options.webhooks.updateWebhook(id, data);
+      },
+    },
     users: options.users,
   };
 }

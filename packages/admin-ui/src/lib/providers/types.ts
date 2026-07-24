@@ -75,6 +75,36 @@ export interface AdminProvider {
   activity: {
     listActivity(params?: ListParams): Promise<PaginatedResult<ActivityItem>>;
   };
+
+  settings: {
+    listApiTokens(params?: ListParams): Promise<PaginatedResult<ApiTokenItem>>;
+    createApiToken(data: {
+      name: string;
+      description?: string;
+    }): Promise<{ rawToken: string; token: ApiTokenItem }>;
+    deleteApiToken(id: string): Promise<void>;
+    listWebhooks(params?: ListParams): Promise<PaginatedResult<WebhookItem>>;
+    getWebhook(id: string): Promise<WebhookItem | null>;
+    createWebhook(data: {
+      name: string;
+      url: string;
+      events: string[];
+      collection?: string;
+      secret?: string;
+    }): Promise<WebhookItem>;
+    updateWebhook(
+      id: string,
+      data: Partial<{
+        name: string;
+        url: string;
+        events: string[];
+        collection: string;
+        enabled: boolean;
+        secret: string;
+      }>,
+    ): Promise<WebhookItem>;
+    deleteWebhook(id: string): Promise<void>;
+  };
 }
 
 export interface MediaItem {
@@ -122,4 +152,31 @@ export interface ActivityItem {
   documentId: string | null;
   label: string;
   createdAt: string;
+}
+
+export interface ApiTokenItem {
+  id: string;
+  name: string;
+  lastFour: string;
+  description: string;
+  role: string;
+  createdAt: string;
+  createdBy: string;
+  lastUsedAt: string | null;
+}
+
+export interface WebhookItem {
+  id: string;
+  name: string;
+  url: string;
+  events: string[];
+  collection: string;
+  enabled: boolean;
+  hasSecret: boolean;
+  createdAt: string;
+  updatedAt: string;
+  lastStatus: number | null;
+  lastSuccess: boolean;
+  lastError: string;
+  lastDeliveredAt: string | null;
 }

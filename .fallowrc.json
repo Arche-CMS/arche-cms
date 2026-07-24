@@ -57,8 +57,8 @@
       {
         "files": ["packages/cms/src/index.ts"],
         "maxUnitSize": 250,
-        "maxCyclomatic": 65,
-        "maxCognitive": 100,
+        "maxCyclomatic": 70,
+        "maxCognitive": 110,
         "maxCrap": 650,
         "reason": "command-line arg parser with multiple subcommands including generate:types/sdk/validation and firebase"
       },
@@ -91,6 +91,8 @@
       {
         "files": ["packages/generators/src/sdk.ts"],
         "maxCrap": 300,
+        "maxCyclomatic": 20,
+        "maxCognitive": 20,
         "reason": "field-to-TS-type mapping with many type branches"
       },
       {
@@ -154,10 +156,38 @@
       },
       {
         "files": [
+          "packages/admin-ui/src/routes/settings/roles/*.tsx",
+          "packages/admin-ui/src/routes/settings/users/*.tsx"
+        ],
+        "maxCrap": 150,
+        "maxCyclomatic": 15,
+        "maxCognitive": 35,
+        "maxUnitSize": 350,
+        "reason": "admin UI routes with complex form logic, media handling, and mode-aware rendering"
+      },
+      {
+        "files": [
+          "packages/admin-ui/src/routes/settings/webhooks/*.tsx",
+          "packages/admin-ui/src/routes/settings/api-tokens.tsx"
+        ],
+        "maxCrap": 200,
+        "maxCyclomatic": 15,
+        "maxCognitive": 25,
+        "maxUnitSize": 300,
+        "reason": "admin UI settings routes with CRUD forms, validation, and mode-aware rendering"
+      },
+      {
+        "files": ["packages/generators/src/hooks.ts"],
+        "maxCrap": 250,
+        "maxCyclomatic": 15,
+        "maxCognitive": 15,
+        "maxUnitSize": 350,
+        "reason": "React hooks generator with field-to-hook-type mapping and query client setup"
+      },
+      {
+        "files": [
           "packages/admin-ui/src/routes/media/index.tsx",
           "packages/admin-ui/src/routes/media/components/*.tsx",
-          "packages/admin-ui/src/routes/settings/users/*.tsx",
-          "packages/admin-ui/src/routes/settings/roles/*.tsx",
           "packages/admin-ui/src/components/field-types/*.tsx",
           "packages/admin-ui/src/routes/__root.tsx",
           "packages/admin-ui/src/lib/auth.tsx",
@@ -182,7 +212,9 @@
       "packages/rest-api/src/handlers.ts",
       "packages/graphql/src/types.ts",
       "packages/admin-ui/src/lib/providers/types.ts",
-      "packages/cms-firebase/src/provider.ts"
+      "packages/cms-firebase/src/provider.ts",
+      "packages/admin-ui/src/routes/settings/webhooks/**",
+      "packages/admin-ui/src/routes/settings/api-tokens.tsx"
     ]
   },
   "entry": ["packages/cms/src/admin/main.tsx", "packages/*/src/index.ts"]

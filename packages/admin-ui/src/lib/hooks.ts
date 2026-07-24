@@ -6,18 +6,10 @@ import {
   fetchCollections,
   fetchGlobals,
   fetchGlobalSchema,
-  fetchApiTokens,
-  fetchWebhooks,
-  fetchWebhook,
   fetchPlugins,
   fetchVersions,
   restoreVersion,
   saveSchema,
-  createApiToken,
-  deleteApiToken,
-  createWebhook,
-  updateWebhook,
-  deleteWebhook,
   type CollectionMeta,
   type FieldDefinition,
 } from "@/lib/api";
@@ -116,8 +108,9 @@ export function useDashboardData(colSlugs: string[]) {
 }
 
 export function useApiTokensList(params?: { limit?: number; offset?: number }) {
+  const provider = useProvider();
   return useQuery({
-    queryFn: () => fetchApiTokens(params),
+    queryFn: () => provider.settings.listApiTokens(params),
     queryKey: ["api-tokens", params],
     staleTime: 30_000,
   });
@@ -142,17 +135,19 @@ export function useRolesList(params?: { limit?: number; offset?: number }) {
 }
 
 export function useWebhooksList(params?: { limit?: number; offset?: number }) {
+  const provider = useProvider();
   return useQuery({
-    queryFn: () => fetchWebhooks(params),
+    queryFn: () => provider.settings.listWebhooks(params),
     queryKey: ["webhooks", params],
     staleTime: 30_000,
   });
 }
 
 export function useWebhook(id: string) {
+  const provider = useProvider();
   return useQuery({
     enabled: !!id,
-    queryFn: () => fetchWebhook(id),
+    queryFn: () => provider.settings.getWebhook(id),
     queryKey: ["webhook", id],
   });
 }
@@ -281,9 +276,11 @@ export function useRestoreEntry(slug: string) {
 }
 
 export function useCreateApiToken() {
+  const provider = useProvider();
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: { name: string; description?: string }) => createApiToken(data),
+    mutationFn: (data: { name: string; description?: string }) =>
+      provider.settings.createApiToken(data),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["api-tokens"] });
     },
@@ -291,9 +288,10 @@ export function useCreateApiToken() {
 }
 
 export function useDeleteApiToken() {
+  const provider = useProvider();
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => deleteApiToken(id),
+    mutationFn: (id: string) => provider.settings.deleteApiToken(id),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["api-tokens"] });
     },
@@ -301,6 +299,7 @@ export function useDeleteApiToken() {
 }
 
 export function useCreateWebhook() {
+  const provider = useProvider();
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (data: {
@@ -309,7 +308,7 @@ export function useCreateWebhook() {
       events: string[];
       collection?: string;
       secret?: string;
-    }) => createWebhook(data),
+    }) => provider.settings.createWebhook(data),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["webhooks"] });
     },
@@ -317,6 +316,7 @@ export function useCreateWebhook() {
 }
 
 export function useUpdateWebhook() {
+  const provider = useProvider();
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({
@@ -332,7 +332,7 @@ export function useUpdateWebhook() {
         enabled: boolean;
         secret: string;
       }>;
-    }) => updateWebhook(id, data),
+    }) => provider.settings.updateWebhook(id, data),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["webhooks"] });
     },
@@ -340,9 +340,10 @@ export function useUpdateWebhook() {
 }
 
 export function useDeleteWebhook() {
+  const provider = useProvider();
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => deleteWebhook(id),
+    mutationFn: (id: string) => provider.settings.deleteWebhook(id),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["webhooks"] });
     },

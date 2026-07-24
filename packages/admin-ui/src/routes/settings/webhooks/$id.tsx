@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
-import { firebaseModeGuard } from "@/lib/firebase-mode-guard";
 import { useWebhook, useUpdateWebhook } from "@/lib/hooks";
 import { Route as settingsRoute } from "@/routes/settings/index";
 
@@ -30,7 +29,6 @@ const WEBHOOK_EVENTS = [
 ];
 
 export const Route = createRoute({
-  beforeLoad: firebaseModeGuard({ to: "/settings/users" }),
   component: EditWebhook,
   getParentRoute: () => settingsRoute,
   path: "webhooks/$id",

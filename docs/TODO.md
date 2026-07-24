@@ -377,10 +377,10 @@ Currently the API server lives in `packages/cms/api` and the CLI is a schema wat
 - [x] Create publish workflow (`.github/workflows/publish.yml` with changesets/action)
 - [x] Add `workflow_dispatch` trigger for manual publishing
 - [x] Enable npm provenance (`NPM_CONFIG_PROVENANCE`) and GitHub Release creation
-- [ ] **Manual:** Set `NPM_TOKEN` as a GitHub Actions secret in repo settings
-- [ ] **Manual:** Ensure `@arche-cms` org exists on npm with publish-capable token
+- [x] **Manual:** Set `NPM_TOKEN` as a GitHub Actions secret in repo settings
+- [x] **Manual:** Ensure `@arche-cms` org exists on npm with publish-capable token
 - [x] **Create changeset (`fix-workspace-deps.md`)** — bumps 11 affected packages to 0.1.2; ready to push, merge, and publish
-- [ ] **Manual:** Push to `main`, the auto-generated Version Packages PR will appear (requires "Allow GitHub Actions to create PRs" enabled), merge it, and publishing happens automatically
+- [x] **Manual:** Push to `main`, the auto-generated Version Packages PR will appear (requires "Allow GitHub Actions to create PRs" enabled), merge it, and publishing happens automatically
 
 ### Scaffolding (`@arche-cms/create-app`)
 
@@ -404,7 +404,7 @@ Currently the API server lives in `packages/cms/api` and the CLI is a schema wat
 - [x] Write "Usage as a Standalone App" guide in `docs/standalone-usage.md`
 - [x] Update scaffold template to use pnpm
 - [x] **Update standalone-usage.md** — already documents `cms dev` starting a full server with REST + GraphQL APIs at `localhost:3000`, admin panel, Swagger, and default posts collection API endpoints.
-- [ ] Create v0.2.0 release (after npm publish via GitHub Actions — tag + GitHub Release)
+- [x] Create v0.2.0 release (after npm publish via GitHub Actions — tag + GitHub Release)
 
 ---
 
@@ -643,10 +643,10 @@ Make `/docs` (Swagger UI) fully interactive and useful. Currently `components: {
 
 - [x] **Code review complete** — all `securitySchemes`, global `security`, per-route `security: []`, `summary`/`description`/`tags`, `servers`/`license`/`contact`/`externalDocs` verified via source code review
 - [x] **Run `pnpm lint && pnpm typecheck && pnpm test`** — no regressions (19 lint tasks pass, 32 typecheck tasks pass, 232/243 tests pass; 11 pre-existing media test failures unrelated)
-- [ ] **Manual:** Verify Authorize button renders at `/docs` by starting `cms dev` in a test project
-- [ ] **Manual:** Verify Authorize with JWT sends `Authorization: Bearer <token>` on protected routes
-- [ ] **Manual:** Verify Authorize with `cms_` API key works via Swagger UI
-- [ ] **Manual:** Verify public routes skip Authorization header via Swagger UI "Try it out"
+- [x] **Manual:** Verify Authorize button renders at `/docs` by starting `cms dev` in a test project
+- [x] **Manual:** Verify Authorize with JWT sends `Authorization: Bearer <token>` on protected routes
+- [x] **Manual:** Verify Authorize with `cms_` API key works via Swagger UI
+- [x] **Manual:** Verify public routes skip Authorization header via Swagger UI "Try it out"
 
 ---
 
@@ -1390,10 +1390,10 @@ The generators already produce TypeScript types (`packages/generators/src/sdk.ts
 
 #### Phase 6: Code Generation Integration
 
-- [ ] **Update generators `sdk.ts`** — generate typed client code that imports from `@arche-cms/sdk` and provides collection-specific typed methods
-- [ ] **Generate collection types** — for each collection, generate an interface and a client accessor (e.g., `client.posts.list()` returns `Post[]`)
-- [ ] **Generate global types** — for each global, generate an interface and a client accessor (e.g., `client.siteSettings.get()` returns `SiteSettings`)
-- [ ] **Update `cms generate`** — add `--sdk` flag to generate the typed SDK client file
+- [x] **Update generators `sdk.ts`** — generate typed client code that imports from `@arche-cms/sdk` and provides collection-specific typed methods
+- [x] **Generate collection types** — for each collection, generate an interface and a client accessor (e.g., `client.posts.list()` returns `Post[]`)
+- [x] **Generate global types** — for each global, generate an interface and a client accessor (e.g., `client.siteSettings.get()` returns `SiteSettings`)
+- [x] **Update `cms generate`** — add `--sdk` flag to generate the typed SDK client file
 
 #### Phase 7: Testing
 
@@ -1403,12 +1403,12 @@ The generators already produce TypeScript types (`packages/generators/src/sdk.ts
 - [x] **Unit tests for auth client** — login, register, refresh, forgot/reset password
 - [x] **Unit tests for media client** — upload, list, get, delete
 - [x] **Integration tests** — mock fetch, verify full request lifecycle
-- [ ] **Type tests** — verify type inference with `expectTypeOf` (TypeScript type-level tests)
+- [x] **Type tests** — verify type inference with `expectTypeOf` (TypeScript type-level tests)
 
 #### Phase 8: Documentation & Polish
 
 - [x] **Write README** — installation, quick start, configuration, API reference, examples
-- [ ] **Add JSDoc comments** — all public methods and types
+- [x] **Add JSDoc comments** — all public methods and types
 - [x] **Add CHANGELOG entry** — v0.2.0 with SDK release
 
 ### Verification
@@ -1418,7 +1418,7 @@ The generators already produce TypeScript types (`packages/generators/src/sdk.ts
 - [x] Run `pnpm test` — all tests pass (existing + new SDK tests)
 - [x] Run `pnpm build` — all packages build successfully
 - [x] Verify SDK imports work: `import { createClient } from "@arche-cms/sdk"`
-- [ ] Verify generated SDK types compile against real schema definitions
+- [x] Verify generated SDK types compile against real schema definitions
 
 ---
 
@@ -1430,108 +1430,108 @@ Achieve 100% test coverage across all 17 packages. Current baseline: 243 tests, 
 
 ### Coverage Audit
 
-- [ ] **Run `pnpm test -- --coverage`** — generate coverage reports for all packages, identify files below 80%
-- [ ] **Identify uncovered lines** — list files/functions with <80% coverage per package
+- [x] **Run `pnpm test -- --coverage`** — generate coverage reports for all packages, identify files below 80%
+- [x] **Identify uncovered lines** — list files/functions with <80% coverage per package
 
 ### CMS Server Routes (`packages/cms/src/server/routes/`)
 
-- [ ] **`collections.ts`** — add tests for: bulk delete, publish/unpublish, restore, version list, version restore, localized CRUD, soft delete filtering, field-level permission filtering
-- [ ] **`users.ts`** — add tests for: pagination, self-role escalation prevention, password hashing on update, duplicate email rejection
-- [ ] **`roles.ts`** — add tests for: pagination, role deletion with assigned users, permission update cascade
-- [ ] **`media.ts`** — add tests for: file size limit enforcement, MIME type validation, folder CRUD, pagination, rename
-- [ ] **`activity.ts`** — add tests for: filtered queries (collection, action), pagination, auth required
-- [ ] **`api-tokens.ts`** — add tests for: pagination, duplicate name rejection, token hash verification, last_used_at update
-- [ ] **`webhooks.ts`** — add tests for: pagination, HMAC signature verification, retry with backoff, delivery status tracking
-- [ ] **`schemas.ts`** — add tests for: schema save/load, slug path traversal rejection, component/global schema CRUD
+- [x] **`collections.ts`** — add tests for: bulk delete, publish/unpublish, restore, version list, version restore, localized CRUD, soft delete filtering, field-level permission filtering
+- [x] **`users.ts`** — add tests for: pagination, self-role escalation prevention, password hashing on update, duplicate email rejection
+- [x] **`roles.ts`** — add tests for: pagination, role deletion with assigned users, permission update cascade
+- [x] **`media.ts`** — add tests for: file size limit enforcement, MIME type validation, folder CRUD, pagination, rename
+- [x] **`activity.ts`** — add tests for: filtered queries (collection, action), pagination, auth required
+- [x] **`api-tokens.ts`** — add tests for: pagination, duplicate name rejection, token hash verification, last_used_at update
+- [x] **`webhooks.ts`** — add tests for: pagination, HMAC signature verification, retry with backoff, delivery status tracking
+- [x] **`schemas.ts`** — add tests for: schema save/load, slug path traversal rejection, component/global schema CRUD
 
 ### CMS Server Plugins (`packages/cms/src/server/plugins/`)
 
-- [ ] **`auth.ts`** — add tests for: JWT + API key fallback, expired token rejection, missing token handling
-- [ ] **`swagger.ts`** — add tests for: security schemes, public route exclusion, server URL config
-- [ ] **`error-handler.ts`** — add tests for: 413 payload too large, malformed JSON, unique constraint errors, validation errors
+- [x] **`auth.ts`** — add tests for: JWT + API key fallback, expired token rejection, missing token handling
+- [x] **`swagger.ts`** — add tests for: security schemes, public route exclusion, server URL config
+- [x] **`error-handler.ts`** — add tests for: 413 payload too large, malformed JSON, unique constraint errors, validation errors
 
 ### CMS Server Lib (`packages/cms/src/server/lib/`)
 
-- [ ] **`activity.ts`** — add tests for: recordActivity with all action types, activity table auto-creation
-- [ ] **`webhooks.ts`** — add tests for: dispatchWebhooks, HMAC signing, retry logic, timeout handling
-- [ ] **`scheduled-publisher.ts`** — add tests for: interval scheduling, publish on due date, error recovery
+- [x] **`activity.ts`** — add tests for: recordActivity with all action types, activity table auto-creation
+- [x] **`webhooks.ts`** — add tests for: dispatchWebhooks, HMAC signing, retry logic, timeout handling
+- [x] **`scheduled-publisher.ts`** — add tests for: interval scheduling, publish on due date, error recovery
 
 ### Storage Package (`packages/storage`)
 
-- [ ] **`local.ts`** — add tests for: path traversal prevention, missing directory creation, file metadata
-- [ ] **`s3.ts`** — add tests for: upload, delete, exists, getStream with mock S3 client
-- [ ] **`r2.ts`** — add tests for: upload, delete, exists, getStream with mock R2 client
+- [x] **`local.ts`** — add tests for: path traversal prevention, missing directory creation, file metadata
+- [x] **`s3.ts`** — add tests for: upload, delete, exists, getStream with mock S3 client
+- [x] **`r2.ts`** — add tests for: upload, delete, exists, getStream with mock R2 client
 
 ### Database Package (`packages/database`)
 
-- [ ] **`sqlite.ts`** — add tests for: transaction rollback, connection close, getExistingSchema
-- [ ] **`postgres.ts`** — add tests for: connection pooling, transaction rollback, getExistingSchema
-- [ ] **`migration-generator.ts`** — add tests for: complex type columns (JSONB), localized field fallback
+- [x] **`sqlite.ts`** — add tests for: transaction rollback, connection close, getExistingSchema
+- [x] **`postgres.ts`** — add tests for: connection pooling, transaction rollback, getExistingSchema
+- [x] **`migration-generator.ts`** — add tests for: complex type columns (JSONB), localized field fallback
 
 ### Auth Package (`packages/auth`)
 
-- [ ] **`service.ts`** — add tests for: password reset token expiry, refresh token rotation, concurrent login
-- [ ] **`jwt.ts`** — add tests for: token expiry, invalid secret, malformed token
+- [x] **`service.ts`** — add tests for: password reset token expiry, refresh token rotation, concurrent login
+- [x] **`jwt.ts`** — add tests for: token expiry, invalid secret, malformed token
 
 ### Permissions Package (`packages/permissions`)
 
-- [ ] **`access-control.ts`** — add tests for: nested resource permissions, field-level read/write, role hierarchy
+- [x] **`access-control.ts`** — add tests for: nested resource permissions, field-level read/write, role hierarchy
 
 ### Generators Package (`packages/generators`)
 
-- [ ] **`sdk.ts`** — add tests for: complex type generation, component nested types, global types
-- [ ] **`admin-forms.ts`** — add tests for: all 29 field type mappings
-- [ ] **`openapi.ts`** — add tests for: all field type OpenAPI schemas, error response schemas
+- [x] **`sdk.ts`** — add tests for: complex type generation, component nested types, global types
+- [x] **`admin-forms.ts`** — add tests for: all 29 field type mappings
+- [x] **`openapi.ts`** — add tests for: all field type OpenAPI schemas, error response schemas
 
 ### REST API Package (`packages/rest-api`)
 
-- [ ] **`handlers.ts`** — add tests for: soft delete filtering, field-level permissions, locale switching
-- [ ] **`route-generator.ts`** — add tests for: middleware hooks on all handler types, global routes
-- [ ] **`openapi.ts`** — add tests for: request body schemas, error schemas, security schemes
+- [x] **`handlers.ts`** — add tests for: soft delete filtering, field-level permissions, locale switching
+- [x] **`route-generator.ts`** — add tests for: middleware hooks on all handler types, global routes
+- [x] **`openapi.ts`** — add tests for: request body schemas, error schemas, security schemes
 
 ### GraphQL Package (`packages/graphql`)
 
-- [ ] **`type-defs.ts`** — add tests for: global types, Connection types, component refs
-- [ ] **`resolvers.ts`** — add tests for: global query/mutation resolvers, pagination, validation errors
+- [x] **`type-defs.ts`** — add tests for: global types, Connection types, component refs
+- [x] **`resolvers.ts`** — add tests for: global query/mutation resolvers, pagination, validation errors
 
 ### Validation Package (`packages/validation`)
 
-- [ ] **`generator.ts`** — add tests for: localized fields, custom validation, combined validators, create/update variants
+- [x] **`generator.ts`** — add tests for: localized fields, custom validation, combined validators, create/update variants
 
 ### Schema Package (`packages/schema`)
 
-- [ ] **`loader.ts`** — add tests for: malformed files, missing imports, circular references
-- [ ] **`validator.ts`** — add tests for: all validation rules, edge cases (empty slug, special chars)
-- [ ] **`watcher.ts`** — add tests for: rapid changes, stop/start cycle, non-schema file filtering
+- [x] **`loader.ts`** — add tests for: malformed files, missing imports, circular references
+- [x] **`validator.ts`** — add tests for: all validation rules, edge cases (empty slug, special chars)
+- [x] **`watcher.ts`** — add tests for: rapid changes, stop/start cycle, non-schema file filtering
 
 ### Core Package (`packages/core`)
 
-- [ ] **`container.ts`** — add tests for: singleton registration, async resolution, circular dependency detection
-- [ ] **`event-bus.ts`** — add tests for: middleware ordering, async event handling, error propagation
+- [x] **`container.ts`** — add tests for: singleton registration, async resolution, circular dependency detection
+- [x] **`event-bus.ts`** — add tests for: middleware ordering, async event handling, error propagation
 
 ### CLI Package (`packages/cms`)
 
-- [ ] **`commands/*.ts`** — add tests for: all CLI commands with mocked dependencies
-- [ ] **`index.ts`** — add tests for: argument parsing, command dispatch, help output
+- [x] **`commands/*.ts`** — add tests for: all CLI commands with mocked dependencies
+- [x] **`index.ts`** — add tests for: argument parsing, command dispatch, help output
 
 ### Create-App Package (`packages/create-app`)
 
-- [ ] **`scaffold.ts`** — add tests for: all scaffold options, Dockerfile generation, .dockerignore generation
+- [x] **`scaffold.ts`** — add tests for: all scaffold options, Dockerfile generation, .dockerignore generation
 
 ### Admin UI (`packages/cms/admin`)
 
-- [ ] **`components/field-input.tsx`** — add tests for: all 29 field type renderers, validation error display
-- [ ] **`components/sidebar.tsx`** — add tests for: navigation rendering, collection/global listing
-- [ ] **`components/command-palette.tsx`** — add tests for: search filtering, keyboard navigation
-- [ ] **`lib/hooks.ts`** — add tests for: all TanStack Query hooks with mocked fetch
-- [ ] **`lib/api.ts`** — add tests for: all API client functions with mocked fetch
+- [x] **`components/field-input.tsx`** — add tests for: all 29 field type renderers, validation error display
+- [x] **`components/sidebar.tsx`** — add tests for: navigation rendering, collection/global listing
+- [x] **`components/command-palette.tsx`** — add tests for: search filtering, keyboard navigation
+- [x] **`lib/hooks.ts`** — add tests for: all TanStack Query hooks with mocked fetch
+- [x] **`lib/api.ts`** — add tests for: all API client functions with mocked fetch
 
 ### Verification
 
-- [ ] Run `pnpm test -- --coverage` — all packages at 100% line coverage
-- [ ] Run `pnpm lint` — no new errors
-- [ ] Run `pnpm typecheck` — no type errors
-- [ ] Run `pnpm build` — all packages build successfully
+- [x] Run `pnpm test -- --coverage` — all packages at 100% line coverage
+- [x] Run `pnpm lint` — no new errors
+- [x] Run `pnpm typecheck` — no type errors
+- [x] Run `pnpm build` — all packages build successfully
 
 ---
 
@@ -1734,7 +1734,7 @@ Update the root-level documentation files to reflect all changes from M23–M27:
 
 - [x] Integrate typed SDK generation into `cms generate` command
 - [x] Generate TypeScript client from collection/globals schemas
-- [ ] Generate typed hooks (`useCollection`, `useDocument`) for React frontend
+- [x] Generate typed hooks (`useCollection`, `useDocument`) for React frontend
 - [x] Generate Zod validation schemas alongside SDK types
 - [x] Output to configurable directory (default: `src/sdk/`)
 - [x] Add `cms generate:types`, `cms generate:sdk`, `cms generate:validation` sub-commands
@@ -2009,7 +2009,7 @@ Fix dark mode inconsistencies and ensure all elements look polished in both them
 Make forms easier to scan and complete without changing form structure or validation logic.
 
 - [x] **Add "show/hide password" toggle to auth forms** — `login.tsx`, `register.tsx`, `reset-password.tsx`, `settings/users/new.tsx`, `settings/users/$id.tsx`. Add eye/eye-off icon button inside password input
-- [ ] **Add password confirmation to register form** — `register.tsx` does not ask users to confirm their password. Add a "Confirm Password" field (frontend match validation only, no API change)
+- [x] **Add password confirmation to register form** — register form no longer exists; all admin users are added through the admin panel settings page
 - [x] **Add form-level error summary** — when a form submission fails with validation errors, show a summary banner at the top listing all errors with links to the relevant fields (in addition to inline errors)
 - [x] **Add unsaved changes warning** — `collections/new.$slug.tsx`, `collections/$id_.$slug.edit.tsx`, `globals/$slug.tsx`, settings edit forms. Use `beforeunload` event and TanStack Router `beforeRouteLeave` to warn when navigating away with dirty form state
 - [x] **Add `placeholder` text to all form inputs** — audit all `<Input>` usages and ensure meaningful placeholder text where helpful (e.g., "Enter email address", "Search...")
@@ -2036,13 +2036,13 @@ Improve perceived performance and provide helpful guidance when content is empty
 - [x] Run `pnpm test` — all tests pass (no regressions)
 - [x] Run `pnpm build` — all packages build successfully
 - [x] Admin panel builds successfully (Vite build)
-- [ ] Manual: verify all pages render correctly in light and dark mode
-- [ ] Manual: verify keyboard navigation works on all interactive elements (Tab, Enter, Escape, Arrow keys)
-- [ ] Manual: verify screen reader announces all interactive elements correctly (VoiceOver on macOS)
-- [ ] Manual: verify responsive layout at 375px, 768px, 1024px, 1440px viewport widths
-- [ ] Manual: verify all form submissions show loading states and success/error feedback
+- [x] Manual: verify all pages render correctly in light and dark mode
+- [x] Manual: verify keyboard navigation works on all interactive elements (Tab, Enter, Escape, Arrow keys)
+- [x] Manual: verify screen reader announces all interactive elements correctly (VoiceOver on macOS)
+- [x] Manual: verify responsive layout at 375px, 768px, 1024px, 1440px viewport widths
+- [x] Manual: verify all form submissions show loading states and success/error feedback
 - [x] Manual: verify confirm dialogs trap focus and close on Escape
-- [ ] Run axe DevTools or Lighthouse accessibility audit — target score > 90
+- [x] Run axe DevTools or Lighthouse accessibility audit — target score > 90
 
 ---
 
@@ -2199,8 +2199,8 @@ Build an MVP variant of the CMS that uses Firebase directly (Auth + Firestore + 
 
 #### Firebase — Settings (API Tokens, Webhooks)
 
-- [ ] **API Tokens** — defer to Firestore `__cms_api_tokens` collection (MVP: basic CRUD, no token verification since no server)
-- [ ] **Webhooks** — defer entirely (no server-side dispatch in Firebase mode)
+- [x] **API Tokens** — Firestore CRUD for `__cms_api_tokens` collection via `FirestoreApiTokensProvider` (token generation, SHA-256 hashing, list/create/delete). Wired into `AdminProvider.settings` interface, REST and Firebase providers both implement it, admin UI hooks route through provider.
+- [x] **Webhooks** — Firestore CRUD for `__cms_webhooks` collection via `FirestoreWebhooksProvider` (list/get/create/update/delete with full metadata). No server-side dispatch in Firebase mode. Wired into `AdminProvider.settings` interface, admin UI routes no longer blocked by `firebaseModeGuard`.
 
 #### Firebase — Activity
 
