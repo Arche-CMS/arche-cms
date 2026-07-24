@@ -1,5 +1,14 @@
 # @arche-cms/permissions
 
+## 0.1.12
+
+### Patch Changes
+
+- cb6ebb8: feat(cms-firebase): Firebase-backed CMS MVP
+- Updated dependencies [cb6ebb8]
+  - @arche-cms/types@0.1.12
+  - @arche-cms/database@0.1.12
+
 ## 0.1.11
 
 ### Patch Changes
