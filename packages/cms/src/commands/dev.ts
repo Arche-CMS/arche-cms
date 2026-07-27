@@ -41,14 +41,8 @@ async function startViteDevServer(
   const currentDir = dirname(fileURLToPath(import.meta.url));
   const cmsRoot = resolve(currentDir, "../..");
 
-  // Resolve admin-ui package: monorepo symlink or node_modules
-  const adminDir = resolve(cmsRoot, "../admin-ui");
-  const adminDirFallback = resolve(cmsRoot, "node_modules/@arche-cms/admin-ui");
-  const adminRoot = existsSync(resolve(adminDir, "src/main.tsx"))
-    ? adminDir
-    : existsSync(resolve(adminDirFallback, "src/main.tsx"))
-      ? adminDirFallback
-      : adminDir;
+  // Admin UI source lives inside the cms package at admin-ui/
+  const adminRoot = resolve(cmsRoot, "admin-ui");
 
   const { createServer } = await import("vite");
 
@@ -95,35 +89,23 @@ function ensureAdminBuild(logger: ReturnType<typeof createLogger>): void {
   const currentDir = dirname(fileURLToPath(import.meta.url));
   const cmsRoot = resolve(currentDir, "../..");
 
-  // Check for existing admin build in admin-ui package
-  const monorepoDist = resolve(cmsRoot, "../admin-ui/dist");
-  const nodeModulesDist = resolve(cmsRoot, "node_modules/@arche-cms/admin-ui/dist");
+  // Admin UI dist lives inside the cms package at admin-ui/dist/
+  const adminDist = resolve(cmsRoot, "admin-ui/dist");
 
-  const bundledAdmin = existsSync(resolve(monorepoDist, "index.html"))
-    ? monorepoDist
-    : existsSync(resolve(nodeModulesDist, "index.html"))
-      ? nodeModulesDist
-      : null;
-
-  if (bundledAdmin) return;
+  if (existsSync(resolve(adminDist, "index.html"))) return;
 
   /* v8 ignore start — ensureAdminBuild depends on filesystem state and execSync, hard to test */
-  // Try to build from monorepo admin-ui source
-  const adminSource = resolve(cmsRoot, "../admin-ui");
-  const adminSourceFallback = resolve(cmsRoot, "node_modules/@arche-cms/admin-ui");
-  const hasSource = existsSync(resolve(adminSource, "package.json"));
-  const hasSourceFallback = existsSync(resolve(adminSourceFallback, "package.json"));
-
-  if (hasSource || hasSourceFallback) {
-    const sourceDir = hasSource ? adminSource : adminSourceFallback;
+  // Try to build from admin-ui source inside the cms package
+  const adminSource = resolve(cmsRoot, "admin-ui");
+  if (existsSync(resolve(adminSource, "package.json"))) {
     logger.info("Admin panel build not found — building from source...");
     try {
       execSync("pnpm build", {
-        cwd: sourceDir,
+        cwd: adminSource,
         env: { ...process.env, NODE_ENV: "production" },
         stdio: "inherit",
       });
-      logger.info("Admin panel built at " + resolve(sourceDir, "dist"));
+      logger.info("Admin panel built at " + resolve(adminSource, "dist"));
     } catch {
       logger.warn("Admin panel build failed — admin UI will not be available");
     }

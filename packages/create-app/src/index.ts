@@ -35,10 +35,6 @@ export function scaffold(
     "@arche-cms/schema": "^0.1.10",
   };
 
-  if (opts.backendMode === "firebase") {
-    dependencies["@arche-cms/cms-firebase"] = "^0.1.0";
-  }
-
   // package.json
   writeFileSync(
     resolve(projectDir, "package.json"),
@@ -63,23 +59,13 @@ export function scaffold(
   // .env
   const envLines: string[] = [];
 
-  if (opts.backendMode === "firebase") {
-    envLines.push("VITE_BACKEND_MODE=firebase");
-    envLines.push("VITE_FIREBASE_API_KEY=your-api-key");
-    envLines.push("VITE_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com");
-    envLines.push("VITE_FIREBASE_PROJECT_ID=your-project-id");
-    envLines.push("VITE_FIREBASE_STORAGE_BUCKET=your-project.appspot.com");
-    envLines.push("VITE_FIREBASE_MESSAGING_SENDER_ID=123456789");
-    envLines.push("VITE_FIREBASE_APP_ID=1:123456789:web:abcdef");
-  } else {
-    envLines.push(`DB_ADAPTER=${opts.dbAdapter}`);
-    envLines.push(
-      opts.dbAdapter === "sqlite"
-        ? 'DB_URL="file:./cms.db"'
-        : 'DB_URL="postgresql://localhost:5432/mydb"',
-    );
-    envLines.push('STORAGE_DIR="./uploads"');
-  }
+  envLines.push(`DB_ADAPTER=${opts.dbAdapter}`);
+  envLines.push(
+    opts.dbAdapter === "sqlite"
+      ? 'DB_URL="file:./cms.db"'
+      : 'DB_URL="postgresql://localhost:5432/mydb"',
+  );
+  envLines.push('STORAGE_DIR="./uploads"');
 
   envLines.push(`DEFAULT_LOCALE=${opts.defaultLocale}`);
   envLines.push("");
@@ -87,32 +73,18 @@ export function scaffold(
   writeFileSync(resolve(projectDir, ".env"), envLines.join("\n"));
 
   // arche-cms.config.ts
-  if (opts.backendMode === "firebase") {
-    writeFileSync(
-      resolve(projectDir, "arche-cms.config.ts"),
-      [
-        `import { defineConfig } from "@arche-cms/cms";`,
-        "",
-        "export default defineConfig({",
-        `  localization: { defaultLocale: "${opts.defaultLocale}" },`,
-        "});",
-        "",
-      ].join("\n"),
-    );
-  } else {
-    writeFileSync(
-      resolve(projectDir, "arche-cms.config.ts"),
-      [
-        `import { defineConfig } from "@arche-cms/cms";`,
-        "",
-        "export default defineConfig({",
-        `  database: { adapter: "${opts.dbAdapter}" },`,
-        `  localization: { defaultLocale: "${opts.defaultLocale}" },`,
-        "});",
-        "",
-      ].join("\n"),
-    );
-  }
+  writeFileSync(
+    resolve(projectDir, "arche-cms.config.ts"),
+    [
+      `import { defineConfig } from "@arche-cms/cms";`,
+      "",
+      "export default defineConfig({",
+      `  database: { adapter: "${opts.dbAdapter}" },`,
+      `  localization: { defaultLocale: "${opts.defaultLocale}" },`,
+      "});",
+      "",
+    ].join("\n"),
+  );
 
   // Example collection
   writeFileSync(
@@ -270,24 +242,15 @@ Creates a new Arche CMS project in the specified directory.
 
   console.log(`Creating CMS project: ${projectName}\n`);
 
-  const backendMode = await ask("Backend mode (rest/firebase)", "rest");
-  if (!["rest", "firebase"].includes(backendMode)) {
-    console.error(`Invalid backend mode: "${backendMode}". Must be "rest" or "firebase".`);
+  const dbAdapter = await ask("Database adapter (sqlite/postgres)", "sqlite");
+  if (!["sqlite", "postgres"].includes(dbAdapter)) {
+    console.error(`Invalid database adapter: "${dbAdapter}". Must be "sqlite" or "postgres".`);
     process.exit(1);
-  }
-
-  let dbAdapter = "sqlite";
-  if (backendMode === "rest") {
-    dbAdapter = await ask("Database adapter (sqlite/postgres)", "sqlite");
-    if (!["sqlite", "postgres"].includes(dbAdapter)) {
-      console.error(`Invalid database adapter: "${dbAdapter}". Must be "sqlite" or "postgres".`);
-      process.exit(1);
-    }
   }
 
   const defaultLocale = await ask("Default locale", "en");
 
-  scaffold(projectDir, { backendMode, dbAdapter, defaultLocale });
+  scaffold(projectDir, { backendMode: "rest", dbAdapter, defaultLocale });
 }
 
 main().catch((err: unknown) => {
