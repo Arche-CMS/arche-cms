@@ -15,20 +15,21 @@
   },
   "files": [
     "bin",
-    "dist"
+    "dist",
+    "src/admin/dist"
   ],
   "publishConfig": {
     "access": "public"
   },
   "scripts": {
     "build": "tsc",
-    "build:admin": "vite build --config admin-ui/vite.config.ts",
+    "build:admin": "vite build --config src/admin/vite.config.ts",
     "dev": "tsc --watch",
     "lint": "tsc --noEmit",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "clean": "rm -rf dist admin-ui/dist"
+    "clean": "rm -rf dist src/admin/dist"
   },
   "dependencies": {
     "@arche-cms/auth": "workspace:*",

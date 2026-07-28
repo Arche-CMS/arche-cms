@@ -39,8 +39,8 @@ describe("create-app scaffold", () => {
     expect(pkg.scripts.dev).toBe("cms dev");
     expect(pkg.scripts.build).toBe("cms build");
     expect(pkg.scripts.start).toBe("cms start");
-    expect(pkg.dependencies["@arche-cms/cms"]).toBe("^0.1.10");
-    expect(pkg.dependencies["@arche-cms/schema"]).toBe("^0.1.10");
+    expect(pkg.dependencies["@arche-cms/cms"]).toBe("^0.1.14");
+    expect(pkg.dependencies["@arche-cms/schema"]).toBe("^0.1.14");
   });
 
   it("creates .env with sqlite adapter", async () => {
@@ -148,5 +148,4 @@ describe("create-app scaffold", () => {
     expect(compose).toContain("POSTGRES_USER: cms");
     expect(compose).toContain("pgdata:");
   });
-
 });

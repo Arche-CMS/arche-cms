@@ -783,7 +783,7 @@ describe("Playground E2E — Globals", () => {
 
   it("PUT /api/globals/homepage upserts homepage", async () => {
     const res = await app.inject({
-      body: { content: "Welcome!", slug: "/", title: "Home" },
+      body: { content: "Welcome!", title: "Home" },
       headers: auth(),
       method: "PUT",
       url: "/api/globals/homepage",
@@ -791,7 +791,7 @@ describe("Playground E2E — Globals", () => {
     expect(res.statusCode).toBe(200);
     const body = JSON.parse(res.body);
     expect(body.title).toBe("Home");
-    expect(body.slug).toBe("/");
+    expect(body.slug).toBe("home");
   });
 
   it("PUT /api/globals/choice-fields upserts choice fields", async () => {

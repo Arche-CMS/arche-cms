@@ -31,8 +31,8 @@ export function scaffold(
   }
 
   const dependencies: Record<string, string> = {
-    "@arche-cms/cms": "^0.1.10",
-    "@arche-cms/schema": "^0.1.10",
+    "@arche-cms/cms": "^0.1.14",
+    "@arche-cms/schema": "^0.1.14",
   };
 
   // package.json

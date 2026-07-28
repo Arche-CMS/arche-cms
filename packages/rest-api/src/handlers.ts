@@ -2,11 +2,16 @@ import type { DatabaseAdapter, QueryOptions } from "@arche-cms/database";
 import type {
   CollectionDefinition,
   FieldDefinition,
-  RelationField,
   GlobalDefinition,
+  RelationField,
+  SlugField,
 } from "@arche-cms/types";
 
-import { collectionToCreateSchema, collectionToUpdateSchema } from "@arche-cms/validation";
+import {
+  collectionToCreateSchema,
+  collectionToUpdateSchema,
+  globalToUpsertSchema,
+} from "@arche-cms/validation";
 
 import type { RouteHandler, RouteHandlerContext, RouteHandlerResult } from "./types.js";
 
@@ -526,6 +531,33 @@ export function createGlobalGetHandler(
   };
 }
 
+function generateSlug(value: string): string {
+  return value
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, "")
+    .replace(/[\s_]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+function autoGenerateSlugs(
+  body: Record<string, unknown>,
+  fields: FieldDefinition[],
+): Record<string, unknown> {
+  const data = { ...body };
+  for (const field of fields) {
+    if (field.type !== "slug") continue;
+    const slugField = field as SlugField;
+    if (data[slugField.name] != null && data[slugField.name] !== "") continue;
+    if (slugField.source && data[slugField.source] != null) {
+      data[slugField.name] = generateSlug(String(data[slugField.source]));
+    } else if (slugField.name === "slug" && data["title"] != null) {
+      data[slugField.name] = generateSlug(String(data["title"]));
+    }
+  }
+  return data;
+}
+
 export function createGlobalUpsertHandler(
   globalDef: GlobalDefinition,
   adapter: DatabaseAdapter,
@@ -535,15 +567,25 @@ export function createGlobalUpsertHandler(
       if (!ctx.body || typeof ctx.body !== "object") {
         return errorResult(400, "Request body is required");
       }
+      const enriched = autoGenerateSlugs(ctx.body as Record<string, unknown>, globalDef.fields);
+      const schema = globalToUpsertSchema(globalDef);
+      const parsed = schema.safeParse(enriched);
+      if (!parsed.success) {
+        return {
+          body: { details: parsed.error.issues, error: "Validation failed" },
+          statusCode: 400,
+        };
+      }
+      const data = parsed.data as Record<string, unknown>;
       const tableName = collectionTableName(globalDef.slug);
       const existing = await adapter.findOne(tableName, "1");
       let record: Record<string, unknown>;
       if (existing) {
-        record = (await adapter.update(tableName, "1", ctx.body as Record<string, unknown>)) ?? {};
+        record = (await adapter.update(tableName, "1", data)) ?? {};
       } else {
         record = await adapter.create(tableName, {
           id: 1,
-          ...(ctx.body as Record<string, unknown>),
+          ...data,
         });
       }
       return { body: record, statusCode: 200 };
