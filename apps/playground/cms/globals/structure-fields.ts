@@ -1,14 +1,4 @@
-import {
-  array,
-  component,
-  defineGlobal,
-  dynamicZone,
-  group,
-  object,
-  repeater,
-  tabs,
-  text,
-} from "@arche-cms/schema";
+import { array, defineGlobal, group, object, repeater, tabs, text } from "@arche-cms/schema";
 
 export default defineGlobal({
   fields: [
@@ -34,14 +24,6 @@ export default defineGlobal({
     repeater("field_5", {
       fields: [text("repeater_title"), text("repeater_value")],
       label: "Repeater",
-    }),
-    component("field_6", {
-      component: "hero",
-      label: "Component",
-    }),
-    dynamicZone("field_7", {
-      components: ["hero", "cta"],
-      label: "Dynamic Zone",
     }),
   ],
   label: "Structure Fields",
