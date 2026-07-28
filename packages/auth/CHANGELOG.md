@@ -1,5 +1,14 @@
 # @arche-cms/auth
 
+## 0.1.13
+
+### Patch Changes
+
+- 5834e35: test(e2e): Playwright API tests for all collections and globals
+- Updated dependencies [5834e35]
+  - @arche-cms/database@0.1.13
+  - @arche-cms/types@0.1.13
+
 ## 0.1.12
 
 ### Patch Changes
