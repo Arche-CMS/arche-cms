@@ -86,15 +86,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = useCallback(
     async (email: string, password: string, rememberMe = false) => {
-      setIsLoading(true);
-      try {
-        const u = await provider.auth.login(email, password);
-        const mapped = toUser(u);
-        setUser(mapped);
-        storageSet("cms_user", JSON.stringify(mapped), rememberMe);
-      } finally {
-        setIsLoading(false);
-      }
+      const u = await provider.auth.login(email, password);
+      const mapped = toUser(u);
+      setUser(mapped);
+      storageSet("cms_user", JSON.stringify(mapped), rememberMe);
     },
     [provider],
   );

@@ -81,8 +81,6 @@ export async function saveSchema(
   });
 }
 
-
-
 export async function deleteSchema(type: string, slug: string): Promise<void> {
   await apiFetch(`/api/schemas/${type}/${slug}`, { method: "DELETE" });
 }
@@ -101,7 +99,7 @@ export async function apiFetch<T>(path: string, options: RequestInit = {}): Prom
     headers["Authorization"] = `Bearer ${token}`;
   }
   const res = await fetch(`${API_URL}${path}`, { ...options, headers });
-  if (res.status === 401) {
+  if (res.status === 401 && !path.startsWith("/api/auth/")) {
     const refreshToken = storageGet("cms_refresh");
     if (refreshToken) {
       const refreshRes = await fetch(`${API_URL}/api/auth/refresh`, {
@@ -369,8 +367,6 @@ export async function fetchFolders(
   return apiFetch(path);
 }
 
-
-
 export async function createFolder(name: string, parentId?: number | null): Promise<MediaFolder> {
   const body: Record<string, unknown> = { name };
   if (parentId !== undefined) {
@@ -391,8 +387,6 @@ export async function updateFolder(
     method: "PATCH",
   });
 }
-
-
 
 export async function deleteMedia(id: string): Promise<void> {
   await apiFetch(`/api/media/${id}`, { method: "DELETE" });

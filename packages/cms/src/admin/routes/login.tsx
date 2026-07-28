@@ -22,13 +22,15 @@ function LoginPage() {
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
   const { toast } = useToast();
-  const { isLoading, login } = useAuth();
+  const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError("");
+    setSubmitting(true);
     try {
       await login(email, password, rememberMe);
       navigate({ to: "/" });
@@ -36,6 +38,8 @@ function LoginPage() {
       const msg = err instanceof Error ? err.message : "Login failed";
       setError(msg);
       toast(msg, "error");
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -84,7 +88,7 @@ function LoginPage() {
               Remember me
             </Label>
           </div>
-          <Button type="submit" className="w-full" loading={isLoading}>
+          <Button type="submit" className="w-full" loading={submitting}>
             Sign In
           </Button>
         </form>

@@ -24,7 +24,7 @@ async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> 
   };
   if (token) headers["Authorization"] = `Bearer ${token}`;
   const res = await fetch(`${API_URL}${path}`, { ...options, headers });
-  if (res.status === 401) {
+  if (res.status === 401 && !path.startsWith("/api/auth/")) {
     if (await tryRefreshToken(headers)) {
       return fetchWithHeaders<T>(path, options, headers);
     }
@@ -71,7 +71,7 @@ function logoutAndRedirect(): never {
   storageRemove("cms_token");
   storageRemove("cms_refresh");
   storageRemove("cms_user");
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+
   (globalThis as Record<string, unknown> & { location: Location }).location.href = "/login";
   throw new Error("Session expired");
 }

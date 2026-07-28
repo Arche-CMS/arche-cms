@@ -19,7 +19,7 @@ export default defineConfig({
   },
   webServer: {
     command: "node ../../packages/cms/bin/cms.js dev",
-    cwd: "apps/playground-firebase",
+    cwd: "apps/playground",
     port: 3500,
     reuseExistingServer: !process.env.CI,
     timeout: 30_000,
