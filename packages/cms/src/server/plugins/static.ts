@@ -12,23 +12,12 @@ function findAdminDir(): string | null {
   const envDir = process.env.CMS_ADMIN_DIR;
   if (envDir && existsSync(envDir)) return envDir;
 
-  // Try resolving @arche-cms/admin-ui from node_modules
+  // Admin UI dist lives inside the cms package at src/admin/dist/
   const serverDir = dirname(currentFile); // src/server/plugins/
   const cmsRoot = resolve(serverDir, "../../.."); // packages/cms/
-
-  // Monorepo: packages/cms/node_modules/@arche-cms/admin-ui -> symlinked to packages/admin-ui
-  const fromNodeModules = resolve(
-    cmsRoot,
-    "node_modules/@arche-cms/admin-ui/dist",
-  );
-  if (existsSync(fromNodeModules) && existsSync(resolve(fromNodeModules, "index.html"))) {
-    return fromNodeModules;
-  }
-
-  // Monorepo: packages/admin-ui/dist (sibling package)
-  const fromMonorepo = resolve(cmsRoot, "../../packages/admin-ui/dist");
-  if (existsSync(fromMonorepo) && existsSync(resolve(fromMonorepo, "index.html"))) {
-    return fromMonorepo;
+  const adminDist = resolve(cmsRoot, "src/admin/dist");
+  if (existsSync(resolve(adminDist, "index.html"))) {
+    return adminDist;
   }
 
   // Legacy fallback: admin/ directory inside cms package
@@ -61,7 +50,7 @@ export async function registerAdminStatic(
     fastify.log.warn(
       "Admin panel build not found. " +
         "The admin UI will not be available. " +
-        "Build it with: pnpm --filter @arche-cms/admin-ui build " +
+        "Build it with: pnpm --filter @arche-cms/cms build:admin " +
         "or set CMS_ADMIN_DIR env var.",
     );
     return;

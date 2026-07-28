@@ -1,7 +1,27 @@
 {
   "$schema": "https://unpkg.com/knip@6/schema.json",
   "exclude": ["files", "duplicates"],
-  "ignoreDependencies": ["@arche-cms/*", "@libsql/client", "drizzle-orm", "pg", "vue", "zod"],
+  "ignoreDependencies": [
+    "@arche-cms/*",
+    "@libsql/client",
+    "@tailwindcss/vite",
+    "@tanstack/react-query",
+    "@tanstack/react-router",
+    "@types/react",
+    "@types/react-dom",
+    "@vitejs/plugin-react",
+    "clsx",
+    "dompurify",
+    "drizzle-orm",
+    "lucide-react",
+    "pg",
+    "react",
+    "react-dom",
+    "tailwind-merge",
+    "tailwindcss",
+    "vue",
+    "zod"
+  ],
   "ignoreFiles": [
     "**/test/**",
     "**/__generated__/**",
@@ -15,10 +35,7 @@
     "packages/cms/src/server/schemas/**": ["exports", "types"],
     "packages/cms/src/server/lib/**": ["exports", "types"],
     "packages/graphql/src/types.ts": ["exports", "types"],
-    "packages/types/src/schema.ts": ["types"],
-    "packages/admin-ui/src/lib/providers/**": ["exports", "types"],
-    "packages/admin-ui/src/lib/api.ts": ["exports", "types"],
-    "packages/cms-firebase/src/content.ts": ["exports", "types"]
+    "packages/types/src/schema.ts": ["types"]
   },
   "workspaces": {
     ".": {

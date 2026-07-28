@@ -37,6 +37,7 @@ export interface ServerConfig {
 export function loadConfig(): ServerConfig {
   return {
     auth: {
+      ...(process.env.ADMIN_PASSWORD ? { adminPassword: process.env.ADMIN_PASSWORD } : {}),
       accessTokenExpiresIn: process.env.AUTH_ACCESS_EXPIRES || "15m",
       refreshTokenExpiresIn: process.env.AUTH_REFRESH_EXPIRES || "7d",
       secret: (() => {

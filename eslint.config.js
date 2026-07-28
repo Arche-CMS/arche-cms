@@ -66,6 +66,7 @@ export default tseslint.config(
   },
   {
     files: ["packages/*/src/**/*.ts"],
+    ignores: ["packages/cms/src/admin/**"],
     languageOptions: {
       parserOptions: {
         projectService: true,
@@ -80,11 +81,11 @@ export default tseslint.config(
       "@typescript-eslint/no-unsafe-call": "error",
       "@typescript-eslint/no-unsafe-member-access": "error",
       "@typescript-eslint/no-unsafe-return": "error",
+      "@typescript-eslint/no-base-to-string": "warn",
+      "@typescript-eslint/no-deprecated": "warn",
+      "@typescript-eslint/no-unnecessary-type-conversion": "warn",
       "@typescript-eslint/only-throw-error": "error",
       "@typescript-eslint/use-unknown-in-catch-callback-variable": "error",
-      "@typescript-eslint/no-deprecated": "warn",
-      "@typescript-eslint/no-base-to-string": "warn",
-      "@typescript-eslint/no-unnecessary-type-conversion": "warn",
     },
   },
   {
@@ -94,9 +95,9 @@ export default tseslint.config(
     },
     rules: {
       ...vitest.configs.recommended.rules,
+      "vitest/expect-expect": "warn",
       "vitest/no-disabled-tests": "warn",
       "vitest/no-focused-tests": "error",
-      "vitest/expect-expect": "warn",
       "vitest/no-identical-title": "error",
       "vitest/prefer-expect-assertions": "off",
       "vitest/valid-expect": "error",

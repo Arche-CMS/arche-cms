@@ -149,22 +149,4 @@ describe("create-app scaffold", () => {
     expect(compose).toContain("pgdata:");
   });
 
-  it("creates firebase scaffold with VITE_BACKEND_MODE and cms-firebase dep", async () => {
-    const projectDir = resolve(tmpDir, "firebase-app");
-    await scaffold(projectDir, {
-      backendMode: "firebase",
-      dbAdapter: "sqlite",
-      defaultLocale: "en",
-    });
-    const env = readFileSync(resolve(projectDir, ".env"), "utf-8");
-    expect(env).toContain("VITE_BACKEND_MODE=firebase");
-    expect(env).toContain("VITE_FIREBASE_API_KEY=your-api-key");
-    expect(env).not.toContain("DB_ADAPTER");
-
-    const pkg = JSON.parse(readFileSync(resolve(projectDir, "package.json"), "utf-8"));
-    expect(pkg.dependencies["@arche-cms/cms-firebase"]).toBe("^0.1.0");
-
-    const config = readFileSync(resolve(projectDir, "arche-cms.config.ts"), "utf-8");
-    expect(config).not.toContain("database:");
-  });
 });
