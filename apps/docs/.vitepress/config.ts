@@ -1,7 +1,6 @@
 import { defineConfig } from "vitepress";
 
 export default defineConfig({
-  outDir: "dist",
   base: process.env.DOCS_BASE || "/arche-cms/",
   cleanUrls: true,
   description: "File-based, open-source, developer-first headless CMS",
