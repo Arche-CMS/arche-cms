@@ -1,4 +1,9 @@
-import type { FieldDefinition, CollectionDefinition, FieldValidation } from "@arche-cms/types";
+import type {
+  FieldDefinition,
+  CollectionDefinition,
+  FieldValidation,
+  GlobalDefinition,
+} from "@arche-cms/types";
 
 import { z } from "zod";
 
@@ -201,6 +206,22 @@ export function collectionToCreateSchema(
   }
   if (collection.versions?.scheduledPublishing) {
     entries._publishAt = z.string().optional();
+  }
+
+  return z.object(entries);
+}
+
+export function globalToUpsertSchema(
+  globalDef: GlobalDefinition,
+): z.ZodObject<Record<string, z.ZodType>> {
+  const entries: Record<string, z.ZodType> = {};
+
+  for (const field of globalDef.fields) {
+    if (field.type === "relation") {
+      entries[field.name] = z.string().optional();
+      continue;
+    }
+    entries[field.name] = fieldToZodSchema(field, true);
   }
 
   return z.object(entries);
