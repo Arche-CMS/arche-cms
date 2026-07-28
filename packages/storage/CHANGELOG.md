@@ -1,5 +1,12 @@
 # @arche-cms/storage
 
+## 0.1.14
+
+### Patch Changes
+
+- 3cf5474: fix(rest-api): add validation and slug auto-generation for global upsert handler
+- 3cf5474: fix(cms): include admin UI in package, update create-app versions, add integration tests
+
 ## 0.1.13
 
 ### Patch Changes
