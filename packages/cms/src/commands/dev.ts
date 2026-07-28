@@ -41,8 +41,8 @@ async function startViteDevServer(
   const currentDir = dirname(fileURLToPath(import.meta.url));
   const cmsRoot = resolve(currentDir, "../..");
 
-  // Admin UI source lives inside the cms package at admin-ui/
-  const adminRoot = resolve(cmsRoot, "admin-ui");
+  // Admin UI source lives inside the cms package at src/admin/
+  const adminRoot = resolve(cmsRoot, "src/admin");
 
   const { createServer } = await import("vite");
 
@@ -89,14 +89,14 @@ function ensureAdminBuild(logger: ReturnType<typeof createLogger>): void {
   const currentDir = dirname(fileURLToPath(import.meta.url));
   const cmsRoot = resolve(currentDir, "../..");
 
-  // Admin UI dist lives inside the cms package at admin-ui/dist/
-  const adminDist = resolve(cmsRoot, "admin-ui/dist");
+  // Admin UI dist lives inside the cms package at src/admin/dist/
+  const adminDist = resolve(cmsRoot, "src/admin/dist");
 
   if (existsSync(resolve(adminDist, "index.html"))) return;
 
   /* v8 ignore start — ensureAdminBuild depends on filesystem state and execSync, hard to test */
-  // Try to build from admin-ui source inside the cms package
-  const adminSource = resolve(cmsRoot, "admin-ui");
+  // Try to build from admin source inside the cms package
+  const adminSource = resolve(cmsRoot, "src/admin");
   if (existsSync(resolve(adminSource, "vite.config.ts"))) {
     logger.info("Admin panel build not found — building from source...");
     try {

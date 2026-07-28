@@ -130,8 +130,8 @@ export async function build(options: BuildOptions): Promise<void> {
 
   const cmsDist = resolve(cmsPackageRoot(), "dist");
 
-  // Find admin build from admin-ui directory inside the cms package
-  const adminUiDist = resolve(cmsPackageRoot(), "admin-ui/dist");
+  // Find admin build from src/admin directory inside the cms package
+  const adminUiDist = resolve(cmsPackageRoot(), "src/admin/dist");
 
   const adminDist = existsSync(resolve(adminUiDist, "index.html"))
     ? adminUiDist

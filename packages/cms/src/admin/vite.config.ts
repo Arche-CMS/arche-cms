@@ -18,7 +18,7 @@ export default defineConfig(({ mode: _mode }) => ({
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "../src/admin"),
+      "@": __dirname,
     },
   },
   root: __dirname,

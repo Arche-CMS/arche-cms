@@ -12,10 +12,10 @@ function findAdminDir(): string | null {
   const envDir = process.env.CMS_ADMIN_DIR;
   if (envDir && existsSync(envDir)) return envDir;
 
-  // Admin UI dist lives inside the cms package at admin-ui/dist/
+  // Admin UI dist lives inside the cms package at src/admin/dist/
   const serverDir = dirname(currentFile); // src/server/plugins/
   const cmsRoot = resolve(serverDir, "../../.."); // packages/cms/
-  const adminDist = resolve(cmsRoot, "admin-ui/dist");
+  const adminDist = resolve(cmsRoot, "src/admin/dist");
   if (existsSync(resolve(adminDist, "index.html"))) {
     return adminDist;
   }
