@@ -40,3 +40,7 @@ __generated__/
 /packages/create-app/my-value/
 
 /graphify-out
+
+# Playwright test results
+test-results/
+playwright-report/

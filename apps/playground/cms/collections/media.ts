@@ -6,5 +6,5 @@ export default defineCollection({
     media("field", { label: "Media Field" }),
   ],
   labels: { plural: "Media Fields", singular: "Media Field" },
-  slug: "media",
+  slug: "media-test",
 });
