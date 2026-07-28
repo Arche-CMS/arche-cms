@@ -1,5 +1,11 @@
 # @arche-cms/types
 
+## 0.1.13
+
+### Patch Changes
+
+- 5834e35: test(e2e): Playwright API tests for all collections and globals
+
 ## 0.1.12
 
 ### Patch Changes
