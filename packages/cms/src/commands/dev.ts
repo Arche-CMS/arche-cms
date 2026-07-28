@@ -97,10 +97,10 @@ function ensureAdminBuild(logger: ReturnType<typeof createLogger>): void {
   /* v8 ignore start — ensureAdminBuild depends on filesystem state and execSync, hard to test */
   // Try to build from admin-ui source inside the cms package
   const adminSource = resolve(cmsRoot, "admin-ui");
-  if (existsSync(resolve(adminSource, "package.json"))) {
+  if (existsSync(resolve(adminSource, "vite.config.ts"))) {
     logger.info("Admin panel build not found — building from source...");
     try {
-      execSync("pnpm build", {
+      execSync("npx vite build", {
         cwd: adminSource,
         env: { ...process.env, NODE_ENV: "production" },
         stdio: "inherit",
